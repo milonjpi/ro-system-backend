@@ -1,0 +1,400 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String              @id @default(uuid())
+  fullName   String
+  userName   String              @unique
+  password   String
+  role       UserRole            @default(user)
+  profileImg String?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  menus      MenuPermission[]
+  subMenus   SubMenuPermission[]
+  sections   SectionPermission[]
+  invoices   Invoice[]
+  bills      Bill[]
+  expenses   Expense[]
+  orders     Order[]
+
+  @@map("users")
+}
+
+model MenuPermission {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("menuPermissions")
+}
+
+model SubMenuPermission {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subMenuPermissions")
+}
+
+model SectionPermission {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sectionPermissions")
+}
+
+// account sections
+model AccountType {
+  id           String        @id @default(uuid())
+  label        String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  accountHeads AccountHead[]
+
+  @@map("accountTypes")
+}
+
+model AccountHead {
+  id            String        @id @default(uuid())
+  accountTypeId String
+  accountType   AccountType   @relation(fields: [accountTypeId], references: [id])
+  label         String        @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  invoices      Invoice[]
+  bills         Bill[]
+  equipmentIns  EquipmentIn[]
+  Eexpenses     Expense[]
+
+  @@map("accountHeads")
+}
+
+model PaymentMethod {
+  id        String   @id @default(uuid())
+  label     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("paymentMethods")
+}
+
+// customer
+model CustomerGroup {
+  id        String     @id @default(uuid())
+  label     String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  customers Customer[]
+
+  @@map("customerGroups")
+}
+
+// customer
+model Customer {
+  id             String         @id @default(uuid())
+  customerId     String         @unique
+  customerName   String
+  customerNameBn String?
+  mobile         String?
+  address        String?
+  groupId        String?
+  group          CustomerGroup? @relation(fields: [groupId], references: [id])
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  invoices       Invoice[]
+  orders         Order[]
+
+  @@map("customers")
+}
+
+// vendor
+model Vendor {
+  id           String        @id @default(uuid())
+  vendorId     String        @unique
+  vendorName   String
+  vendorNameBn String?
+  mobile       String?
+  address      String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  bills        Bill[]
+  equipmentIns EquipmentIn[]
+  expenses     Expense[]
+
+  @@map("vendors")
+}
+
+// product
+model Product {
+  id               String            @id @default(uuid())
+  productId        String            @unique
+  label            String            @unique
+  description      String?
+  uom              String
+  price            Float
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  invoicedProducts InvoicedProduct[]
+  orderedProducts  OrderedProduct[]
+}
+
+// order
+model Order {
+  id              String           @id @default(uuid())
+  orderNo         String           @unique
+  date            DateTime
+  deliveryDate    DateTime
+  totalQty        Float
+  totalPrice      Float
+  customerId      String
+  customer        Customer         @relation(fields: [customerId], references: [id])
+  status          OrderStatus      @default(Pending)
+  userId          String
+  preparedBy      User             @relation(fields: [userId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  orderedProducts OrderedProduct[]
+  invoices        Invoice[]
+}
+
+model OrderedProduct {
+  id         String  @id @default(uuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Float
+  unitPrice  Float
+  totalPrice Float
+}
+
+// invoice
+model Invoice {
+  id               String            @id @default(uuid())
+  invoiceNo        String            @unique
+  date             DateTime
+  customerId       String
+  customer         Customer          @relation(fields: [customerId], references: [id])
+  accountHeadId    String
+  accountHead      AccountHead       @relation(fields: [accountHeadId], references: [id])
+  totalQty         Float
+  totalPrice       Float
+  discount         Float
+  amount           Float
+  paidAmount       Float             @default(0)
+  orderId          String?
+  refNo            Order?            @relation(fields: [orderId], references: [id])
+  status           InvoiceBillStatus @default(Due)
+  userId           String
+  preparedBy       User              @relation(fields: [userId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  invoicedProducts InvoicedProduct[]
+
+  @@map("invoices")
+}
+
+model InvoicedProduct {
+  id         String  @id @default(uuid())
+  invoiceId  String
+  invoice    Invoice @relation(fields: [invoiceId], references: [id])
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  unitPrice  Float
+  quantity   Float
+  totalPrice Float
+
+  @@map("invoicedProducts")
+}
+
+// bill
+model Bill {
+  id             String            @id @default(uuid())
+  billNo         String            @unique
+  date           DateTime
+  vendorId       String
+  vendor         Vendor            @relation(fields: [vendorId], references: [id])
+  accountHeadId  String
+  accountHead    AccountHead       @relation(fields: [accountHeadId], references: [id])
+  totalQty       Float
+  totalPrice     Float
+  discount       Float
+  amount         Float
+  paidAmount     Float             @default(0)
+  refNo          String?
+  status         InvoiceBillStatus @default(Due)
+  userId         String
+  preparedBy     User              @relation(fields: [userId], references: [id])
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  billEquipments BillEquipment[]
+  equipmentIns   EquipmentIn[]
+
+  @@map("bills")
+}
+
+model BillEquipment {
+  id          String    @id @default(uuid())
+  billId      String
+  bill        Bill      @relation(fields: [billId], references: [id])
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  unitPrice   Float
+  quantity    Float
+  totalPrice  Float
+
+  @@map("billEquipments")
+}
+
+// inventory
+model Uom {
+  id        String   @id @default(uuid())
+  label     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("uom")
+}
+
+model Equipment {
+  id             String          @id @default(uuid())
+  equipmentCode  String          @unique
+  label          String          @unique
+  isAsset        Boolean
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  billEquipments BillEquipment[]
+  equipmentIns   EquipmentIn[]
+  equipmentOuts  EquipmentOut[]
+
+  @@map("equipments")
+}
+
+model EquipmentIn {
+  id            String      @id @default(uuid())
+  equipmentId   String
+  equipment     Equipment   @relation(fields: [equipmentId], references: [id])
+  date          DateTime
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  quantity      Float
+  unitPrice     Float
+  totalPrice    Float
+  usedQty       Float
+  vendorId      String?
+  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+  billId        String?
+  bill          Bill?       @relation(fields: [billId], references: [id])
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("equipmentIns")
+}
+
+model EquipmentOut {
+  id          String    @id @default(uuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  date        DateTime
+  quantity    Float
+  unitPrice   Float
+  totalPrice  Float
+  remarks     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("equipmentOuts")
+}
+
+// expense
+model ExpenseHead {
+  id             String          @id @default(uuid())
+  label          String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  expenseDetails ExpenseDetail[]
+
+  @@map("expenseHeads")
+}
+
+model Expense {
+  id             String            @id @default(uuid())
+  date           DateTime
+  accountHeadId  String
+  accountHead    AccountHead       @relation(fields: [accountHeadId], references: [id])
+  vendorId       String
+  vendor         Vendor            @relation(fields: [vendorId], references: [id])
+  totalQty       Float
+  totalPrice     Float
+  discount       Float
+  amount         Float
+  paidAmount     Float
+  refNo          String?
+  status         InvoiceBillStatus
+  userId         String
+  preparedBy     User              @relation(fields: [userId], references: [id])
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  expenseDetails ExpenseDetail[]
+
+  @@map("expenses")
+}
+
+model ExpenseDetail {
+  id            String      @id @default(uuid())
+  expenseId     String
+  expense       Expense     @relation(fields: [expenseId], references: [id])
+  expenseHeadId String
+  expenseHead   ExpenseHead @relation(fields: [expenseHeadId], references: [id])
+  unitPrice     Float
+  quantity      Float
+  totalPrice    Float
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("expenseDetails")
+}
+
+// ENUMS
+enum UserRole {
+  super_admin
+  admin
+  user
+}
+
+enum InvoiceBillStatus {
+  Due
+  Partial
+  Canceled
+  Paid
+}
+
+enum OrderStatus {
+  Pending
+  Delivered
+  Canceled
+}

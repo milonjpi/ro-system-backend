@@ -5,12 +5,15 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { OrderService } from './order.service';
-import { Order } from '@prisma/client';
+import { Order, UserRole } from '@prisma/client';
 import { orderFilterableFields } from './order.constant';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+  const user = req.user as { id: string; role: UserRole };
+
+  data.data.userId = user.id;
 
   const result = await OrderService.insertIntoDB(
     data?.data,
@@ -87,10 +90,25 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// cancel
+const cancelOrder = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await OrderService.cancelOrder(id);
+
+  sendResponse<Order>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Order Canceled successfully',
+    data: result,
+  });
+});
+
 export const OrderController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  cancelOrder,
 };

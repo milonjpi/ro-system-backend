@@ -9,7 +9,6 @@ const create = z.object({
       totalQty: z.number({ required_error: 'Total Quantity is Required' }),
       totalPrice: z.number({ required_error: 'Total Price is Required' }),
       customerId: z.string({ required_error: 'Customer ID is Required' }),
-      userId: z.string({ required_error: 'User ID is required' }),
       status: z.enum(orderStatus as [string, ...string[]]).optional(),
     }),
     orderedProducts: z.array(

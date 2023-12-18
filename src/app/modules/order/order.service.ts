@@ -43,14 +43,14 @@ const getAll = async (
 
   if (startDate) {
     andConditions.push({
-      deliveryDate: {
+      date: {
         gte: new Date(`${startDate}, 00:00:00`),
       },
     });
   }
   if (endDate) {
     andConditions.push({
-      deliveryDate: {
+      date: {
         lte: new Date(`${endDate}, 23:59:59`),
       },
     });
@@ -85,6 +85,14 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      customer: true,
+      orderedProducts: {
+        include: {
+          product: true,
+        },
+      },
+    },
   });
 
   const total = await prisma.order.count({
@@ -212,10 +220,37 @@ const deleteFromDB = async (id: string): Promise<Order | null> => {
   return result;
 };
 
+const cancelOrder = async (id: string): Promise<Order | null> => {
+  // check is exist
+  const isExist = await prisma.order.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.status === 'Delivered') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Cancel after delivered');
+  }
+
+  if (isExist.status === 'Canceled') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Already Canceled');
+  }
+  const result = await prisma.order.update({
+    where: { id },
+    data: { status: 'Canceled' },
+  });
+  return result;
+};
+
 export const OrderService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  cancelOrder,
 };

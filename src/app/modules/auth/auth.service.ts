@@ -67,26 +67,16 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
   }
 
-  const { id } = verifiedToken;
+  const { id, role } = verifiedToken;
 
   // checking deleted user's refresh token
-
-  const isUserExist = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!isUserExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
-  }
 
   //generate new token
 
   const newAccessToken = jwtHelpers.createToken(
     {
-      id: isUserExist.id,
-      role: isUserExist.role,
+      id: id,
+      role: role,
     },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string

@@ -44,4 +44,11 @@ router.delete(
   OrderController.deleteFromDB
 );
 
+// cancel
+router.patch(
+  '/:id/cancel',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  OrderController.cancelOrder
+);
+
 export const OrderRoutes = router;

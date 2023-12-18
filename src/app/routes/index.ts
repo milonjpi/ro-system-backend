@@ -78,7 +78,7 @@ const moduleRoutes = [
     route: ProductRoutes,
   },
   {
-    path: '/order',
+    path: '/sales-order',
     route: OrderRoutes,
   },
   {

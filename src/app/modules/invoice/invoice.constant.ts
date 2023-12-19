@@ -1,4 +1,4 @@
-export const invoiceSearchableFields = ['invoiceNo', 'totalQty', 'totalPrice'];
+export const invoiceSearchableFields = ['invoiceNo'];
 
 export const invoiceFilterableFields = [
   'searchTerm',

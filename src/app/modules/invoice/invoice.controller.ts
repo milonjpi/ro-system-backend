@@ -5,12 +5,16 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { InvoiceService } from './invoice.service';
-import { Invoice } from '@prisma/client';
+import { Invoice, UserRole } from '@prisma/client';
 import { invoiceFilterableFields } from './invoice.constant';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+
+  const user = req.user as { id: string; role: UserRole };
+
+  data.data.userId = user.id;
 
   const result = await InvoiceService.insertIntoDB(
     data?.data,
@@ -87,10 +91,25 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// cancel
+const cancelInvoice = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await InvoiceService.cancelInvoice(id);
+
+  sendResponse<Invoice>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Invoice Canceled successfully',
+    data: result,
+  });
+});
+
 export const InvoiceController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  cancelInvoice,
 };

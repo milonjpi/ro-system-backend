@@ -44,4 +44,11 @@ router.delete(
   InvoiceController.deleteFromDB
 );
 
+// cancel
+router.patch(
+  '/:id/cancel',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  InvoiceController.cancelInvoice
+);
+
 export const InvoiceRoutes = router;

@@ -19,6 +19,17 @@ const insertIntoDB = async (
 
   // set invoice no
   data.invoiceNo = invoiceNo;
+
+  // set account head
+  const findAccountHead = await prisma.accountHead.findFirst({
+    where: { label: 'Sales' },
+  });
+
+  if (!findAccountHead) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
+  }
+  data.accountHeadId = findAccountHead.id;
+
   const result = await prisma.invoice.create({
     data: { ...data, invoicedProducts: { create: invoicedProducts } },
   });
@@ -85,6 +96,15 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      customer: true,
+      refNo: true,
+      invoicedProducts: {
+        include: {
+          product: true,
+        },
+      },
+    },
   });
 
   const total = await prisma.invoice.count({
@@ -212,10 +232,37 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   return result;
 };
 
+const cancelInvoice = async (id: string): Promise<Invoice | null> => {
+  // check is exist
+  const isExist = await prisma.invoice.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.status === 'Paid') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Cancel after Paid');
+  }
+
+  if (isExist.status === 'Canceled') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Already Canceled');
+  }
+  const result = await prisma.invoice.update({
+    where: { id },
+    data: { status: 'Canceled' },
+  });
+  return result;
+};
+
 export const InvoiceService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  cancelInvoice,
 };

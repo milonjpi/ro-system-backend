@@ -21,6 +21,7 @@ import { EquipmentOutRoutes } from '../modules/equipmentOut/equipmentOut.route';
 import { ExpenseHeadRoutes } from '../modules/expenseHead/expenseHead.route';
 import { ExpenseRoutes } from '../modules/expense/expense.route';
 import { CustomerGroupRoutes } from '../modules/customerGroup/customerGroup.route';
+import { CustomInvoiceRoutes } from '../modules/customInvoice/customInvoice.route';
 
 const router = express.Router();
 
@@ -84,6 +85,10 @@ const moduleRoutes = [
   {
     path: '/invoice',
     route: InvoiceRoutes,
+  },
+  {
+    path: '/custom-invoice',
+    route: CustomInvoiceRoutes,
   },
   {
     path: '/bill',

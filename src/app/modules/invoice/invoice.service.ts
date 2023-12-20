@@ -244,13 +244,16 @@ const cancelInvoice = async (id: string): Promise<Invoice | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Paid') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Cancel after Paid');
-  }
+
 
   if (isExist.status === 'Canceled') {
     throw new ApiError(httpStatus.NOT_FOUND, 'Already Canceled');
   }
+
+  if (isExist.status !== 'Due') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Cancel this invoice');
+  }
+
   const result = await prisma.invoice.update({
     where: { id },
     data: { status: 'Canceled' },

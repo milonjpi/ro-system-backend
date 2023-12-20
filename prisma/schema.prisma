@@ -26,6 +26,7 @@ model User {
   bills      Bill[]
   expenses   Expense[]
   orders     Order[]
+  voucher    Voucher[]
 
   @@map("users")
 }
@@ -85,6 +86,7 @@ model AccountHead {
   bills         Bill[]
   equipmentIns  EquipmentIn[]
   Eexpenses     Expense[]
+  vouchers      Voucher[]
 
   @@map("accountHeads")
 }
@@ -124,6 +126,7 @@ model Customer {
   updatedAt      DateTime       @updatedAt
   invoices       Invoice[]
   orders         Order[]
+  vouchers       Voucher[]
 
   @@map("customers")
 }
@@ -142,6 +145,7 @@ model Vendor {
   bills        Bill[]
   equipmentIns EquipmentIn[]
   expenses     Expense[]
+  vouchers     Voucher[]
 
   @@map("vendors")
 }
@@ -379,6 +383,27 @@ model ExpenseDetail {
   @@map("expenseDetails")
 }
 
+model Voucher {
+  id            String      @id @default(uuid())
+  voucherNo     String      @unique
+  type          VoucherType
+  date          DateTime
+  amount        Int
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  customerId    String?
+  customer      Customer?   @relation(fields: [customerId], references: [id])
+  vendorId      String?
+  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+  narration     String?
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("vouchers")
+}
+
 // ENUMS
 enum UserRole {
   super_admin
@@ -397,4 +422,9 @@ enum OrderStatus {
   Pending
   Delivered
   Canceled
+}
+
+enum VoucherType {
+  Paid
+  Received
 }

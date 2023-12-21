@@ -8,6 +8,7 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { invoiceSearchableFields } from './invoice.constant';
 import { generateInvoiceNo } from './invoice.utils';
+import moment from 'moment';
 
 // create
 const insertIntoDB = async (
@@ -15,7 +16,8 @@ const insertIntoDB = async (
   invoicedProducts: InvoicedProduct[]
 ): Promise<Invoice | null> => {
   // generate invoice no
-  const invoiceNo = await generateInvoiceNo();
+  const convertDate = moment(data.date).format('YYYYMMDD');
+  const invoiceNo = await generateInvoiceNo(convertDate);
 
   // set invoice no
   data.invoiceNo = invoiceNo;

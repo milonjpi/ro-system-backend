@@ -4,6 +4,9 @@ import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import { Voucher } from '@prisma/client';
 import { VoucherService } from './voucher.service';
+import pick from '../../../shared/pick';
+import { voucherFilterableFields } from './voucher.constant';
+import { paginationFields } from '../../../constants/pagination';
 
 // receive payment
 const receivePayment = catchAsync(async (req: Request, res: Response) => {
@@ -19,20 +22,20 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// // get all
-// const getAll = catchAsync(async (req: Request, res: Response) => {
-//   const filters = pick(req.query, expenseFilterableFields);
-//   const paginationOptions = pick(req.query, paginationFields);
-//   const result = await ExpenseService.getAll(filters, paginationOptions);
+// get all
+const getAll = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, voucherFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
+  const result = await VoucherService.getAll(filters, paginationOptions);
 
-//   sendResponse<Expense[]>(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Expenses retrieved successfully',
-//     meta: result.meta,
-//     data: result.data,
-//   });
-// });
+  sendResponse<Voucher[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Vouchers retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 // // get single
 // const getSingle = catchAsync(async (req: Request, res: Response) => {
@@ -83,4 +86,5 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
 
 export const VoucherController = {
   receivePayment,
+  getAll,
 };

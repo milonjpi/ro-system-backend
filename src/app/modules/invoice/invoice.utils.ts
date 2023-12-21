@@ -1,8 +1,14 @@
 import prisma from '../../../shared/prisma';
 
 // find Last ID
-const findLastId = async (): Promise<string> => {
+const findLastId = async (date: string): Promise<string> => {
   const currentId = await prisma.invoice.findFirst({
+    where: {
+      invoiceNo: {
+        contains: date,
+        mode: 'insensitive',
+      },
+    },
     orderBy: {
       createdAt: 'desc',
     },
@@ -11,15 +17,15 @@ const findLastId = async (): Promise<string> => {
     },
   });
 
-  const splitCurrent = currentId?.invoiceNo?.split('I-') || ['', '0'];
+  const splitCurrent = currentId?.invoiceNo?.split('-') || ['', '0'];
 
   return splitCurrent[1];
 };
 
 // generate invoice no
-export const generateInvoiceNo = async (): Promise<string> => {
-  const currentId = parseInt(await findLastId());
+export const generateInvoiceNo = async (date: string): Promise<string> => {
+  const currentId = parseInt(await findLastId(date));
   const incrementId = currentId + 1;
 
-  return incrementId?.toString().padStart(8, 'I-000000');
+  return 'I' + date + '-' + incrementId;
 };

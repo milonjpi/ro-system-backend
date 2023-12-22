@@ -5,4 +5,5 @@ export type IInvoiceFilters = {
   customerId?: string;
   userId?: string;
   status?: string;
+  forVoucher?: string;
 };

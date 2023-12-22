@@ -7,6 +7,9 @@ CREATE TYPE "InvoiceBillStatus" AS ENUM ('Due', 'Partial', 'Canceled', 'Paid');
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('Pending', 'Delivered', 'Canceled');
 
+-- CreateEnum
+CREATE TYPE "VoucherType" AS ENUM ('Paid', 'Received');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -86,6 +89,16 @@ CREATE TABLE "paymentMethods" (
 );
 
 -- CreateTable
+CREATE TABLE "customerGroups" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "customerGroups_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "customers" (
     "id" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
@@ -93,6 +106,7 @@ CREATE TABLE "customers" (
     "customerNameBn" TEXT,
     "mobile" TEXT,
     "address" TEXT,
+    "groupId" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -325,6 +339,24 @@ CREATE TABLE "expenseDetails" (
     CONSTRAINT "expenseDetails_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "vouchers" (
+    "id" TEXT NOT NULL,
+    "voucherNo" TEXT NOT NULL,
+    "type" "VoucherType" NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "amount" INTEGER NOT NULL,
+    "accountHeadId" TEXT NOT NULL,
+    "customerId" TEXT,
+    "vendorId" TEXT,
+    "narration" TEXT,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "vouchers_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_userName_key" ON "users"("userName");
 
@@ -336,6 +368,9 @@ CREATE UNIQUE INDEX "accountHeads_label_key" ON "accountHeads"("label");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "paymentMethods_label_key" ON "paymentMethods"("label");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "customerGroups_label_key" ON "customerGroups"("label");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_customerId_key" ON "customers"("customerId");
@@ -370,6 +405,9 @@ CREATE UNIQUE INDEX "equipments_label_key" ON "equipments"("label");
 -- CreateIndex
 CREATE UNIQUE INDEX "expenseHeads_label_key" ON "expenseHeads"("label");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "vouchers_voucherNo_key" ON "vouchers"("voucherNo");
+
 -- AddForeignKey
 ALTER TABLE "menuPermissions" ADD CONSTRAINT "menuPermissions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -381,6 +419,9 @@ ALTER TABLE "sectionPermissions" ADD CONSTRAINT "sectionPermissions_userId_fkey"
 
 -- AddForeignKey
 ALTER TABLE "accountHeads" ADD CONSTRAINT "accountHeads_accountTypeId_fkey" FOREIGN KEY ("accountTypeId") REFERENCES "accountTypes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "customers" ADD CONSTRAINT "customers_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "customerGroups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -456,3 +497,15 @@ ALTER TABLE "expenseDetails" ADD CONSTRAINT "expenseDetails_expenseId_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "expenseDetails" ADD CONSTRAINT "expenseDetails_expenseHeadId_fkey" FOREIGN KEY ("expenseHeadId") REFERENCES "expenseHeads"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vouchers" ADD CONSTRAINT "vouchers_accountHeadId_fkey" FOREIGN KEY ("accountHeadId") REFERENCES "accountHeads"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vouchers" ADD CONSTRAINT "vouchers_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vouchers" ADD CONSTRAINT "vouchers_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "vendors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vouchers" ADD CONSTRAINT "vouchers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

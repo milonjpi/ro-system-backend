@@ -6,4 +6,8 @@ export const customerSearchableFields = [
   'address',
 ];
 
-export const customerFilterableFields = ['searchTerm', 'isActive'];
+export const customerFilterableFields = [
+  'searchTerm',
+  'isActive',
+  'forVoucher',
+];

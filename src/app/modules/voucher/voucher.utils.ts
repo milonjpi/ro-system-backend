@@ -27,5 +27,5 @@ export const generateVoucherNo = async (date: string): Promise<string> => {
   const currentId = parseInt(await findLastId(date));
   const incrementId = currentId + 1;
 
-  return date + '-' + incrementId;
+  return 'V' + date + '-' + incrementId;
 };

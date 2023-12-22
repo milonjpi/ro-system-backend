@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Customer, Prisma } from '@prisma/client';
+import { Customer, InvoiceBillStatus, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { ICustomerFilters } from './customer.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -25,12 +25,23 @@ const insertIntoDB = async (data: Customer): Promise<Customer | null> => {
   return result;
 };
 
+// create
+const insertIntoDBAll = async (data: Customer[]): Promise<string | null> => {
+  const result = await prisma.customer.createMany({ data });
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
+  }
+
+  return 'result';
+};
+
 // get all
 const getAll = async (
   filters: ICustomerFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Customer[]>> => {
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, forVoucher, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -67,6 +78,15 @@ const getAll = async (
     take: limit,
     include: {
       group: true,
+      invoices: forVoucher
+        ? {
+            where: {
+              status: {
+                in: [InvoiceBillStatus.Due, InvoiceBillStatus.Partial],
+              },
+            },
+          }
+        : false,
     },
   });
 
@@ -154,6 +174,7 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
 
 export const CustomerService = {
   insertIntoDB,
+  insertIntoDBAll,
   getAll,
   getSingle,
   updateSingle,

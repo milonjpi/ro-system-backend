@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Invoice, Prisma, Voucher, VoucherType } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { asyncForEach } from '../../../shared/utils';
 import { generateVoucherNo } from './voucher.utils';
 import moment from 'moment';
 import { IVoucherFilters } from './voucher.interface';
@@ -44,16 +43,24 @@ const receivePayment = async (
   const result = await prisma.$transaction(async trans => {
     const insertVoucher = await trans.voucher.create({ data });
 
-    asyncForEach(invoices, async (invoice: Partial<Invoice>) => {
-      const { id, ...otherValue } = invoice;
-      await trans.invoice.update({ where: { id }, data: otherValue });
-    });
+    if (!insertVoucher) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
+    }
+
+    if (invoices.length) {
+      await Promise.all(
+        invoices.map(async invoice => {
+          const { id, ...otherValue } = invoice as Invoice;
+          await trans.invoice.update({
+            where: { id },
+            data: otherValue,
+          });
+        })
+      );
+    }
 
     return insertVoucher;
   });
-  if (!result) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
-  }
 
   return result;
 };

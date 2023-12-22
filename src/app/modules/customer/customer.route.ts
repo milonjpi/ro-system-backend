@@ -15,6 +15,12 @@ router.post(
   CustomerController.insertIntoDB
 );
 
+// create 
+router.post(
+  '/create/all',
+  CustomerController.insertIntoDBAll
+);
+
 // get all
 router.get(
   '/',

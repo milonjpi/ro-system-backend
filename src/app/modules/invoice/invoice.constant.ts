@@ -9,4 +9,10 @@ export const invoiceFilterableFields = [
   'status',
 ];
 
-export const invoiceStatus = ['Due', 'Partial', 'Canceled', 'Paid'];
+export const invoiceStatus = [
+  'Due',
+  'Partial',
+  'Canceled',
+  'Paid',
+  'forVoucher',
+];

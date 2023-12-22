@@ -22,6 +22,20 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// create
+const insertIntoDBAll = catchAsync(async (req: Request, res: Response) => {
+  const data = req.body;
+
+  const result = await CustomerService.insertIntoDBAll(data?.data);
+
+  sendResponse<string>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Customer Created Successfully',
+    data: result,
+  });
+});
+
 // get all
 const getAll = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, customerFilterableFields);
@@ -82,6 +96,7 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
 
 export const CustomerController = {
   insertIntoDB,
+  insertIntoDBAll,
   getAll,
   getSingle,
   updateSingle,

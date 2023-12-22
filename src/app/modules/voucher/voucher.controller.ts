@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
-import { Voucher } from '@prisma/client';
+import { UserRole, Voucher } from '@prisma/client';
 import { VoucherService } from './voucher.service';
 import pick from '../../../shared/pick';
 import { voucherFilterableFields } from './voucher.constant';
@@ -11,6 +11,9 @@ import { paginationFields } from '../../../constants/pagination';
 // receive payment
 const receivePayment = catchAsync(async (req: Request, res: Response) => {
   const { invoices, ...otherData } = req.body;
+  const user = req.user as { id: string; role: UserRole };
+
+  otherData.userId = user.id;
 
   const result = await VoucherService.receivePayment(otherData, invoices);
 

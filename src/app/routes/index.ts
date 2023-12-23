@@ -23,6 +23,7 @@ import { ExpenseRoutes } from '../modules/expense/expense.route';
 import { CustomerGroupRoutes } from '../modules/customerGroup/customerGroup.route';
 import { CustomInvoiceRoutes } from '../modules/customInvoice/customInvoice.route';
 import { VoucherRoutes } from '../modules/voucher/voucher.route';
+import { ReportRoutes } from '../modules/report/report.route';
 
 const router = express.Router();
 
@@ -122,6 +123,10 @@ const moduleRoutes = [
   {
     path: '/voucher',
     route: VoucherRoutes,
+  },
+  {
+    path: '/report',
+    route: ReportRoutes,
   },
 ];
 

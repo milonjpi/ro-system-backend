@@ -6,3 +6,9 @@ export type IVoucherFilters = {
   userId?: string;
   type?: string;
 };
+
+export type IVoucherDetail = {
+  voucherId: string;
+  invoiceId: string;
+  receiveAmount: number;
+};

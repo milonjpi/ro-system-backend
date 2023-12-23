@@ -217,6 +217,7 @@ model Invoice {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   invoicedProducts InvoicedProduct[]
+  voucherDetails   VoucherDetail[]
 
   @@map("invoices")
 }
@@ -384,24 +385,36 @@ model ExpenseDetail {
 }
 
 model Voucher {
-  id            String      @id @default(uuid())
-  voucherNo     String      @unique
-  type          VoucherType
-  date          DateTime
-  amount        Int
-  accountHeadId String
-  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
-  customerId    String?
-  customer      Customer?   @relation(fields: [customerId], references: [id])
-  vendorId      String?
-  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
-  narration     String?
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id             String          @id @default(uuid())
+  voucherNo      String          @unique
+  type           VoucherType
+  date           DateTime
+  amount         Int
+  accountHeadId  String
+  accountHead    AccountHead     @relation(fields: [accountHeadId], references: [id])
+  customerId     String?
+  customer       Customer?       @relation(fields: [customerId], references: [id])
+  vendorId       String?
+  vendor         Vendor?         @relation(fields: [vendorId], references: [id])
+  narration      String?
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  voucherDetails VoucherDetail[]
 
   @@map("vouchers")
+}
+
+model VoucherDetail {
+  id            String  @id @default(uuid())
+  voucherId     String
+  voucher       Voucher @relation(fields: [voucherId], references: [id])
+  invoiceId     String
+  invoice       Invoice @relation(fields: [invoiceId], references: [id])
+  receiveAmount Int
+
+  @@map("voucherDetails")
 }
 
 // ENUMS

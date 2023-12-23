@@ -7,8 +7,8 @@ const allowedOrigins = [
   'http://192.168.0.244:3000',
   'http://127.0.0.1:3000',
   'http://localhost:3000',
-  'https://erp.fl-bd.com',
   'http://erp.fl-bd.com',
+  'https://erp.fl-bd.com',
 ];
 
 export default allowedOrigins;

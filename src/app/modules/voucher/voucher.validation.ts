@@ -19,6 +19,17 @@ const receivePayment = z.object({
       )
       .optional()
       .default([]),
+    voucherDetails: z
+      .array(
+        z.object({
+          invoiceId: z.string({ required_error: 'Invoice ID is required' }),
+          receiveAmount: z.number({
+            required_error: 'Receive Amount is required',
+          }),
+        })
+      )
+      .optional()
+      .default([]),
   }),
 });
 

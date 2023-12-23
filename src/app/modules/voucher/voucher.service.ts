@@ -1,6 +1,12 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Invoice, Prisma, Voucher, VoucherType } from '@prisma/client';
+import {
+  Invoice,
+  Prisma,
+  Voucher,
+  VoucherDetail,
+  VoucherType,
+} from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { generateVoucherNo } from './voucher.utils';
 import moment from 'moment';
@@ -13,7 +19,8 @@ import { voucherSearchableFields } from './voucher.constant';
 // create
 const receivePayment = async (
   data: Voucher,
-  invoices: Partial<Invoice[]>
+  invoices: Partial<Invoice[]>,
+  voucherDetails: VoucherDetail[]
 ): Promise<Voucher | null> => {
   // generate voucher No
   const convertDate = moment(data.date).format('YYYYMMDD');
@@ -41,11 +48,15 @@ const receivePayment = async (
   data.accountHeadId = findHead.id;
 
   const result = await prisma.$transaction(async trans => {
-    const insertVoucher = await trans.voucher.create({ data });
+    const insertVoucher = await trans.voucher.create({
+      data: { ...data, voucherDetails: { create: voucherDetails } },
+    });
 
     if (!insertVoucher) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
     }
+
+    await trans;
 
     if (invoices.length) {
       await Promise.all(
@@ -122,6 +133,11 @@ const getAll = async (
     take: limit,
     include: {
       customer: true,
+      voucherDetails: {
+        include: {
+          invoice: true,
+        },
+      },
     },
   });
 

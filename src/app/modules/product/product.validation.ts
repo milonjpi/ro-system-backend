@@ -15,7 +15,7 @@ const update = z.object({
     label: z.string().optional(),
     description: z.string().optional(),
     uom: z.string().optional(),
-    price: z.string().optional(),
+    price: z.number().optional(),
     isActive: z.boolean().optional(),
   }),
 });

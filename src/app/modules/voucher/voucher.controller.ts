@@ -10,12 +10,16 @@ import { paginationFields } from '../../../constants/pagination';
 
 // receive payment
 const receivePayment = catchAsync(async (req: Request, res: Response) => {
-  const { invoices, ...otherData } = req.body;
+  const { invoices, voucherDetails, ...otherData } = req.body;
   const user = req.user as { id: string; role: UserRole };
 
   otherData.userId = user.id;
 
-  const result = await VoucherService.receivePayment(otherData, invoices);
+  const result = await VoucherService.receivePayment(
+    otherData,
+    invoices,
+    voucherDetails
+  );
 
   sendResponse<Voucher>(res, {
     success: true,

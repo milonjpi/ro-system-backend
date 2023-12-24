@@ -8,7 +8,7 @@ const router = express.Router();
 // get due report
 router.get(
   '/due-report',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  // auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   ReportController.dueReport
 );
 

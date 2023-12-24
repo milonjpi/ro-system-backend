@@ -15,7 +15,6 @@ const dueReport = async (
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
-  const invoiceCondition = [];
 
   if (customerId) {
     andConditions.push({
@@ -24,7 +23,7 @@ const dueReport = async (
   }
 
   if (startDate) {
-    invoiceCondition.push({
+    andConditions.push({
       date: {
         gte: new Date(`${startDate}, 00:00:00`),
       },
@@ -32,7 +31,7 @@ const dueReport = async (
   }
 
   if (endDate) {
-    invoiceCondition.push({
+    andConditions.push({
       date: {
         lte: new Date(`${endDate}, 23:59:59`),
       },
@@ -42,7 +41,7 @@ const dueReport = async (
   const whereConditions: Prisma.InvoiceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const result = await prisma.invoice.groupBy({
+  const invoices = await prisma.invoice.groupBy({
     by: ['customerId'],
     where: whereConditions,
     _sum: {
@@ -50,6 +49,12 @@ const dueReport = async (
       paidAmount: true,
     },
   });
+  const distinctInvoices = await prisma.invoice.findMany({
+    distinct: 'customerId',
+  });
+
+  const customers = await prisma.customer.findMany();
+  const result = customers.map(el => el.id);
 
   const totalPage = 0;
 
@@ -60,7 +65,7 @@ const dueReport = async (
       total: 0,
       totalPage,
     },
-    data: result,
+    data: distinctInvoices,
   };
 };
 

@@ -1,72 +1,60 @@
-import { Customer, Prisma } from '@prisma/client';
-import { IGenericResponse } from '../../../interfaces/common';
-import { IPaginationOptions } from '../../../interfaces/pagination';
-import { IDueFilters } from './report.interface';
-import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IDueReport } from './report.interface';
 import prisma from '../../../shared/prisma';
 
 // get due report
-const dueReport = async (
-  filters: IDueFilters,
-  paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<any[]>> => {
-  const { customerId, startDate, endDate } = filters;
-  const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelpers.calculatePagination(paginationOptions);
-
-  const andConditions = [];
-
-  if (customerId) {
-    andConditions.push({
-      id: customerId,
-    });
-  }
-
-  if (startDate) {
-    andConditions.push({
-      date: {
-        gte: new Date(`${startDate}, 00:00:00`),
-      },
-    });
-  }
-
-  if (endDate) {
-    andConditions.push({
-      date: {
-        lte: new Date(`${endDate}, 23:59:59`),
-      },
-    });
-  }
-
-  const whereConditions: Prisma.InvoiceWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
+const dueReport = async (): Promise<IDueReport[]> => {
+  // find invoices
   const invoices = await prisma.invoice.groupBy({
     by: ['customerId'],
-    where: whereConditions,
     _sum: {
       amount: true,
       paidAmount: true,
     },
-  });
-  const distinctInvoices = await prisma.invoice.findMany({
-    distinct: 'customerId',
-  });
-
-  const customers = await prisma.customer.findMany();
-  const result = customers.map(el => el.id);
-
-  const totalPage = 0;
-
-  return {
-    meta: {
-      page,
-      limit,
-      total: 0,
-      totalPage,
+    _max: {
+      date: true,
     },
-    data: distinctInvoices,
-  };
+  });
+
+  // find vouchers
+  const vouchers = await prisma.voucher.groupBy({
+    by: ['customerId'],
+    _max: {
+      date: true,
+    },
+  });
+
+  // customers
+  const customers = await prisma.customer.findMany({
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      customerId: true,
+      customerName: true,
+      customerNameBn: true,
+      mobile: true,
+      address: true,
+    },
+  });
+
+  // set voucher and invoices in customer
+  const result = customers.map(el => {
+    const findInvoiceSum = invoices?.find(inv => inv.customerId === el.id);
+    const findVoucherSum = vouchers?.find(vou => vou.customerId === el.id);
+
+    return {
+      ...el,
+      invoices: {
+        amount: findInvoiceSum?._sum?.amount,
+        paidAmount: findInvoiceSum?._sum?.paidAmount,
+        lastPaymentDate: findInvoiceSum?._max?.date,
+        lastSaleDate: findVoucherSum?._max?.date,
+      },
+    };
+  });
+
+  return result;
 };
 
 export const ReportService = {

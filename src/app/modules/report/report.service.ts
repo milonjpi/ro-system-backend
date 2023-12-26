@@ -48,8 +48,8 @@ const dueReport = async (): Promise<IDueReport[]> => {
       invoices: {
         amount: findInvoiceSum?._sum?.amount,
         paidAmount: findInvoiceSum?._sum?.paidAmount,
-        lastPaymentDate: findInvoiceSum?._max?.date,
-        lastSaleDate: findVoucherSum?._max?.date,
+        lastPaymentDate: findVoucherSum?._max?.date,
+        lastSaleDate: findInvoiceSum?._max?.date,
       },
     };
   });

@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { CustomerService } from './customer.service';
 import { Customer } from '@prisma/client';
 import { customerFilterableFields } from './customer.constant';
+import { ICustomerDetails } from './customer.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -94,6 +95,18 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// set voucher and invoices in customer
+const getCustomerDetails = catchAsync(async (req: Request, res: Response) => {
+  const result = await CustomerService.getCustomerDetails();
+
+  sendResponse<ICustomerDetails[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customers retrieved successfully',
+    data: result,
+  });
+});
+
 export const CustomerController = {
   insertIntoDB,
   insertIntoDBAll,
@@ -101,4 +114,5 @@ export const CustomerController = {
   getSingle,
   updateSingle,
   deleteFromDB,
+  getCustomerDetails,
 };

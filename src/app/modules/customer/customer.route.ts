@@ -15,17 +15,21 @@ router.post(
   CustomerController.insertIntoDB
 );
 
-// create 
-router.post(
-  '/create/all',
-  CustomerController.insertIntoDBAll
-);
+// create
+// router.post('/create/all', CustomerController.insertIntoDBAll);
 
 // get all
 router.get(
   '/',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   CustomerController.getAll
+);
+
+// get customer details
+router.get(
+  '/customer-details',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  CustomerController.getCustomerDetails
 );
 
 // get single

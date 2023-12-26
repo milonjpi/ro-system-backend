@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Customer, InvoiceBillStatus, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { ICustomerFilters } from './customer.interface';
+import { ICustomerDetails, ICustomerFilters } from './customer.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -172,6 +172,66 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
   return result;
 };
 
+// get customer details
+const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
+  // find invoices
+  const invoices = await prisma.invoice.groupBy({
+    by: ['customerId'],
+    _sum: {
+      amount: true,
+      paidAmount: true,
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  // find vouchers
+  const vouchers = await prisma.voucher.groupBy({
+    by: ['customerId'],
+    _sum: {
+      amount: true,
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  // customers
+  const customers = await prisma.customer.findMany({
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      customerId: true,
+      customerName: true,
+      customerNameBn: true,
+      mobile: true,
+      address: true,
+    },
+  });
+
+  // set voucher and invoices in customer
+  const result = customers.map(el => {
+    const findInvoiceSum = invoices?.find(inv => inv.customerId === el.id);
+    const findVoucherSum = vouchers?.find(vou => vou.customerId === el.id);
+
+    return {
+      ...el,
+      invoices: {
+        saleAmount: findInvoiceSum?._sum?.amount,
+        paidAmount: findInvoiceSum?._sum?.paidAmount,
+        voucherAmount: findVoucherSum?._sum?.amount,
+        lastPaymentDate: findVoucherSum?._max?.date,
+        lastSaleDate: findInvoiceSum?._max?.date,
+      },
+    };
+  });
+
+  return result;
+};
+
 export const CustomerService = {
   insertIntoDB,
   insertIntoDBAll,
@@ -179,4 +239,5 @@ export const CustomerService = {
   getSingle,
   updateSingle,
   deleteFromDB,
+  getCustomerDetails,
 };

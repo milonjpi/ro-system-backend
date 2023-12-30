@@ -6,16 +6,12 @@ const create = z.object({
     data: z.object({
       date: z.string({ required_error: 'Date is Required' }),
       vendorId: z.string({ required_error: 'Vendor ID is Required' }),
-      accountHeadId: z.string({
-        required_error: 'Account Head ID is Required',
-      }),
       totalQty: z.number({ required_error: 'Total Quantity is Required' }),
       totalPrice: z.number({ required_error: 'Total Price is Required' }),
       discount: z.number().optional().default(0),
       amount: z.number({ required_error: 'Amount is required' }),
       paidAmount: z.number().optional().default(0),
       refNo: z.string().optional(),
-      userId: z.string({ required_error: 'User ID is required' }),
       status: z.enum(billStatus as [string, ...string[]]).optional(),
     }),
     billEquipments: z.array(
@@ -35,7 +31,6 @@ const update = z.object({
     data: z.object({
       date: z.string().optional(),
       vendorId: z.string().optional(),
-      accountHeadId: z.string().optional(),
       totalQty: z.number().optional(),
       totalPrice: z.number().optional(),
       discount: z.number().optional(),

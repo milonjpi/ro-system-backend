@@ -1,8 +1,8 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Vendor, Prisma } from '@prisma/client';
+import { Vendor, Prisma, InvoiceBillStatus } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IVendorFilters } from './vendor.interface';
+import { IVendorDetails, IVendorFilters } from './vendor.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -30,7 +30,7 @@ const getAll = async (
   filters: IVendorFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Vendor[]>> => {
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, forVoucher, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -65,6 +65,17 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      bills: forVoucher
+        ? {
+            where: {
+              status: {
+                in: [InvoiceBillStatus.Due, InvoiceBillStatus.Partial],
+              },
+            },
+          }
+        : false,
+    },
   });
 
   const total = await prisma.vendor.count({
@@ -146,10 +157,71 @@ const deleteFromDB = async (id: string): Promise<Vendor | null> => {
   return result;
 };
 
+// get vendor details
+const getVendorDetails = async (): Promise<IVendorDetails[]> => {
+  // find bills
+  const bills = await prisma.bill.groupBy({
+    by: ['vendorId'],
+    _sum: {
+      amount: true,
+      paidAmount: true,
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  // find vouchers
+  const vouchers = await prisma.voucher.groupBy({
+    by: ['vendorId'],
+    _sum: {
+      amount: true,
+    },
+    _max: {
+      date: true,
+    },
+  });
+
+  // vendors
+  const vendors = await prisma.vendor.findMany({
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      vendorId: true,
+      vendorName: true,
+      vendorNameBn: true,
+      mobile: true,
+      address: true,
+    },
+  });
+
+  // set voucher and bills in vendors
+  const result = vendors.map(el => {
+    const findBillSum = bills?.find(bl => bl.vendorId === el.id);
+    const findVoucherSum = vouchers?.find(vou => vou.vendorId === el.id);
+
+    return {
+      ...el,
+      bills: {
+        buyAmount: findBillSum?._sum?.amount,
+        paidAmount: findBillSum?._sum?.paidAmount,
+        voucherAmount: findVoucherSum?._sum?.amount,
+        lastPaymentDate: findVoucherSum?._max?.date,
+        lastBuyDate: findBillSum?._max?.date,
+      },
+    };
+  });
+
+  return result;
+};
+
 export const VendorService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getVendorDetails,
 };

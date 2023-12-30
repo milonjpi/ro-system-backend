@@ -5,6 +5,7 @@ export const voucherFilterableFields = [
   'startDate',
   'endDate',
   'customerId',
+  'vendorId',
   'userId',
   'type',
 ];

@@ -6,4 +6,4 @@ export const vendorSearchableFields = [
   'address',
 ];
 
-export const vendorFilterableFields = ['searchTerm', 'isActive'];
+export const vendorFilterableFields = ['searchTerm', 'forVoucher', 'isActive'];

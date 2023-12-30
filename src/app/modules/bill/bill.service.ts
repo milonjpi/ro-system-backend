@@ -19,6 +19,17 @@ const insertIntoDB = async (
 
   // set bill no
   data.billNo = billNo;
+
+  // set account head
+  const findAccountHead = await prisma.accountHead.findFirst({
+    where: { label: 'Purchase' },
+  });
+
+  if (!findAccountHead) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
+  }
+  data.accountHeadId = findAccountHead.id;
+
   const result = await prisma.bill.create({
     data: { ...data, billEquipments: { create: billEquipments } },
   });
@@ -85,6 +96,14 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      vendor: true,
+      billEquipments: {
+        include: {
+          equipment: true,
+        },
+      },
+    },
   });
 
   const total = await prisma.bill.count({
@@ -184,11 +203,7 @@ const deleteFromDB = async (id: string): Promise<Bill | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after Canceled');
-  }
-
-  if (isExist.status === 'Paid') {
+  if (isExist.status === 'Paid' || isExist.status === 'Partial') {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after Paid');
   }
 

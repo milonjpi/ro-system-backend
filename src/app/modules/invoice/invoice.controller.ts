@@ -91,19 +91,6 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// cancel
-const cancelInvoice = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id;
-
-  const result = await InvoiceService.cancelInvoice(id);
-
-  sendResponse<Invoice>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Invoice Canceled successfully',
-    data: result,
-  });
-});
 
 export const InvoiceController = {
   insertIntoDB,
@@ -111,5 +98,4 @@ export const InvoiceController = {
   getSingle,
   updateSingle,
   deleteFromDB,
-  cancelInvoice,
 };

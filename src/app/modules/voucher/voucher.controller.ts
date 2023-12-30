@@ -29,6 +29,28 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+// make payment
+const makePayment = catchAsync(async (req: Request, res: Response) => {
+  const { bills, voucherDetails, ...otherData } = req.body;
+  const user = req.user as { id: string; role: UserRole };
+
+  otherData.userId = user.id;
+
+  const result = await VoucherService.makePayment(
+    otherData,
+    bills,
+    voucherDetails
+  );
+
+  sendResponse<Voucher>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Payment Made Successfully',
+    data: result,
+  });
+});
+
 // get all
 const getAll = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, voucherFilterableFields);
@@ -93,5 +115,6 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
 
 export const VoucherController = {
   receivePayment,
+  makePayment,
   getAll,
 };

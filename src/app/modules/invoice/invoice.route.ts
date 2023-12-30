@@ -40,15 +40,9 @@ router.patch(
 // delete
 router.delete(
   '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   InvoiceController.deleteFromDB
 );
 
-// cancel
-router.patch(
-  '/:id/cancel',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  InvoiceController.cancelInvoice
-);
 
 export const InvoiceRoutes = router;

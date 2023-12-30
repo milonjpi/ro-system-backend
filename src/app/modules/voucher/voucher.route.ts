@@ -7,12 +7,20 @@ import { VoucherController } from './voucher.controller';
 
 const router = express.Router();
 
-// create
+// receive payment
 router.post(
   '/receive-payment',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(VoucherValidation.receivePayment),
   VoucherController.receivePayment
+);
+
+// make payment
+router.post(
+  '/make-payment',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  validateRequest(VoucherValidation.makePayment),
+  VoucherController.makePayment
 );
 
 // get all

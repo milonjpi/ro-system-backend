@@ -17,4 +17,15 @@ export type IDueInvoice = {
   };
 };
 
+export type IAdvanceInvoice = {
+  invoices: {
+    amount: number | null | undefined;
+    paidAmount: number | null | undefined;
+    receiveAmount: number | null | undefined;
+    lastPaymentDate: Date | null | undefined;
+    lastSaleDate: Date | null | undefined;
+  };
+};
+
 export type IDueReport = Customer | IDueInvoice;
+export type IAdvanceReport = Customer | IAdvanceInvoice;

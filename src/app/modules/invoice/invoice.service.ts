@@ -205,10 +205,7 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after canceled');
-  }
-  if (isExist.status === 'Paid') {
+  if (isExist.status === 'Paid' || isExist.status === 'Partial') {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after paid');
   }
 
@@ -234,40 +231,10 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   return result;
 };
 
-const cancelInvoice = async (id: string): Promise<Invoice | null> => {
-  // check is exist
-  const isExist = await prisma.invoice.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
-  }
-
-
-
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Already Canceled');
-  }
-
-  if (isExist.status !== 'Due') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Cancel this invoice');
-  }
-
-  const result = await prisma.invoice.update({
-    where: { id },
-    data: { status: 'Canceled' },
-  });
-  return result;
-};
-
 export const InvoiceService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
-  cancelInvoice,
 };

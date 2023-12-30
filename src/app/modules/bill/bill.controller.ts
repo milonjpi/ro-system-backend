@@ -5,12 +5,16 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { BillService } from './bill.service';
-import { Bill } from '@prisma/client';
+import { Bill, UserRole } from '@prisma/client';
 import { billFilterableFields } from './bill.constant';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+
+  const user = req.user as { id: string; role: UserRole };
+
+  data.data.userId = user.id;
 
   const result = await BillService.insertIntoDB(
     data?.data,

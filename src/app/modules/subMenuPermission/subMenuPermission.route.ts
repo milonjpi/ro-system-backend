@@ -10,7 +10,7 @@ const router = express.Router();
 // add menu
 router.post(
   '/add',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(SubMenuPermissionValidation.create),
   SubMenuPermissionController.addSubMenu
 );

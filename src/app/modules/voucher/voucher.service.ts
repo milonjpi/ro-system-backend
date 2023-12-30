@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import {
+  Bill,
   Invoice,
   Prisma,
   Voucher,
@@ -16,7 +17,7 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { voucherSearchableFields } from './voucher.constant';
 
-// create
+// create receive payment
 const receivePayment = async (
   data: Voucher,
   invoices: Partial<Invoice[]>,
@@ -56,13 +57,69 @@ const receivePayment = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
     }
 
-    await trans;
-
     if (invoices.length) {
       await Promise.all(
         invoices.map(async invoice => {
           const { id, ...otherValue } = invoice as Invoice;
           await trans.invoice.update({
+            where: { id },
+            data: otherValue,
+          });
+        })
+      );
+    }
+
+    return insertVoucher;
+  });
+
+  return result;
+};
+
+// create make payment
+const makePayment = async (
+  data: Voucher,
+  bills: Partial<Bill[]>,
+  voucherDetails: VoucherDetail[]
+): Promise<Voucher | null> => {
+  // generate voucher No
+  const convertDate = moment(data.date).format('YYYYMMDD');
+  const voucherNo = await generateVoucherNo(convertDate);
+
+  // set voucher no
+  data.voucherNo = voucherNo;
+  data.type = VoucherType.Paid;
+
+  // find account head
+  const findHead = await prisma.accountHead.findFirst({
+    where: {
+      label: 'Cash and Equivalent',
+    },
+  });
+
+  if (!findHead) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Please setup your account head first!'
+    );
+  }
+
+  // set head in data
+  data.accountHeadId = findHead.id;
+
+  const result = await prisma.$transaction(async trans => {
+    const insertVoucher = await trans.voucher.create({
+      data: { ...data, voucherDetails: { create: voucherDetails } },
+    });
+
+    if (!insertVoucher) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
+    }
+
+    if (bills.length) {
+      await Promise.all(
+        bills.map(async bill => {
+          const { id, ...otherValue } = bill as Bill;
+          await trans.bill.update({
             where: { id },
             data: otherValue,
           });
@@ -133,9 +190,11 @@ const getAll = async (
     take: limit,
     include: {
       customer: true,
+      vendor: true,
       voucherDetails: {
         include: {
           invoice: true,
+          bill: true,
         },
       },
     },
@@ -268,6 +327,7 @@ const getAll = async (
 
 export const VoucherService = {
   receivePayment,
+  makePayment,
   getAll,
   //   getSingle,
   //   updateSingle,

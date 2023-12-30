@@ -3,6 +3,7 @@ export type IVoucherFilters = {
   startDate?: string;
   endDate?: string;
   customerId?: string;
+  vendorId?: string;
   userId?: string;
   type?: string;
 };

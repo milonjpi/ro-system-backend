@@ -21,6 +21,12 @@ router.get(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   VendorController.getAll
 );
+// get vendor details
+router.get(
+  '/vendor-details',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  VendorController.getVendorDetails
+);
 
 // get single
 router.get(
@@ -40,7 +46,7 @@ router.patch(
 // delete
 router.delete(
   '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   VendorController.deleteFromDB
 );
 

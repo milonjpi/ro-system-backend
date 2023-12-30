@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { VendorService } from './vendor.service';
 import { Vendor } from '@prisma/client';
 import { vendorFilterableFields } from './vendor.constant';
+import { IVendorDetails } from './vendor.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -80,10 +81,23 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// set voucher and bills in vendors
+const getVendorDetails = catchAsync(async (req: Request, res: Response) => {
+  const result = await VendorService.getVendorDetails();
+
+  sendResponse<IVendorDetails[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Vendors retrieved successfully',
+    data: result,
+  });
+});
+
 export const VendorController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getVendorDetails,
 };

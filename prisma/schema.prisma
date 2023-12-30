@@ -257,6 +257,7 @@ model Bill {
   updatedAt      DateTime          @updatedAt
   billEquipments BillEquipment[]
   equipmentIns   EquipmentIn[]
+  voucherDetails VoucherDetail[]
 
   @@map("bills")
 }
@@ -288,6 +289,7 @@ model Equipment {
   id             String          @id @default(uuid())
   equipmentCode  String          @unique
   label          String          @unique
+  uom            String?
   isAsset        Boolean
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -351,8 +353,8 @@ model Expense {
   date           DateTime
   accountHeadId  String
   accountHead    AccountHead       @relation(fields: [accountHeadId], references: [id])
-  vendorId       String
-  vendor         Vendor            @relation(fields: [vendorId], references: [id])
+  vendorId       String?
+  vendor         Vendor?           @relation(fields: [vendorId], references: [id])
   totalQty       Float
   totalPrice     Float
   discount       Float
@@ -407,11 +409,13 @@ model Voucher {
 }
 
 model VoucherDetail {
-  id            String  @id @default(uuid())
+  id            String   @id @default(uuid())
   voucherId     String
-  voucher       Voucher @relation(fields: [voucherId], references: [id])
-  invoiceId     String
-  invoice       Invoice @relation(fields: [invoiceId], references: [id])
+  voucher       Voucher  @relation(fields: [voucherId], references: [id])
+  invoiceId     String?
+  invoice       Invoice? @relation(fields: [invoiceId], references: [id])
+  billId        String?
+  bill          Bill?    @relation(fields: [billId], references: [id])
   receiveAmount Int
 
   @@map("voucherDetails")

@@ -76,17 +76,18 @@ model AccountType {
 }
 
 model AccountHead {
-  id            String        @id @default(uuid())
+  id            String         @id @default(uuid())
   accountTypeId String
-  accountType   AccountType   @relation(fields: [accountTypeId], references: [id])
-  label         String        @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  accountType   AccountType    @relation(fields: [accountTypeId], references: [id])
+  label         String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   invoices      Invoice[]
   bills         Bill[]
   equipmentIns  EquipmentIn[]
   Eexpenses     Expense[]
   vouchers      Voucher[]
+  equipmentOuts EquipmentOut[]
 
   @@map("accountHeads")
 }
@@ -310,7 +311,7 @@ model EquipmentIn {
   quantity      Float
   unitPrice     Float
   totalPrice    Float
-  usedQty       Float
+  usedQty       Float?
   vendorId      String?
   vendor        Vendor?     @relation(fields: [vendorId], references: [id])
   billId        String?
@@ -323,16 +324,18 @@ model EquipmentIn {
 }
 
 model EquipmentOut {
-  id          String    @id @default(uuid())
-  equipmentId String
-  equipment   Equipment @relation(fields: [equipmentId], references: [id])
-  date        DateTime
-  quantity    Float
-  unitPrice   Float
-  totalPrice  Float
-  remarks     String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String      @id @default(uuid())
+  equipmentId   String
+  equipment     Equipment   @relation(fields: [equipmentId], references: [id])
+  date          DateTime
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  quantity      Float
+  unitPrice     Float
+  totalPrice    Float
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@map("equipmentOuts")
 }

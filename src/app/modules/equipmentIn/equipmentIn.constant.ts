@@ -1,9 +1,4 @@
-export const equipmentInSearchableFields = [
-  'quantity',
-  'unitPrice',
-  'totalPrice',
-  'remarks',
-];
+export const equipmentInSearchableFields = ['remarks'];
 
 export const equipmentInFilterableFields = [
   'searchTerm',

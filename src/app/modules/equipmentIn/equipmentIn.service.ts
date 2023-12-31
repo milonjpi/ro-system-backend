@@ -10,6 +10,17 @@ import { equipmentInSearchableFields } from './equipmentIn.constant';
 
 // create
 const insertIntoDB = async (data: EquipmentIn): Promise<EquipmentIn | null> => {
+  // set account head
+  const findAccountHead = await prisma.accountHead.findFirst({
+    where: { label: 'Purchased Equipment' },
+  });
+
+  if (!findAccountHead) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
+  }
+
+  data.accountHeadId = findAccountHead.id;
+
   const result = await prisma.equipmentIn.create({ data });
 
   if (!result) {
@@ -74,6 +85,9 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      equipment: true,
+    },
   });
 
   const total = await prisma.equipmentIn.count({
@@ -98,6 +112,9 @@ const getSingle = async (id: string): Promise<EquipmentIn | null> => {
     where: {
       id,
     },
+    include: {
+      equipment: true,
+    },
   });
 
   return result;
@@ -117,6 +134,10 @@ const updateSingle = async (
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.quantity === isExist.usedQty) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Update not possible after use');
   }
 
   const result = await prisma.equipmentIn.update({
@@ -144,6 +165,10 @@ const deleteFromDB = async (id: string): Promise<EquipmentIn | null> => {
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.quantity === isExist.usedQty) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Update not possible after use');
   }
 
   const result = await prisma.equipmentIn.delete({

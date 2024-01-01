@@ -12,10 +12,7 @@ import { expenseFilterableFields } from './expense.constant';
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
 
-  const result = await ExpenseService.insertIntoDB(
-    data?.data,
-    data?.expenseDetails
-  );
+  const result = await ExpenseService.insertIntoDB(data?.data);
 
   sendResponse<Expense>(res, {
     success: true,
@@ -59,11 +56,7 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const data = req.body;
 
-  const result = await ExpenseService.updateSingle(
-    id,
-    data?.data,
-    data?.expenseDetails
-  );
+  const result = await ExpenseService.updateSingle(id, data?.data);
 
   sendResponse<Expense>(res, {
     success: true,

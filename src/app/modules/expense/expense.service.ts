@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Expense, ExpenseDetail, Prisma } from '@prisma/client';
+import { Expense, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { IExpenseFilters } from './expense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -9,12 +9,9 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { expenseSearchableFields } from './expense.constant';
 
 // create
-const insertIntoDB = async (
-  data: Expense,
-  expenseDetails: ExpenseDetail[]
-): Promise<Expense | null> => {
+const insertIntoDB = async (data: Expense): Promise<Expense | null> => {
   const result = await prisma.expense.create({
-    data: { ...data, expenseDetails: { create: expenseDetails } },
+    data,
   });
 
   if (!result) {
@@ -111,8 +108,7 @@ const getSingle = async (id: string): Promise<Expense | null> => {
 // update
 const updateSingle = async (
   id: string,
-  payload: Partial<Expense>,
-  expenseDetails: ExpenseDetail[]
+  payload: Partial<Expense>
 ): Promise<Expense | null> => {
   // check is exist
   const isExist = await prisma.expense.findUnique({
@@ -125,37 +121,7 @@ const updateSingle = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Paid') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after paid');
-  }
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after canceled');
-  }
-
-  const result = await prisma.$transaction(async trans => {
-    await trans.expense.update({
-      where: {
-        id,
-      },
-      data: {
-        expenseDetails: {
-          deleteMany: {},
-        },
-      },
-    });
-
-    return await trans.expense.update({
-      where: {
-        id,
-      },
-      data: {
-        ...payload,
-        expenseDetails: {
-          create: expenseDetails,
-        },
-      },
-    });
-  });
+  const result = await prisma.expense.update({ where: { id }, data: payload });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Update');
@@ -177,31 +143,7 @@ const deleteFromDB = async (id: string): Promise<Expense | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Paid') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after Paid');
-  }
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after canceled');
-  }
-
-  const result = await prisma.$transaction(async trans => {
-    await trans.expense.update({
-      where: {
-        id,
-      },
-      data: {
-        expenseDetails: {
-          deleteMany: {},
-        },
-      },
-    });
-
-    return await trans.expense.delete({
-      where: {
-        id,
-      },
-    });
-  });
+  const result = await prisma.expense.delete({ where: { id } });
 
   return result;
 };

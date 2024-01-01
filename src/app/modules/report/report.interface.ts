@@ -9,22 +9,20 @@ export type IDueFilters = {
 };
 
 export type IDueInvoice = {
-  invoices: {
-    amount: number | null | undefined;
-    paidAmount: number | null | undefined;
-    lastPaymentDate: Date | null | undefined;
-    lastSaleDate: Date | null | undefined;
-  };
+  amount: number | null | undefined;
+  paidAmount: number | null | undefined;
+  lastPaymentDate: Date | null | undefined;
+  lastSaleDate: Date | null | undefined;
+  differentAmount: number | null | undefined;
 };
 
 export type IAdvanceInvoice = {
-  invoices: {
-    amount: number | null | undefined;
-    paidAmount: number | null | undefined;
-    receiveAmount: number | null | undefined;
-    lastPaymentDate: Date | null | undefined;
-    lastSaleDate: Date | null | undefined;
-  };
+  amount: number | null | undefined;
+  paidAmount: number | null | undefined;
+  receiveAmount: number | null | undefined;
+  lastPaymentDate: Date | null | undefined;
+  lastSaleDate: Date | null | undefined;
+  differentAmount: number | null | undefined;
 };
 
 export type IDueReport = Customer | IDueInvoice;

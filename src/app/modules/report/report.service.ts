@@ -45,12 +45,13 @@ const dueReport = async (): Promise<IDueReport[]> => {
 
     return {
       ...el,
-      invoices: {
-        amount: findInvoiceSum?._sum?.amount,
-        paidAmount: findInvoiceSum?._sum?.paidAmount,
-        lastPaymentDate: findVoucherSum?._max?.date,
-        lastSaleDate: findInvoiceSum?._max?.date,
-      },
+      amount: findInvoiceSum?._sum?.amount || 0,
+      paidAmount: findInvoiceSum?._sum?.paidAmount || 0,
+      lastPaymentDate: findVoucherSum?._max?.date,
+      lastSaleDate: findInvoiceSum?._max?.date,
+      differentAmount:
+        (findInvoiceSum?._sum?.amount || 0) -
+        (findInvoiceSum?._sum?.paidAmount || 0),
     };
   });
 
@@ -104,13 +105,14 @@ const advanceReport = async (): Promise<IAdvanceReport[]> => {
 
     return {
       ...el,
-      invoices: {
-        amount: findInvoiceSum?._sum?.amount,
-        paidAmount: findInvoiceSum?._sum?.paidAmount,
-        receiveAmount: findVoucherSum?._sum?.amount,
-        lastPaymentDate: findVoucherSum?._max?.date,
-        lastSaleDate: findInvoiceSum?._max?.date,
-      },
+      amount: findInvoiceSum?._sum?.amount || 0,
+      paidAmount: findInvoiceSum?._sum?.paidAmount || 0,
+      receiveAmount: findVoucherSum?._sum?.amount || 0,
+      lastPaymentDate: findVoucherSum?._max?.date,
+      lastSaleDate: findInvoiceSum?._max?.date,
+      differentAmount:
+        (findVoucherSum?._sum?.amount || 0) -
+        (findInvoiceSum?._sum?.paidAmount || 0),
     };
   });
 

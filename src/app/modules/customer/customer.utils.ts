@@ -4,7 +4,7 @@ import prisma from '../../../shared/prisma';
 const findLastId = async (): Promise<string> => {
   const currentId = await prisma.customer.findFirst({
     orderBy: {
-      createdAt: 'desc',
+      customerId: 'desc',
     },
     select: {
       customerId: true,
@@ -12,14 +12,13 @@ const findLastId = async (): Promise<string> => {
   });
 
   const splitCurrent = currentId?.customerId?.split('C-') || ['', '0'];
-
   return splitCurrent[1];
 };
 
 // generate customer ID
 export const generateCustomerId = async (): Promise<string> => {
   const currentId = parseInt(await findLastId());
-  const incrementId = currentId + 1;
 
+  const incrementId = currentId + 1;
   return incrementId?.toString().padStart(8, 'C-000000');
 };

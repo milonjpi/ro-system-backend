@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { EquipmentService } from './equipment.service';
 import { Equipment } from '@prisma/client';
 import { equipmentFilterableFields } from './equipment.constant';
+import { IEquipmentResponse } from './equipment.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -80,10 +81,23 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get equipment summary
+const getEquipmentSummary = catchAsync(async (req: Request, res: Response) => {
+  const result = await EquipmentService.getEquipmentSummary();
+
+  sendResponse<IEquipmentResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Equipments summary retrieved successfully',
+    data: result,
+  });
+});
+
 export const EquipmentController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getEquipmentSummary,
 };

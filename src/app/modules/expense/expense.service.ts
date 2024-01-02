@@ -10,6 +10,15 @@ import { expenseSearchableFields } from './expense.constant';
 
 // create
 const insertIntoDB = async (data: Expense): Promise<Expense | null> => {
+  // set account head
+  const findAccountHead = await prisma.accountHead.findFirst({
+    where: { label: 'General Expense' },
+  });
+
+  if (!findAccountHead) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
+  }
+  data.accountHeadId = findAccountHead.id;
   const result = await prisma.expense.create({
     data,
   });
@@ -76,6 +85,11 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      expenseHead: true,
+      vendor: true,
+      preparedBy: true,
+    },
   });
 
   const total = await prisma.expense.count({
@@ -99,6 +113,11 @@ const getSingle = async (id: string): Promise<Expense | null> => {
   const result = await prisma.expense.findUnique({
     where: {
       id,
+    },
+    include: {
+      expenseHead: true,
+      vendor: true,
+      preparedBy: true,
     },
   });
 

@@ -5,14 +5,17 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { ExpenseService } from './expense.service';
-import { Expense } from '@prisma/client';
+import { Expense, UserRole } from '@prisma/client';
 import { expenseFilterableFields } from './expense.constant';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+  const user = req.user as { id: string; role: UserRole };
 
-  const result = await ExpenseService.insertIntoDB(data?.data);
+  data.userId = user.id;
+
+  const result = await ExpenseService.insertIntoDB(data);
 
   sendResponse<Expense>(res, {
     success: true,
@@ -56,7 +59,7 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const data = req.body;
 
-  const result = await ExpenseService.updateSingle(id, data?.data);
+  const result = await ExpenseService.updateSingle(id, data);
 
   sendResponse<Expense>(res, {
     success: true,

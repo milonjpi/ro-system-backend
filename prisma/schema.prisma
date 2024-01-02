@@ -84,10 +84,8 @@ model AccountHead {
   updatedAt     DateTime       @updatedAt
   invoices      Invoice[]
   bills         Bill[]
-  equipmentIns  EquipmentIn[]
   Eexpenses     Expense[]
   vouchers      Voucher[]
-  equipmentOuts EquipmentOut[]
 
   @@map("accountHeads")
 }
@@ -306,8 +304,6 @@ model EquipmentIn {
   equipmentId   String
   equipment     Equipment   @relation(fields: [equipmentId], references: [id])
   date          DateTime
-  accountHeadId String
-  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
   quantity      Float
   unitPrice     Float
   totalPrice    Float
@@ -328,11 +324,7 @@ model EquipmentOut {
   equipmentId   String
   equipment     Equipment   @relation(fields: [equipmentId], references: [id])
   date          DateTime
-  accountHeadId String
-  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
   quantity      Float
-  unitPrice     Float
-  totalPrice    Float
   remarks       String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -346,7 +338,7 @@ model ExpenseHead {
   label     String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  expenses   Expense[]
+  expenses  Expense[]
 
   @@map("expenseHeads")
 }
@@ -361,7 +353,7 @@ model Expense {
   vendorId      String?
   vendor        Vendor?     @relation(fields: [vendorId], references: [id])
   amount        Float
-  refNo         String?
+  remarks       String?
   userId        String
   preparedBy    User        @relation(fields: [userId], references: [id])
   createdAt     DateTime    @default(now())

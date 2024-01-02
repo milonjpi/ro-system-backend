@@ -22,6 +22,13 @@ router.get(
   EquipmentController.getAll
 );
 
+// get summary
+router.get(
+  '/summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  EquipmentController.getEquipmentSummary
+);
+
 // get single
 router.get(
   '/:id',

@@ -10,17 +10,6 @@ import { equipmentInSearchableFields } from './equipmentIn.constant';
 
 // create
 const insertIntoDB = async (data: EquipmentIn): Promise<EquipmentIn | null> => {
-  // set account head
-  const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'Purchased Equipment' },
-  });
-
-  if (!findAccountHead) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
-  }
-
-  data.accountHeadId = findAccountHead.id;
-
   const result = await prisma.equipmentIn.create({ data });
 
   if (!result) {

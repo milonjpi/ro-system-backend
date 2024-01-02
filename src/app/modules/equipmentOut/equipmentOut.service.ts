@@ -61,7 +61,7 @@ const getAll = async (
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
       AND: Object.entries(filterData).map(([field, value]) => ({
-        [field]: value === 'true' ? true : value === 'false' ? false : value,
+        [field]: value,
       })),
     });
   }
@@ -76,6 +76,9 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      equipment: true,
+    },
   });
 
   const total = await prisma.equipmentOut.count({
@@ -99,6 +102,9 @@ const getSingle = async (id: string): Promise<EquipmentOut | null> => {
   const result = await prisma.equipmentOut.findUnique({
     where: {
       id,
+    },
+    include: {
+      equipment: true,
     },
   });
 

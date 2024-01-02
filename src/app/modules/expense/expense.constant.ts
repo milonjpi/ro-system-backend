@@ -10,8 +10,6 @@ export const expenseFilterableFields = [
   'startDate',
   'endDate',
   'vendorId',
-  'status',
+  'expenseHeadId',
   'userId',
 ];
-
-export const expenseStatus = ['Due', 'Partial', 'Canceled', 'Paid'];

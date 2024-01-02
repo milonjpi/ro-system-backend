@@ -3,6 +3,6 @@ export type IExpenseFilters = {
   startDate?: string;
   endDate?: string;
   vendorId?: string;
-  status?: string;
+  expenseHeadId?: string;
   userId?: string;
 };

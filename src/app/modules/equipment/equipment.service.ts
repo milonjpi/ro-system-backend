@@ -2,12 +2,13 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Equipment, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IEquipmentFilters } from './equipment.interface';
+import { IEquipmentFilters, IEquipmentResponse } from './equipment.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { equipmentSearchableFields } from './equipment.constant';
 import { generateEquipmentCode } from './equipment.utils';
+import { totalSum } from '../../../shared/utils';
 
 // create
 const insertIntoDB = async (data: Equipment): Promise<Equipment | null> => {
@@ -146,10 +147,50 @@ const deleteFromDB = async (id: string): Promise<Equipment | null> => {
   return result;
 };
 
+// get equipment summary
+const getEquipmentSummary = async (): Promise<IEquipmentResponse[]> => {
+  const allEquipment = await prisma.equipment.findMany({
+    include: {
+      equipmentIns: {
+        select: {
+          quantity: true,
+          unitPrice: true,
+          totalPrice: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
+      equipmentOuts: {
+        select: {
+          quantity: true,
+        },
+      },
+    },
+    orderBy: {
+      label: 'asc',
+    },
+  });
+
+  const result = allEquipment.map(el => ({
+    id: el.id,
+    label: el.label,
+    uom: el.uom,
+    isAsset: el.isAsset,
+    totalQty: totalSum(el.equipmentIns || [], 'quantity'),
+    unitPrice: el.equipmentIns?.length ? el.equipmentIns[0].unitPrice : 0,
+    totalPrice: totalSum(el.equipmentIns || [], 'totalPrice'),
+    usedQty: totalSum(el.equipmentOuts || [], 'quantity'),
+  }));
+
+  return result;
+};
+
 export const EquipmentService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getEquipmentSummary,
 };

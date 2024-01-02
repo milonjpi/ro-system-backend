@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { InvoiceService } from './invoice.service';
 import { Invoice, UserRole } from '@prisma/client';
 import { invoiceFilterableFields } from './invoice.constant';
+import { IInvoiceResponse } from './invoice.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -35,7 +36,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await InvoiceService.getAll(filters, paginationOptions);
 
-  sendResponse<Invoice[]>(res, {
+  sendResponse<IInvoiceResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Invoices retrieved successfully',

@@ -150,6 +150,9 @@ const deleteFromDB = async (id: string): Promise<Equipment | null> => {
 // get equipment summary
 const getEquipmentSummary = async (): Promise<IEquipmentResponse[]> => {
   const allEquipment = await prisma.equipment.findMany({
+    where: {
+      isAsset: false,
+    },
     include: {
       equipmentIns: {
         select: {
@@ -174,6 +177,7 @@ const getEquipmentSummary = async (): Promise<IEquipmentResponse[]> => {
 
   const result = allEquipment.map(el => ({
     id: el.id,
+    equipmentCode: el.equipmentCode,
     label: el.label,
     uom: el.uom,
     isAsset: el.isAsset,

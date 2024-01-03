@@ -7,6 +7,7 @@ import { VoucherService } from './voucher.service';
 import pick from '../../../shared/pick';
 import { voucherFilterableFields } from './voucher.constant';
 import { paginationFields } from '../../../constants/pagination';
+import { IVoucherResponse } from './voucher.interface';
 
 // receive payment
 const receivePayment = catchAsync(async (req: Request, res: Response) => {
@@ -28,7 +29,6 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 // make payment
 const makePayment = catchAsync(async (req: Request, res: Response) => {
@@ -57,7 +57,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await VoucherService.getAll(filters, paginationOptions);
 
-  sendResponse<Voucher[]>(res, {
+  sendResponse<IVoucherResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Vouchers retrieved successfully',
@@ -66,52 +66,6 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// // get single
-// const getSingle = catchAsync(async (req: Request, res: Response) => {
-//   const id = req.params.id;
-
-//   const result = await ExpenseService.getSingle(id);
-
-//   sendResponse<Expense>(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Expense retrieved successfully',
-//     data: result,
-//   });
-// });
-
-// // update single
-// const updateSingle = catchAsync(async (req: Request, res: Response) => {
-//   const id = req.params.id;
-//   const data = req.body;
-
-//   const result = await ExpenseService.updateSingle(
-//     id,
-//     data?.data,
-//     data?.expenseDetails
-//   );
-
-//   sendResponse<Expense>(res, {
-//     success: true,
-//     statusCode: httpStatus.OK,
-//     message: 'Expense Updated Successfully',
-//     data: result,
-//   });
-// });
-
-// // delete
-// const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
-//   const id = req.params.id;
-
-//   const result = await ExpenseService.deleteFromDB(id);
-
-//   sendResponse<Expense>(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Expense Deleted successfully',
-//     data: result,
-//   });
-// });
 
 export const VoucherController = {
   receivePayment,

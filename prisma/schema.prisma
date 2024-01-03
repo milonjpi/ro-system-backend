@@ -76,16 +76,19 @@ model AccountType {
 }
 
 model AccountHead {
-  id            String         @id @default(uuid())
+  id            String       @id @default(uuid())
   accountTypeId String
-  accountType   AccountType    @relation(fields: [accountTypeId], references: [id])
-  label         String         @unique
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  accountType   AccountType  @relation(fields: [accountTypeId], references: [id])
+  label         String       @unique
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   invoices      Invoice[]
   bills         Bill[]
   Eexpenses     Expense[]
   vouchers      Voucher[]
+  fixedAssets   FixedAsset[]
+  investments   Investment[]
+  withdraws     Withdraw[]
 
   @@map("accountHeads")
 }
@@ -300,34 +303,34 @@ model Equipment {
 }
 
 model EquipmentIn {
-  id            String      @id @default(uuid())
-  equipmentId   String
-  equipment     Equipment   @relation(fields: [equipmentId], references: [id])
-  date          DateTime
-  quantity      Float
-  unitPrice     Float
-  totalPrice    Float
-  usedQty       Float?
-  vendorId      String?
-  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
-  billId        String?
-  bill          Bill?       @relation(fields: [billId], references: [id])
-  remarks       String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id          String    @id @default(uuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  date        DateTime
+  quantity    Float
+  unitPrice   Float
+  totalPrice  Float
+  usedQty     Float?
+  vendorId    String?
+  vendor      Vendor?   @relation(fields: [vendorId], references: [id])
+  billId      String?
+  bill        Bill?     @relation(fields: [billId], references: [id])
+  remarks     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("equipmentIns")
 }
 
 model EquipmentOut {
-  id            String      @id @default(uuid())
-  equipmentId   String
-  equipment     Equipment   @relation(fields: [equipmentId], references: [id])
-  date          DateTime
-  quantity      Float
-  remarks       String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id          String    @id @default(uuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  date        DateTime
+  quantity    Float
+  remarks     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("equipmentOuts")
 }
@@ -395,6 +398,60 @@ model VoucherDetail {
   receiveAmount Int
 
   @@map("voucherDetails")
+}
+
+model Asset {
+  id        String @id @default(uuid())
+  assetCode String @unique
+  label     String @unique
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  fixedAssets FixedAsset[]
+
+  @@map("assets")
+}
+
+model FixedAsset {
+  id            String      @id @default(uuid())
+  date          DateTime
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  assetId       String
+  asset         Asset       @relation(fields: [assetId], references: [id])
+  quantity      Int
+  amount        Int
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("fixedAssets")
+}
+
+model Investment {
+  id            String      @id @default(uuid())
+  date          DateTime
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  amount        Int
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("investments")
+}
+
+model Withdraw {
+  id            String      @id @default(uuid())
+  date          DateTime
+  accountHeadId String
+  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
+  amount        Int
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("withdraws")
 }
 
 // ENUMS

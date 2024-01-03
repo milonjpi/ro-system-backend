@@ -11,7 +11,7 @@ import {
 import ApiError from '../../../errors/ApiError';
 import { generateVoucherNo } from './voucher.utils';
 import moment from 'moment';
-import { IVoucherFilters } from './voucher.interface';
+import { IVoucherFilters, IVoucherResponse } from './voucher.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -137,7 +137,7 @@ const makePayment = async (
 const getAll = async (
   filters: IVoucherFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Voucher[]>> => {
+): Promise<IGenericResponse<IVoucherResponse>> => {
   const { searchTerm, startDate, endDate, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -205,6 +205,15 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  // total count
+  const totalCount = await prisma.voucher.groupBy({
+    where: whereConditions,
+    by: ['accountHeadId'],
+    _sum: {
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -212,124 +221,15 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalCount,
+    },
   };
 };
-
-// // get single
-// const getSingle = async (id: string): Promise<Expense | null> => {
-//   const result = await prisma.expense.findUnique({
-//     where: {
-//       id,
-//     },
-//   });
-
-//   return result;
-// };
-
-// // update
-// const updateSingle = async (
-//   id: string,
-//   payload: Partial<Expense>,
-//   expenseDetails: ExpenseDetail[]
-// ): Promise<Expense | null> => {
-//   // check is exist
-//   const isExist = await prisma.expense.findUnique({
-//     where: {
-//       id,
-//     },
-//   });
-
-//   if (!isExist) {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
-//   }
-
-//   if (isExist.status === 'Paid') {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after paid');
-//   }
-//   if (isExist.status === 'Canceled') {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after canceled');
-//   }
-
-//   const result = await prisma.$transaction(async trans => {
-//     await trans.expense.update({
-//       where: {
-//         id,
-//       },
-//       data: {
-//         expenseDetails: {
-//           deleteMany: {},
-//         },
-//       },
-//     });
-
-//     return await trans.expense.update({
-//       where: {
-//         id,
-//       },
-//       data: {
-//         ...payload,
-//         expenseDetails: {
-//           create: expenseDetails,
-//         },
-//       },
-//     });
-//   });
-
-//   if (!result) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Update');
-//   }
-
-//   return result;
-// };
-
-// // delete
-// const deleteFromDB = async (id: string): Promise<Expense | null> => {
-//   // check is exist
-//   const isExist = await prisma.expense.findUnique({
-//     where: {
-//       id,
-//     },
-//   });
-
-//   if (!isExist) {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
-//   }
-
-//   if (isExist.status === 'Paid') {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after Paid');
-//   }
-//   if (isExist.status === 'Canceled') {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after canceled');
-//   }
-
-//   const result = await prisma.$transaction(async trans => {
-//     await trans.expense.update({
-//       where: {
-//         id,
-//       },
-//       data: {
-//         expenseDetails: {
-//           deleteMany: {},
-//         },
-//       },
-//     });
-
-//     return await trans.expense.delete({
-//       where: {
-//         id,
-//       },
-//     });
-//   });
-
-//   return result;
-// };
 
 export const VoucherService = {
   receivePayment,
   makePayment,
   getAll,
-  //   getSingle,
-  //   updateSingle,
-  //   deleteFromDB,
 };

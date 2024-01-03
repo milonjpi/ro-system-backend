@@ -5,6 +5,7 @@ export type IEquipmentFilters = {
 
 export type IEquipmentResponse = {
   id: string;
+  equipmentCode: string;
   label: string;
   uom: string | null;
   isAsset: boolean;

@@ -194,9 +194,6 @@ const deleteFromDB = async (id: string): Promise<Order | null> => {
   if (isExist.status === 'Delivered') {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after delivered');
   }
-  if (isExist.status === 'Canceled') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after canceled');
-  }
 
   const result = await prisma.$transaction(async trans => {
     await trans.order.update({

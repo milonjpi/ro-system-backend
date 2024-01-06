@@ -24,6 +24,10 @@ import { CustomerGroupRoutes } from '../modules/customerGroup/customerGroup.rout
 import { CustomInvoiceRoutes } from '../modules/customInvoice/customInvoice.route';
 import { VoucherRoutes } from '../modules/voucher/voucher.route';
 import { ReportRoutes } from '../modules/report/report.route';
+import { AssetRoutes } from '../modules/asset/asset.route';
+import { FixedAssetRoutes } from '../modules/fixedAsset/fixedAsset.route';
+import { InvestmentRoutes } from '../modules/investment/investment.route';
+import { WithdrawRoutes } from '../modules/withdraw/withdraw.route';
 
 const router = express.Router();
 
@@ -123,6 +127,22 @@ const moduleRoutes = [
   {
     path: '/voucher',
     route: VoucherRoutes,
+  },
+  {
+    path: '/asset',
+    route: AssetRoutes,
+  },
+  {
+    path: '/fixed-asset',
+    route: FixedAssetRoutes,
+  },
+  {
+    path: '/investment',
+    route: InvestmentRoutes,
+  },
+  {
+    path: '/withdraw',
+    route: WithdrawRoutes,
   },
   {
     path: '/report',

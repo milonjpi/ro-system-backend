@@ -10,7 +10,7 @@ const router = express.Router();
 // create user
 router.post(
   '/create',
-  // auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(UserValidation.create),
   UserController.createUser
 );
@@ -18,7 +18,7 @@ router.post(
 // get all user
 router.get(
   '/',
-  // auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   UserController.getAllUsers
 );
 
@@ -32,7 +32,7 @@ router.get(
 // update single user
 router.patch(
   '/:id',
-  // auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(UserValidation.update),
   UserController.updateUser
 );

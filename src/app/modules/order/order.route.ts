@@ -10,7 +10,7 @@ const router = express.Router();
 // create
 router.post(
   '/create',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   validateRequest(OrderValidation.create),
   OrderController.insertIntoDB
 );
@@ -32,7 +32,7 @@ router.get(
 // update single
 router.patch(
   '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   validateRequest(OrderValidation.update),
   OrderController.updateSingle
 );
@@ -47,7 +47,7 @@ router.delete(
 // cancel
 router.patch(
   '/:id/cancel',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   OrderController.cancelOrder
 );
 

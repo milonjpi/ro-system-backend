@@ -10,7 +10,7 @@ const router = express.Router();
 // receive payment
 router.post(
   '/receive-payment',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   validateRequest(VoucherValidation.receivePayment),
   VoucherController.receivePayment
 );
@@ -18,7 +18,7 @@ router.post(
 // make payment
 router.post(
   '/make-payment',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   validateRequest(VoucherValidation.makePayment),
   VoucherController.makePayment
 );

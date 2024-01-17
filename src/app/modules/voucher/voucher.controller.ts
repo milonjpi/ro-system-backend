@@ -30,6 +30,39 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// update receive payment
+const updateReceivePayment = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const { invoices, voucherDetails, ...otherData } = req.body;
+
+  const result = await VoucherService.updateReceivePayment(
+    id,
+    otherData,
+    invoices,
+    voucherDetails
+  );
+
+  sendResponse<Voucher>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Payment Received Updated Successfully',
+    data: result,
+  });
+});
+
+// delete receive payment
+const deleteReceiveVoucher = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await VoucherService.deleteReceiveVoucher(id);
+
+  sendResponse<Voucher>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Payment Received Deleted Successfully',
+    data: result,
+  });
+});
+
 // make payment
 const makePayment = catchAsync(async (req: Request, res: Response) => {
   const { bills, voucherDetails, ...otherData } = req.body;
@@ -66,9 +99,10 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const VoucherController = {
   receivePayment,
+  updateReceivePayment,
+  deleteReceiveVoucher,
   makePayment,
   getAll,
 };

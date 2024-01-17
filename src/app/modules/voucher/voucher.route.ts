@@ -15,6 +15,20 @@ router.post(
   VoucherController.receivePayment
 );
 
+// update receive payment
+router.patch(
+  '/receive-payment/:id',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  VoucherController.updateReceivePayment
+);
+
+// delete receive payment
+router.delete(
+  '/receive-payment/:id',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  VoucherController.deleteReceiveVoucher
+);
+
 // make payment
 router.post(
   '/make-payment',

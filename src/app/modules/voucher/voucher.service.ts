@@ -3,6 +3,7 @@ import prisma from '../../../shared/prisma';
 import {
   Bill,
   Invoice,
+  InvoiceBillStatus,
   Prisma,
   Voucher,
   VoucherDetail,
@@ -11,7 +12,11 @@ import {
 import ApiError from '../../../errors/ApiError';
 import { generateVoucherNo } from './voucher.utils';
 import moment from 'moment';
-import { IVoucherFilters, IVoucherResponse } from './voucher.interface';
+import {
+  CustomVoucherDetails,
+  IVoucherFilters,
+  IVoucherResponse,
+} from './voucher.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -70,6 +75,109 @@ const receivePayment = async (
     }
 
     return insertVoucher;
+  });
+
+  return result;
+};
+
+// update receive payment
+const updateReceivePayment = async (
+  id: string,
+  data: Voucher,
+  invoices: Partial<Invoice[]>,
+  voucherDetails: VoucherDetail[]
+): Promise<Voucher | null> => {
+  // check is exist
+  const isExist = await prisma.voucher.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Document Not Found');
+  }
+
+  const result = await prisma.$transaction(async trans => {
+    await trans.voucher.update({
+      where: { id },
+      data: { voucherDetails: { deleteMany: {} } },
+    });
+    const updateVoucher = await trans.voucher.update({
+      where: { id },
+      data: { ...data, voucherDetails: { create: voucherDetails } },
+    });
+
+    if (invoices.length) {
+      await Promise.all(
+        invoices.map(async invoice => {
+          const { id, ...otherValue } = invoice as Invoice;
+          await trans.invoice.update({
+            where: { id },
+            data: otherValue,
+          });
+        })
+      );
+    }
+
+    return updateVoucher;
+  });
+
+  return result;
+};
+
+// delete receive amount
+const deleteReceiveVoucher = async (id: string): Promise<Voucher | null> => {
+  // check is exist
+  const isExist = await prisma.voucher.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      customer: true,
+      vendor: true,
+      voucherDetails: {
+        include: {
+          invoice: true,
+          bill: true,
+        },
+      },
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  const { voucherDetails } = isExist;
+
+  const result = await prisma.$transaction(async trans => {
+    if (voucherDetails.length) {
+      await Promise.all(
+        voucherDetails.map(async details => {
+          const { invoice, ...otherValue } = details as CustomVoucherDetails;
+          const paidAmount = invoice.paidAmount - otherValue.receiveAmount;
+          await trans.invoice.update({
+            where: { id: invoice?.id },
+            data: {
+              paidAmount,
+              status:
+                paidAmount === 0
+                  ? InvoiceBillStatus.Due
+                  : paidAmount === invoice.amount
+                  ? InvoiceBillStatus.Paid
+                  : InvoiceBillStatus.Partial,
+            },
+          });
+        })
+      );
+    }
+    await trans.voucher.update({
+      where: { id },
+      data: { voucherDetails: { deleteMany: {} } },
+    });
+
+    return await trans.voucher.delete({ where: { id } });
   });
 
   return result;
@@ -230,6 +338,8 @@ const getAll = async (
 
 export const VoucherService = {
   receivePayment,
+  updateReceivePayment,
+  deleteReceiveVoucher,
   makePayment,
   getAll,
 };

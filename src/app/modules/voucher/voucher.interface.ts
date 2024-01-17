@@ -1,4 +1,4 @@
-import { Voucher } from '@prisma/client';
+import { Invoice, Voucher, VoucherDetail } from '@prisma/client';
 
 export type IVoucherFilters = {
   searchTerm?: string;
@@ -28,3 +28,5 @@ export type IVoucherResponse = {
   data: Voucher[];
   sum: IVoucherSum[];
 };
+
+export type CustomVoucherDetails = VoucherDetail & { invoice: Invoice };

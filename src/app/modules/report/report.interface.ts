@@ -1,5 +1,6 @@
 import { Customer } from '@prisma/client';
 
+// due types
 export type IDueFilters = {
   customerId?: string;
   startDate?: string;
@@ -16,6 +17,8 @@ export type IDueInvoice = {
   differentAmount: number | null | undefined;
 };
 
+
+// advance types
 export type IAdvanceInvoice = {
   amount: number | null | undefined;
   paidAmount: number | null | undefined;
@@ -27,3 +30,17 @@ export type IAdvanceInvoice = {
 
 export type IDueReport = Customer | IDueInvoice;
 export type IAdvanceReport = Customer | IAdvanceInvoice;
+
+
+// summary types
+export type ISummary = {
+  year: string;
+  month: string;
+  totalQty: number;
+  totalPrice: number;
+  discount: number;
+  amount: number;
+  paidAmount: number;
+  productId: string;
+  quantity: number;
+}

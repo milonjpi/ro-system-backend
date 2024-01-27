@@ -33,7 +33,14 @@ export type IAdvanceReport = Customer | IAdvanceInvoice;
 
 
 // summary types
-export type ISummary = {
+export type IProductSum = {
+  year: string;
+  month: string;
+  productId: string;
+  quantity: number;
+};
+
+export type IInvoiceSummary = {
   year: string;
   month: string;
   totalQty: number;
@@ -41,6 +48,5 @@ export type ISummary = {
   discount: number;
   amount: number;
   paidAmount: number;
-  productId: string;
-  quantity: number;
-}
+  products: IProductSum[];
+};

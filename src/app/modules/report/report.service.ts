@@ -1,4 +1,9 @@
-import { IAdvanceReport, IDueReport, ISummary } from './report.interface';
+import {
+  IAdvanceReport,
+  IDueReport,
+  IInvoiceSummary,
+  IProductSum,
+} from './report.interface';
 import prisma from '../../../shared/prisma';
 
 // get due report
@@ -119,26 +124,41 @@ const advanceReport = async (): Promise<IAdvanceReport[]> => {
   return result;
 };
 // get summary
-const summary = async (customerId: string | undefined): Promise<ISummary[]> => {
+const summary = async (
+  customerId: string | undefined
+): Promise<IInvoiceSummary[]> => {
   const customer = customerId || '';
 
-  const result = await prisma.$queryRaw`SELECT
+  const result = (await prisma.$queryRaw`SELECT
+  EXTRACT(YEAR FROM date) AS year,
+  EXTRACT(MONTH FROM date) AS month,
+  SUM("totalQty") AS "totalQty",
+  SUM("totalPrice") AS "totalPrice",
+  SUM(discount) AS discount,
+  SUM(amount) AS amount,
+  SUM("paidAmount") AS "paidAmount"
+FROM invoices
+WHERE "customerId" LIKE ${`%${customer}%`}
+GROUP BY year, month
+ORDER BY year, month`) as IInvoiceSummary[];
+
+  const result2 = (await prisma.$queryRaw`SELECT
   EXTRACT(YEAR FROM i.date) AS year,
   EXTRACT(MONTH FROM i.date) AS month,
-  SUM(i."totalQty") AS "totalQty",
-  SUM(i."totalPrice") AS "totalPrice",
-  SUM(i.discount) AS discount,
-  SUM(i.amount) AS amount,
-  SUM(i."paidAmount") AS "paidAmount",
   ip."productId",
   SUM(ip.quantity) AS quantity
 FROM invoices i
 JOIN "invoicedProducts" ip ON i.id = ip."invoiceId"
 WHERE i."customerId" LIKE ${`%${customer}%`}
 GROUP BY year, month, ip."productId"
-ORDER BY year, month, ip."productId"`;
+ORDER BY year, month, ip."productId"`) as IProductSum[];
 
-  return result as ISummary[];
+  const finalResult = result?.map(el => ({
+    ...el,
+    products: result2,
+  }));
+
+  return finalResult;
 };
 
 export const ReportService = {

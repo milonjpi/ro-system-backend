@@ -3,7 +3,11 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import { ReportService } from './report.service';
-import { IAdvanceReport, IDueReport, ISummary } from './report.interface';
+import {
+  IAdvanceReport,
+  IDueReport,
+  IInvoiceSummary,
+} from './report.interface';
 
 // get due report
 const dueReport = catchAsync(async (req: Request, res: Response) => {
@@ -34,7 +38,7 @@ const summary = catchAsync(async (req: Request, res: Response) => {
   const customerId = req.query.customerId as string;
   const result = await ReportService.summary(customerId);
 
-  sendResponse<ISummary[]>(res, {
+  sendResponse<IInvoiceSummary[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Summary retrieved successfully',

@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Expense, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IExpenseFilters } from './expense.interface';
+import { IExpenseFilters, IExpenseResponse } from './expense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -34,7 +34,7 @@ const insertIntoDB = async (data: Expense): Promise<Expense | null> => {
 const getAll = async (
   filters: IExpenseFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Expense[]>> => {
+): Promise<IGenericResponse<IExpenseResponse>> => {
   const { searchTerm, startDate, endDate, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -97,6 +97,13 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.expense.aggregate({
+    where: whereConditions,
+    _sum: {
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -104,7 +111,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 

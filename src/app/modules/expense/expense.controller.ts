@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { ExpenseService } from './expense.service';
 import { Expense, UserRole } from '@prisma/client';
 import { expenseFilterableFields } from './expense.constant';
+import { IExpenseResponse } from './expense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -31,7 +32,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await ExpenseService.getAll(filters, paginationOptions);
 
-  sendResponse<Expense[]>(res, {
+  sendResponse<IExpenseResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Expenses retrieved successfully',

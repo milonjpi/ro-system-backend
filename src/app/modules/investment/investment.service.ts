@@ -2,7 +2,10 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Investment, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IInvestmentFilters } from './investment.interface';
+import {
+  IInvestmentFilters,
+  IInvestmentResponse,
+} from './investment.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -33,8 +36,8 @@ const insertIntoDB = async (data: Investment): Promise<Investment | null> => {
 const getAll = async (
   filters: IInvestmentFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Investment[]>> => {
-  const { searchTerm, startDate, endDate } = filters;
+): Promise<IGenericResponse<IInvestmentResponse>> => {
+  const { searchTerm, startDate, endDate, isCash } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -67,6 +70,12 @@ const getAll = async (
     });
   }
 
+  if (isCash) {
+    andConditions.push({
+      isCash: isCash === 'true' ? true : false,
+    });
+  }
+
   const whereConditions: Prisma.InvestmentWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
@@ -84,6 +93,13 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.investment.aggregate({
+    where: whereConditions,
+    _sum: {
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -91,7 +107,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 

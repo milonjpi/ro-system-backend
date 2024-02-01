@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { InvestmentService } from './investment.service';
 import { Investment } from '@prisma/client';
 import { investmentFilterableFields } from './investment.constant';
+import { IInvestmentResponse } from './investment.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -28,7 +29,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await InvestmentService.getAll(filters, paginationOptions);
 
-  sendResponse<Investment[]>(res, {
+  sendResponse<IInvestmentResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Investments retrieved successfully',

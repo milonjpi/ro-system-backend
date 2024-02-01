@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Withdraw, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IWithdrawFilters } from './withdraw.interface';
+import { IWithdrawFilters, IWithdrawResponse } from './withdraw.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -33,7 +33,7 @@ const insertIntoDB = async (data: Withdraw): Promise<Withdraw | null> => {
 const getAll = async (
   filters: IWithdrawFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Withdraw[]>> => {
+): Promise<IGenericResponse<IWithdrawResponse>> => {
   const { searchTerm, startDate, endDate } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -84,6 +84,13 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.withdraw.aggregate({
+    where: whereConditions,
+    _sum: {
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -91,7 +98,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 

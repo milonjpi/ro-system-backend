@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { WithdrawService } from './withdraw.service';
 import { Withdraw } from '@prisma/client';
 import { withdrawFilterableFields } from './withdraw.constant';
+import { IWithdrawResponse } from './withdraw.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -28,7 +29,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await WithdrawService.getAll(filters, paginationOptions);
 
-  sendResponse<Withdraw[]>(res, {
+  sendResponse<IWithdrawResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Withdraws retrieved successfully',

@@ -434,6 +434,7 @@ model Investment {
   accountHeadId String
   accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
   amount        Int
+  isCash        Boolean     @default(false)
   remarks       String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

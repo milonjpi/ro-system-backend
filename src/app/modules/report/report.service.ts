@@ -1,5 +1,6 @@
 import {
   IAdvanceReport,
+  IBalanceSheet,
   IDueReport,
   IInvoiceSummary,
   IProductSum,
@@ -161,8 +162,97 @@ ORDER BY year, month, ip."productId"`) as IProductSum[];
   return finalResult;
 };
 
+const balanceSheet = async (): Promise<IBalanceSheet> => {
+  // invoices
+  const invoices = await prisma.invoice.aggregate({
+    _sum: {
+      amount: true,
+      paidAmount: true,
+    },
+  });
+
+  // bills
+  const bills = await prisma.bill.aggregate({
+    _sum: {
+      amount: true,
+      paidAmount: true,
+    },
+  });
+
+  // equipment in
+  const equipmentIn = await prisma.equipmentIn.groupBy({
+    by: 'equipmentId',
+    _sum: {
+      totalPrice: true,
+      quantity: true,
+    },
+    _avg: {
+      unitPrice: true,
+    },
+  });
+
+  // equipment out
+  const equipmentOut = await prisma.equipmentOut.groupBy({
+    by: 'equipmentId',
+    _sum: {
+      quantity: true,
+    },
+  });
+
+  // expenses
+  const expenses = await prisma.expense.groupBy({
+    by: 'expenseHeadId',
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // fixed asset
+  const fixedAssets = await prisma.fixedAsset.aggregate({
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // investment
+  const investments = await prisma.investment.groupBy({
+    by: 'isCash',
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // withdraw
+  const withdraws = await prisma.withdraw.aggregate({
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // vouchers
+  const vouchers = await prisma.voucher.groupBy({
+    by: 'type',
+    _sum: {
+      amount: true,
+    },
+  });
+
+  return {
+    invoices,
+    bills,
+    equipmentIn,
+    equipmentOut,
+    expenses,
+    fixedAssets,
+    investments,
+    withdraws,
+    vouchers,
+  };
+};
+
 export const ReportService = {
   dueReport,
   advanceReport,
   summary,
+  balanceSheet,
 };

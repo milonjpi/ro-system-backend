@@ -5,6 +5,7 @@ import httpStatus from 'http-status';
 import { ReportService } from './report.service';
 import {
   IAdvanceReport,
+  IBalanceSheet,
   IDueReport,
   IInvoiceSummary,
 } from './report.interface';
@@ -46,8 +47,21 @@ const summary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get summary
+const balanceSheet = catchAsync(async (req: Request, res: Response) => {
+  const result = await ReportService.balanceSheet();
+
+  sendResponse<IBalanceSheet>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Balance Sheet retrieved successfully',
+    data: result,
+  });
+});
+
 export const ReportController = {
   dueReport,
   advanceReport,
   summary,
+  balanceSheet,
 };

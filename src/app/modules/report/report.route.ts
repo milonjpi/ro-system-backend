@@ -26,4 +26,11 @@ router.get(
   ReportController.summary
 );
 
+// get balance sheet
+router.get(
+  '/balance-sheet',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ReportController.balanceSheet
+);
+
 export const ReportRoutes = router;

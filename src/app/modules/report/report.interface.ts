@@ -1,4 +1,11 @@
-import { Customer } from '@prisma/client';
+import {
+  Customer,
+  EquipmentIn,
+  EquipmentOut,
+  Expense,
+  Investment,
+  Voucher,
+} from '@prisma/client';
 
 // due types
 export type IDueFilters = {
@@ -17,7 +24,6 @@ export type IDueInvoice = {
   differentAmount: number | null | undefined;
 };
 
-
 // advance types
 export type IAdvanceInvoice = {
   amount: number | null | undefined;
@@ -30,7 +36,6 @@ export type IAdvanceInvoice = {
 
 export type IDueReport = Customer | IDueInvoice;
 export type IAdvanceReport = Customer | IAdvanceInvoice;
-
 
 // summary types
 export type IProductSum = {
@@ -49,4 +54,56 @@ export type IInvoiceSummary = {
   amount: number;
   paidAmount: number;
   products: IProductSum[];
+};
+
+// balance sheet
+type IEquipmentIn = Pick<EquipmentIn, 'equipmentId'> & {
+  _sum: { totalPrice: number | null; quantity: number | null };
+  _avg: { unitPrice: number | null };
+};
+
+type IEquipmentOut = Pick<EquipmentOut, 'equipmentId'> & {
+  _sum: { quantity: number | null };
+};
+
+type IExpenses = Pick<Expense, 'expenseHeadId'> & {
+  _sum: { amount: number | null };
+};
+
+type IVoucher = Pick<Voucher, 'type'> & {
+  _sum: { amount: number | null };
+};
+
+type IInvestment = Pick<Investment, 'isCash'> & {
+  _sum: { amount: number | null };
+};
+
+export type IBalanceSheet = {
+  invoices: {
+    _sum: {
+      amount: number | null;
+      paidAmount: number | null;
+    };
+  };
+  bills: {
+    _sum: {
+      amount: number | null;
+      paidAmount: number | null;
+    };
+  };
+  equipmentIn: IEquipmentIn[];
+  equipmentOut: IEquipmentOut[];
+  expenses: IExpenses[];
+  fixedAssets: {
+    _sum: {
+      amount: number | null;
+    };
+  };
+  investments: IInvestment[];
+  withdraws: {
+    _sum: {
+      amount: number | null;
+    };
+  };
+  vouchers: IVoucher[];
 };

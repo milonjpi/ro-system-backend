@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { FixedAssetService } from './fixedAsset.service';
 import { FixedAsset } from '@prisma/client';
 import { fixedAssetFilterableFields } from './fixedAsset.constant';
+import { IFixedAssetResponse } from './fixedAsset.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -28,7 +29,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await FixedAssetService.getAll(filters, paginationOptions);
 
-  sendResponse<FixedAsset[]>(res, {
+  sendResponse<IFixedAssetResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Fixed Assets retrieved successfully',

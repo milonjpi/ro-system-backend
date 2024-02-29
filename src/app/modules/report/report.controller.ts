@@ -9,10 +9,14 @@ import {
   IDueReport,
   IInvoiceSummary,
 } from './report.interface';
+import pick from '../../../shared/pick';
+import { dueReportFilterableFields } from './report.constant';
 
 // get due report
 const dueReport = catchAsync(async (req: Request, res: Response) => {
-  const result = await ReportService.dueReport();
+  const filters = pick(req.query, dueReportFilterableFields);
+
+  const result = await ReportService.dueReport(filters);
 
   sendResponse<IDueReport[]>(res, {
     statusCode: httpStatus.OK,

@@ -1,16 +1,39 @@
 import {
   IAdvanceReport,
   IBalanceSheet,
+  IDueFilters,
   IDueReport,
   IInvoiceSummary,
   IProductSum,
 } from './report.interface';
 import prisma from '../../../shared/prisma';
+import { Prisma } from '@prisma/client';
 
 // get due report
-const dueReport = async (): Promise<IDueReport[]> => {
+const dueReport = async (filters: IDueFilters): Promise<IDueReport[]> => {
+  const { startDate, endDate } = filters;
+
+  const andConditions = [];
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+  const whereConditions: Prisma.InvoiceWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
   // find invoices
   const invoices = await prisma.invoice.groupBy({
+    where: whereConditions,
     by: ['customerId'],
     _sum: {
       amount: true,

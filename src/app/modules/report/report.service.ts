@@ -1,6 +1,8 @@
 import {
   IAdvanceReport,
   IBalanceSheet,
+  IDonationFilters,
+  IDonationReport,
   IDueFilters,
   IDueReport,
   IInvoiceSummary,
@@ -273,9 +275,72 @@ const balanceSheet = async (): Promise<IBalanceSheet> => {
   };
 };
 
+// get due report
+const donationReport = async (
+  filters: IDonationFilters
+): Promise<IDonationReport[]> => {
+  const { startDate, endDate } = filters;
+
+  const andConditions = [];
+
+  andConditions.push({ amount: 0 });
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+  const whereConditions: Prisma.InvoiceWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+  // find invoices
+  const invoices = await prisma.invoice.groupBy({
+    where: whereConditions,
+    by: ['customerId'],
+    _sum: {
+      totalQty: true,
+    },
+  });
+
+  // customers
+  const customers = await prisma.customer.findMany({
+    select: {
+      id: true,
+      customerId: true,
+      customerName: true,
+      customerNameBn: true,
+      mobile: true,
+      address: true,
+    },
+  });
+
+  // set voucher and invoices in customer
+  const result = invoices
+    .map(el => {
+      const findCustomer = customers?.find(cm => cm.id === el.customerId);
+
+      return {
+        ...findCustomer,
+        quantity: el?._sum?.totalQty || 0,
+      };
+    })
+    .sort((a, b) => b.quantity - a.quantity);
+
+  return result;
+};
+
 export const ReportService = {
   dueReport,
   advanceReport,
   summary,
   balanceSheet,
+  donationReport,
 };

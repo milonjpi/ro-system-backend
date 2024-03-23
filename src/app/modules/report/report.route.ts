@@ -33,4 +33,11 @@ router.get(
   ReportController.balanceSheet
 );
 
+// get donation report
+router.get(
+  '/donation',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ReportController.donationReport
+);
+
 export const ReportRoutes = router;

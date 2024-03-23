@@ -104,3 +104,12 @@ export type IBalanceSheet = {
   };
   vouchers: IVoucher[];
 };
+
+
+// donation report
+export type IDonationFilters = {
+  startDate?: string;
+  endDate?: string;
+};
+
+export type IDonationReport = Customer | {quantity: number};

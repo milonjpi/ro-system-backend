@@ -6,11 +6,15 @@ import { ReportService } from './report.service';
 import {
   IAdvanceReport,
   IBalanceSheet,
+  IDonationReport,
   IDueReport,
   IInvoiceSummary,
 } from './report.interface';
 import pick from '../../../shared/pick';
-import { dueReportFilterableFields } from './report.constant';
+import {
+  donationFilterableFields,
+  dueReportFilterableFields,
+} from './report.constant';
 
 // get due report
 const dueReport = catchAsync(async (req: Request, res: Response) => {
@@ -63,9 +67,23 @@ const balanceSheet = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get summary
+const donationReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, donationFilterableFields);
+  const result = await ReportService.donationReport(filters);
+
+  sendResponse<IDonationReport[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Donation retrieved successfully',
+    data: result,
+  });
+});
+
 export const ReportController = {
   dueReport,
   advanceReport,
   summary,
   balanceSheet,
+  donationReport,
 };

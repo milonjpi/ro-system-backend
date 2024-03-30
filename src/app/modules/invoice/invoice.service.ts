@@ -101,6 +101,7 @@ const getAll = async (
     include: {
       customer: true,
       refNo: true,
+      voucherDetails: true,
       invoicedProducts: {
         include: {
           product: true,

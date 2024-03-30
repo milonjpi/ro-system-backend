@@ -455,6 +455,59 @@ model Withdraw {
   @@map("withdraws")
 }
 
+// income expense
+model IncomeExpenseCategory {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  incomeExpenses IncomeExpense[]
+
+  @@map("categories")
+}
+
+model IncomeExpenseHead {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  incomeExpenses IncomeExpense[]
+
+  @@map("incomeExpenseHeads")
+}
+
+model ModeOfPayment {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  incomeExpenses IncomeExpense[]
+
+  @@map("modeOfPayments")
+}
+
+model IncomeExpense {
+  id                  String                @id @default(uuid())
+  type                IncomeExpenseType
+  date                DateTime
+  categoryId          String
+  category            IncomeExpenseCategory @relation(fields: [categoryId], references: [id])
+  incomeExpenseHeadId String
+  incomeExpenseHead   IncomeExpenseHead     @relation(fields: [incomeExpenseHeadId], references: [id])
+  amount              Int
+  modeOfPaymentId     String
+  modeOfPayment       ModeOfPayment         @relation(fields: [modeOfPaymentId], references: [id])
+  remarks             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("incomeExpenses")
+}
+
 // ENUMS
 enum UserRole {
   super_admin
@@ -478,4 +531,9 @@ enum OrderStatus {
 enum VoucherType {
   Paid
   Received
+}
+
+enum IncomeExpenseType {
+  Income
+  Expense
 }

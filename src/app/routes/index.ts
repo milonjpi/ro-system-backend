@@ -28,6 +28,10 @@ import { AssetRoutes } from '../modules/asset/asset.route';
 import { FixedAssetRoutes } from '../modules/fixedAsset/fixedAsset.route';
 import { InvestmentRoutes } from '../modules/investment/investment.route';
 import { WithdrawRoutes } from '../modules/withdraw/withdraw.route';
+import { IncomeExpenseCategoryRoutes } from '../modules/incomeExpenseCategory/incomeExpenseCategory.route';
+import { IncomeExpenseHeadRoutes } from '../modules/incomeExpenseHead/incomeExpenseHead.route';
+import { ModeOfPaymentRoutes } from '../modules/modeOfPayment/modeOfPayment.route';
+import { IncomeExpenseRoutes } from '../modules/incomeExpense/incomeExpense.route';
 
 const router = express.Router();
 
@@ -147,6 +151,22 @@ const moduleRoutes = [
   {
     path: '/report',
     route: ReportRoutes,
+  },
+  {
+    path: '/income-expense-category',
+    route: IncomeExpenseCategoryRoutes,
+  },
+  {
+    path: '/income-expense-head',
+    route: IncomeExpenseHeadRoutes,
+  },
+  {
+    path: '/mode-of-payment',
+    route: ModeOfPaymentRoutes,
+  },
+  {
+    path: '/income-expense',
+    route: IncomeExpenseRoutes,
   },
 ];
 

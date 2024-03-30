@@ -1,9 +1,4 @@
-export const expenseSearchableFields = [
-  'totalQty',
-  'totalPrice',
-  'discount',
-  'amount',
-];
+export const expenseSearchableFields = ['remarks'];
 
 export const expenseFilterableFields = [
   'searchTerm',

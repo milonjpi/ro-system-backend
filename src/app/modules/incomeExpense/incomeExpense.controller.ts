@@ -5,16 +5,19 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { IncomeExpenseService } from './incomeExpense.service';
-import { IncomeExpense, UserRole } from '@prisma/client';
-import { incomeExpenseFilterableFields } from './incomeExpense.constant';
-import { IIncomeExpenseResponse } from './incomeExpense.interface';
+import { IncomeExpense } from '@prisma/client';
+import {
+  incomeExpenseFilterableFields,
+  inExSummaryFilterableFields,
+} from './incomeExpense.constant';
+import {
+  IIncomeExpenseResponse,
+  IInExSummaryReport,
+} from './incomeExpense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
-  const user = req.user as { id: string; role: UserRole };
-
-  data.userId = user.id;
 
   const result = await IncomeExpenseService.insertIntoDB(data);
 
@@ -84,10 +87,25 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get all
+const getAllSummary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, inExSummaryFilterableFields);
+
+  const result = await IncomeExpenseService.getAllSummary(filters);
+
+  sendResponse<IInExSummaryReport[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Income Expenses Summary retrieved successfully',
+    data: result,
+  });
+});
+
 export const IncomeExpenseController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getAllSummary,
 };

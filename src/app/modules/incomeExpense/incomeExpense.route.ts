@@ -22,6 +22,13 @@ router.get(
   IncomeExpenseController.getAll
 );
 
+// get all summary
+router.get(
+  '/summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  IncomeExpenseController.getAllSummary
+);
+
 // get single
 router.get(
   '/:id',

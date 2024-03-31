@@ -460,21 +460,26 @@ model IncomeExpenseCategory {
   id    String @id @default(uuid())
   label String @unique
 
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  incomeExpenses IncomeExpense[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  incomeExpenses     IncomeExpense[]
+  incomeExpenseHeads IncomeExpenseHead[]
 
   @@map("categories")
 }
 
 model IncomeExpenseHead {
-  id    String @id @default(uuid())
-  label String @unique
+  id         String                @id @default(uuid())
+  type       IncomeExpenseType
+  categoryId String
+  category   IncomeExpenseCategory @relation(fields: [categoryId], references: [id])
+  label      String
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   incomeExpenses IncomeExpense[]
 
+  @@unique([type, categoryId, label])
   @@map("incomeExpenseHeads")
 }
 

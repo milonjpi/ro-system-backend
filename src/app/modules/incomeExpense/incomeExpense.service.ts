@@ -5,6 +5,8 @@ import ApiError from '../../../errors/ApiError';
 import {
   IIncomeExpenseFilters,
   IIncomeExpenseResponse,
+  IInExSummaryFilters,
+  IInExSummaryReport,
 } from './incomeExpense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -176,10 +178,68 @@ const deleteFromDB = async (id: string): Promise<IncomeExpense | null> => {
   return result;
 };
 
+// get all summary
+const getAllSummary = async (
+  filters: IInExSummaryFilters
+): Promise<IInExSummaryReport[]> => {
+  const { startDate, endDate, ...filterData } = filters;
+
+  const andConditions = [];
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.entries(filterData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.IncomeExpenseWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.incomeExpense.groupBy({
+    where: whereConditions,
+    by: ['incomeExpenseHeadId'],
+    _sum: {
+      amount: true,
+    },
+  });
+  const allHead = await prisma.incomeExpenseHead.findMany({
+    include: { category: true },
+  });
+
+  const mainResult = result?.map(el => {
+    const findHead = allHead?.find(ah => ah.id === el.incomeExpenseHeadId);
+    return {
+      category: findHead?.category?.label,
+      head: findHead?.label,
+      amount: el._sum?.amount || 0,
+    };
+  });
+
+  return mainResult;
+};
+
 export const IncomeExpenseService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getAllSummary,
 };

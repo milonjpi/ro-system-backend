@@ -26,8 +26,8 @@ const getAll = async (
   filters: IIncomeExpenseHeadFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IncomeExpenseHead[]>> => {
-  const { searchTerm } = filters;
-  const { page, limit, skip, sortBy, sortOrder } =
+  const { searchTerm, ...filterData } = filters;
+  const { page, limit, skip } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
@@ -43,16 +43,32 @@ const getAll = async (
     });
   }
 
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.entries(filterData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
   const whereConditions: Prisma.IncomeExpenseHeadWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.incomeExpenseHead.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
+    orderBy: [
+      {
+        category: { label: 'asc' },
+      },
+      {
+        label: 'asc',
+      },
+    ],
     skip,
     take: limit,
+    include: {
+      category: true,
+    },
   });
 
   const total = await prisma.incomeExpenseHead.count({

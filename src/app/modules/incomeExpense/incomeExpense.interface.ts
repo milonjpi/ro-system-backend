@@ -20,3 +20,18 @@ export type IIncomeExpenseResponse = {
   data: IncomeExpense[];
   sum: ISum;
 };
+
+// summary
+export type IInExSummaryFilters = {
+  type?: string;
+  startDate?: string;
+  endDate?: string;
+  categoryId?: string;
+};
+
+
+export type IInExSummaryReport = {
+  category: string | undefined;
+  head: string | undefined;
+  amount: number
+};

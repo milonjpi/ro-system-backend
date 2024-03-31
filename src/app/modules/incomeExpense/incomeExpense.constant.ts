@@ -9,3 +9,10 @@ export const incomeExpenseFilterableFields = [
   'incomeExpenseHeadId',
   'modeOfPaymentId',
 ];
+
+export const inExSummaryFilterableFields = [
+  'type',
+  'startDate',
+  'endDate',
+  'categoryId',
+];

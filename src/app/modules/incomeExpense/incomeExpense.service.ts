@@ -235,6 +235,18 @@ const getAllSummary = async (
   return mainResult;
 };
 
+const bulkEntry = async (data: IncomeExpense[]): Promise<string> => {
+  await prisma.$transaction(async trans => {
+    await Promise.all(
+      data.map(async el => {
+        await trans.incomeExpense.create({ data: el });
+      })
+    );
+  });
+
+  return 'success';
+};
+
 export const IncomeExpenseService = {
   insertIntoDB,
   getAll,
@@ -242,4 +254,5 @@ export const IncomeExpenseService = {
   updateSingle,
   deleteFromDB,
   getAllSummary,
+  bulkEntry,
 };

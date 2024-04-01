@@ -101,6 +101,20 @@ const getAllSummary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// bulk entry
+const bulkEntry = catchAsync(async (req: Request, res: Response) => {
+  const { data } = req.body;
+
+  const result = await IncomeExpenseService.bulkEntry(data);
+
+  sendResponse<string>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Added Successfully',
+    data: result,
+  });
+});
+
 export const IncomeExpenseController = {
   insertIntoDB,
   getAll,
@@ -108,4 +122,5 @@ export const IncomeExpenseController = {
   updateSingle,
   deleteFromDB,
   getAllSummary,
+  bulkEntry,
 };

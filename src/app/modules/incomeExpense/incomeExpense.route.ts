@@ -14,6 +14,11 @@ router.post(
   validateRequest(IncomeExpenseValidation.create),
   IncomeExpenseController.insertIntoDB
 );
+router.post(
+  '/bulk-entry',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  IncomeExpenseController.bulkEntry
+);
 
 // get all
 router.get(

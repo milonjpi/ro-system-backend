@@ -163,6 +163,9 @@ const updateSingle = async (
     where: {
       id,
     },
+    include: {
+      voucherDetails: true,
+    },
   });
 
   if (!isExist) {
@@ -172,8 +175,9 @@ const updateSingle = async (
   if (isExist.status === 'Canceled') {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after canceled');
   }
-  if (isExist.status === 'Paid') {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after paid');
+
+  if (isExist.voucherDetails?.length) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update');
   }
 
   const result = await prisma.$transaction(async trans => {

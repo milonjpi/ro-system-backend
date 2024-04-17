@@ -219,13 +219,19 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
     where: {
       id,
     },
+    include: {
+      voucherDetails: true,
+    },
   });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.status === 'Paid' || isExist.status === 'Partial') {
+  if (
+    (isExist.status === 'Paid' && isExist.voucherDetails?.length) ||
+    isExist.status === 'Partial'
+  ) {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after paid');
   }
 

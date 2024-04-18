@@ -105,11 +105,39 @@ export type IBalanceSheet = {
   vouchers: IVoucher[];
 };
 
-
 // donation report
 export type IDonationFilters = {
   startDate?: string;
   endDate?: string;
 };
 
-export type IDonationReport = Customer | {quantity: number};
+export type IDonationReport = Customer | { quantity: number };
+
+// daily report
+export type IDailyReportFilters = {
+  startDate?: string;
+  endDate?: string;
+};
+
+type IInvoicedProductSum = {
+  productId: string;
+  quantity: number;
+  totalPrice: number;
+};
+
+export type IDailyReport = {
+  invoices: {
+    _sum: {
+      amount: number | null;
+      paidAmount: number | null;
+      totalQty: number | null;
+    };
+  };
+  invoicedProducts: IInvoicedProductSum[] | unknown;
+  vouchers: IVoucher[];
+  expenses: {
+    _sum: {
+      amount: number | null;
+    };
+  };
+};

@@ -1,6 +1,8 @@
 import {
   IAdvanceReport,
   IBalanceSheet,
+  IDailyReport,
+  IDailyReportFilters,
   IDonationFilters,
   IDonationReport,
   IDueFilters,
@@ -337,10 +339,87 @@ const donationReport = async (
   return result;
 };
 
+// get daily report
+const dailyReport = async (
+  filters: IDailyReportFilters
+): Promise<IDailyReport> => {
+  const { startDate, endDate } = filters;
+
+  const andConditions = [];
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+
+  const whereConditions: Prisma.InvoiceWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const voucherWhereConditions: Prisma.VoucherWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const expenseWhereConditions: Prisma.ExpenseWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+  // find invoices
+  const invoices = await prisma.invoice.aggregate({
+    where: whereConditions,
+    _sum: {
+      amount: true,
+      paidAmount: true,
+      totalQty: true,
+    },
+  });
+
+  const invoicedProducts = await prisma.$queryRaw`SELECT
+  ip."productId",
+  SUM(ip.quantity) AS quantity,
+  SUM(ip.totalPrice) AS totalPrice
+FROM invoices i
+JOIN "invoicedProducts" ip ON i.id = ip."invoiceId"
+WHERE i.date BETWEEN ${startDate} AND ${endDate}
+GROUP BY  ip."productId"
+ORDER BY ip."productId"`;
+
+  // find vouchers
+  const vouchers = await prisma.voucher.groupBy({
+    where: voucherWhereConditions,
+    by: ['type'],
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // customers
+  const expenses = await prisma.expense.aggregate({
+    where: expenseWhereConditions,
+    _sum: {
+      amount: true,
+    },
+  });
+
+  return {
+    invoices,
+    invoicedProducts,
+    vouchers,
+    expenses,
+  };
+};
+
 export const ReportService = {
   dueReport,
   advanceReport,
   summary,
   balanceSheet,
   donationReport,
+  dailyReport,
 };

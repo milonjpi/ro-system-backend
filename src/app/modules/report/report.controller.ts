@@ -6,12 +6,14 @@ import { ReportService } from './report.service';
 import {
   IAdvanceReport,
   IBalanceSheet,
+  IDailyReport,
   IDonationReport,
   IDueReport,
   IInvoiceSummary,
 } from './report.interface';
 import pick from '../../../shared/pick';
 import {
+  dailyReportFilterableFields,
   donationFilterableFields,
   dueReportFilterableFields,
 } from './report.constant';
@@ -80,10 +82,25 @@ const donationReport = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// daily report
+const dailyReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, dailyReportFilterableFields);
+
+  const result = await ReportService.dailyReport(filters);
+
+  sendResponse<IDailyReport>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Daily Report retrieved successfully',
+    data: result,
+  });
+});
+
 export const ReportController = {
   dueReport,
   advanceReport,
   summary,
   balanceSheet,
   donationReport,
+  dailyReport,
 };

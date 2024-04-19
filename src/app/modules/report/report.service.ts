@@ -370,6 +370,14 @@ const dailyReport = async (
 
   const expenseWhereConditions: Prisma.ExpenseWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const investmentWhereConditions: Prisma.InvestmentWhereInput =
+    andConditions.length > 0
+      ? { AND: andConditions, isCash: true }
+      : { isCash: true };
+
+  const withdrawWhereConditions: Prisma.WithdrawWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
   // find invoices
   const invoices = await prisma.invoice.aggregate({
     where: whereConditions,
@@ -380,38 +388,52 @@ const dailyReport = async (
     },
   });
 
-  const invoicedProducts = await prisma.$queryRaw`SELECT
+const invoicedProducts = await prisma.$queryRaw`SELECT
   ip."productId",
   SUM(ip.quantity) AS quantity,
-  SUM(ip.totalPrice) AS totalPrice
+  SUM(ip."totalPrice") AS "totalPrice"
 FROM invoices i
 JOIN "invoicedProducts" ip ON i.id = ip."invoiceId"
-WHERE i.date BETWEEN ${startDate} AND ${endDate}
+WHERE i.date BETWEEN ${new Date(`${startDate}, 00:00:00`)} AND ${new Date(
+  `${endDate}, 23:59:59`
+)}
 GROUP BY  ip."productId"
 ORDER BY ip."productId"`;
 
-  // find vouchers
-  const vouchers = await prisma.voucher.groupBy({
-    where: voucherWhereConditions,
-    by: ['type'],
-    _sum: {
-      amount: true,
-    },
-  });
+// find vouchers
+const vouchers = await prisma.voucher.groupBy({
+  where: voucherWhereConditions,
+  by: ['type'],
+  _sum: {
+    amount: true,
+  },
+});
 
-  // customers
-  const expenses = await prisma.expense.aggregate({
-    where: expenseWhereConditions,
-    _sum: {
-      amount: true,
-    },
-  });
+// customers
+const expenses = await prisma.expense.aggregate({
+  where: expenseWhereConditions,
+  _sum: {
+    amount: true,
+  },
+});
+
+const investments = await prisma.investment.aggregate({
+  where: investmentWhereConditions,
+  _sum: { amount: true },
+});
+
+const withdraws = await prisma.withdraw.aggregate({
+  where: withdrawWhereConditions,
+  _sum: { amount: true },
+});
 
   return {
     invoices,
     invoicedProducts,
     vouchers,
     expenses,
+    investments,
+    withdraws,
   };
 };
 

@@ -140,4 +140,6 @@ export type IDailyReport = {
       amount: number | null;
     };
   };
+  investments: { _sum: { amount: number | null } };
+  withdraws: { _sum: { amount: number | null } };
 };

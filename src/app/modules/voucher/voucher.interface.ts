@@ -8,6 +8,7 @@ export type IVoucherFilters = {
   vendorId?: string;
   userId?: string;
   type?: string;
+  report?: string;
 };
 
 export type IVoucherDetail = {

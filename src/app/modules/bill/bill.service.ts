@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Bill, BillEquipment, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IBillFilters } from './bill.interface';
+import { IBillFilters, IBillResponse } from './bill.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -45,7 +45,7 @@ const insertIntoDB = async (
 const getAll = async (
   filters: IBillFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Bill[]>> => {
+): Promise<IGenericResponse<IBillResponse>> => {
   const { searchTerm, startDate, endDate, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -111,6 +111,16 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.bill.aggregate({
+    where: whereConditions,
+    _sum: {
+      totalPrice: true,
+      discount: true,
+      amount: true,
+      paidAmount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -118,7 +128,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 

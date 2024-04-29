@@ -246,7 +246,7 @@ const getAll = async (
   filters: IVoucherFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IVoucherResponse>> => {
-  const { searchTerm, startDate, endDate, ...filterData } = filters;
+  const { searchTerm, startDate, endDate, report, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -291,9 +291,11 @@ const getAll = async (
 
   const result = await prisma.voucher.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
+    orderBy: report
+      ? { vendor: { vendorName: 'asc' } }
+      : {
+          [sortBy]: sortOrder,
+        },
     skip,
     take: limit,
     include: {

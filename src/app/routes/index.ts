@@ -32,6 +32,7 @@ import { IncomeExpenseCategoryRoutes } from '../modules/incomeExpenseCategory/in
 import { IncomeExpenseHeadRoutes } from '../modules/incomeExpenseHead/incomeExpenseHead.route';
 import { ModeOfPaymentRoutes } from '../modules/modeOfPayment/modeOfPayment.route';
 import { IncomeExpenseRoutes } from '../modules/incomeExpense/incomeExpense.route';
+import { PaymentReportRoutes } from '../modules/paymentReport/paymentReport.route';
 
 const router = express.Router();
 
@@ -151,6 +152,10 @@ const moduleRoutes = [
   {
     path: '/report',
     route: ReportRoutes,
+  },
+  {
+    path: '/payment-report',
+    route: PaymentReportRoutes,
   },
   {
     path: '/income-expense-category',

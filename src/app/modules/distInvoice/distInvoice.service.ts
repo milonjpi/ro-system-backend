@@ -1,39 +1,32 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Invoice, InvoicedProduct, Prisma } from '@prisma/client';
+import { DistInvoice, DistInvoicedProduct, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IInvoiceFilters, IInvoiceResponse } from './invoice.interface';
+import {
+  IDistInvoiceFilters,
+  IDistInvoiceResponse,
+} from './distInvoice.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { invoiceSearchableFields } from './invoice.constant';
-import { generateInvoiceNo } from './invoice.utils';
+import { distInvoiceSearchableFields } from './distInvoice.constant';
 import moment from 'moment';
+import { generateDistInvoiceNo } from './distInvoice.utils';
 
 // create
 const insertIntoDB = async (
-  data: Invoice,
-  invoicedProducts: InvoicedProduct[]
-): Promise<Invoice | null> => {
-  // generate invoice no
+  data: DistInvoice,
+  distInvoicedProducts: DistInvoicedProduct[]
+): Promise<DistInvoice | null> => {
+  // generate distInvoice no
   const convertDate = moment(data.date).format('YYYYMMDD');
-  const invoiceNo = await generateInvoiceNo(convertDate);
+  const invoiceNo = await generateDistInvoiceNo(convertDate);
 
-  // set invoice no
+  // set distInvoice no
   data.invoiceNo = invoiceNo;
 
-  // set account head
-  const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'Sales' },
-  });
-
-  if (!findAccountHead) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Account Head Missing');
-  }
-  data.accountHeadId = findAccountHead.id;
-
-  const result = await prisma.invoice.create({
-    data: { ...data, invoicedProducts: { create: invoicedProducts } },
+  const result = await prisma.distInvoice.create({
+    data: { ...data, distInvoicedProducts: { create: distInvoicedProducts } },
   });
 
   if (!result) {
@@ -45,10 +38,11 @@ const insertIntoDB = async (
 
 // get all
 const getAll = async (
-  filters: IInvoiceFilters,
+  filters: IDistInvoiceFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<IInvoiceResponse>> => {
-  const { searchTerm, startDate, endDate, ...filterData } = filters;
+): Promise<IGenericResponse<IDistInvoiceResponse>> => {
+  const { searchTerm, startDate, endDate, distributorId, ...filterData } =
+    filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -71,13 +65,17 @@ const getAll = async (
 
   if (searchTerm) {
     andConditions.push({
-      OR: invoiceSearchableFields.map(field => ({
+      OR: distInvoiceSearchableFields.map(field => ({
         [field]: {
           contains: searchTerm,
           mode: 'insensitive',
         },
       })),
     });
+  }
+
+  if (distributorId) {
+    andConditions.push({ customer: { distributorId } });
   }
 
   if (Object.keys(filterData).length > 0) {
@@ -88,10 +86,10 @@ const getAll = async (
     });
   }
 
-  const whereConditions: Prisma.InvoiceWhereInput =
+  const whereConditions: Prisma.DistInvoiceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const result = await prisma.invoice.findMany({
+  const result = await prisma.distInvoice.findMany({
     where: whereConditions,
     orderBy: {
       [sortBy]: sortOrder,
@@ -100,9 +98,8 @@ const getAll = async (
     take: limit,
     include: {
       customer: true,
-      refNo: true,
-      voucherDetails: true,
-      invoicedProducts: {
+      distVoucherDetails: true,
+      distInvoicedProducts: {
         include: {
           product: true,
         },
@@ -110,14 +107,13 @@ const getAll = async (
     },
   });
 
-  const total = await prisma.invoice.count({
+  const total = await prisma.distInvoice.count({
     where: whereConditions,
   });
   const totalPage = Math.ceil(total / limit);
 
-  const totalCount = await prisma.invoice.groupBy({
+  const totalCount = await prisma.distInvoice.aggregate({
     where: whereConditions,
-    by: ['accountHeadId'],
     _sum: {
       totalQty: true,
       totalPrice: true,
@@ -142,8 +138,8 @@ const getAll = async (
 };
 
 // get single
-const getSingle = async (id: string): Promise<Invoice | null> => {
-  const result = await prisma.invoice.findUnique({
+const getSingle = async (id: string): Promise<DistInvoice | null> => {
+  const result = await prisma.distInvoice.findUnique({
     where: {
       id,
     },
@@ -155,16 +151,16 @@ const getSingle = async (id: string): Promise<Invoice | null> => {
 // update
 const updateSingle = async (
   id: string,
-  payload: Partial<Invoice>,
-  invoicedProducts: InvoicedProduct[]
-): Promise<Invoice | null> => {
+  payload: Partial<DistInvoice>,
+  distInvoicedProducts: DistInvoicedProduct[]
+): Promise<DistInvoice | null> => {
   // check is exist
-  const isExist = await prisma.invoice.findUnique({
+  const isExist = await prisma.distInvoice.findUnique({
     where: {
       id,
     },
     include: {
-      voucherDetails: true,
+      distVoucherDetails: true,
     },
   });
 
@@ -176,39 +172,39 @@ const updateSingle = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after canceled');
   }
 
-  if (isExist.voucherDetails?.length) {
+  if (isExist.distVoucherDetails?.length) {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update');
   }
 
   // generate invoice no
   const convertDate = moment(payload.date).format('YYYYMMDD');
   if (!payload.invoiceNo?.includes(convertDate)) {
-    const invoiceNo = await generateInvoiceNo(convertDate);
+    const invoiceNo = await generateDistInvoiceNo(convertDate);
 
     // set invoice no
     payload.invoiceNo = invoiceNo;
   }
 
   const result = await prisma.$transaction(async trans => {
-    await trans.invoice.update({
+    await trans.distInvoice.update({
       where: {
         id,
       },
       data: {
-        invoicedProducts: {
+        distInvoicedProducts: {
           deleteMany: {},
         },
       },
     });
 
-    return await trans.invoice.update({
+    return await trans.distInvoice.update({
       where: {
         id,
       },
       data: {
         ...payload,
-        invoicedProducts: {
-          create: invoicedProducts,
+        distInvoicedProducts: {
+          create: distInvoicedProducts,
         },
       },
     });
@@ -222,14 +218,14 @@ const updateSingle = async (
 };
 
 // delete
-const deleteFromDB = async (id: string): Promise<Invoice | null> => {
+const deleteFromDB = async (id: string): Promise<DistInvoice | null> => {
   // check is exist
-  const isExist = await prisma.invoice.findUnique({
+  const isExist = await prisma.distInvoice.findUnique({
     where: {
       id,
     },
     include: {
-      voucherDetails: true,
+      distVoucherDetails: true,
     },
   });
 
@@ -238,25 +234,25 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   }
 
   if (
-    (isExist.status === 'Paid' && isExist.voucherDetails?.length) ||
+    (isExist.status === 'Paid' && isExist.distVoucherDetails?.length) ||
     isExist.status === 'Partial'
   ) {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after paid');
   }
 
   const result = await prisma.$transaction(async trans => {
-    await trans.invoice.update({
+    await trans.distInvoice.update({
       where: {
         id,
       },
       data: {
-        invoicedProducts: {
+        distInvoicedProducts: {
           deleteMany: {},
         },
       },
     });
 
-    return await trans.invoice.delete({
+    return await trans.distInvoice.delete({
       where: {
         id,
       },
@@ -266,7 +262,7 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   return result;
 };
 
-export const InvoiceService = {
+export const DistInvoiceService = {
   insertIntoDB,
   getAll,
   getSingle,

@@ -1,0 +1,57 @@
+import express from 'express';
+import validateRequest from '../../middlewares/validateRequest';
+import auth from '../../middlewares/auth';
+import { ENUM_USER_ROLE } from '../../../enums/user';
+import { DistClientValidation } from './distClient.validation';
+import { DistClientController } from './distClient.controller';
+
+const router = express.Router();
+
+// create
+router.post(
+  '/create',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  validateRequest(DistClientValidation.create),
+  DistClientController.insertIntoDB
+);
+
+// create
+router.post('/create/all', DistClientController.insertIntoDBAll);
+
+// get all
+router.get(
+  '/',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  DistClientController.getAll
+);
+
+// get distClient details
+router.get(
+  '/customer-details',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  DistClientController.getDistClientDetails
+);
+
+// get single
+router.get(
+  '/:id',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  DistClientController.getSingle
+);
+
+// update single
+router.patch(
+  '/:id',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  validateRequest(DistClientValidation.update),
+  DistClientController.updateSingle
+);
+
+// delete
+router.delete(
+  '/:id',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  DistClientController.deleteFromDB
+);
+
+export const DistClientRoutes = router;

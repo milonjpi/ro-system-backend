@@ -1,46 +1,22 @@
 import httpStatus from 'http-status';
-import bcrypt from 'bcrypt';
 import prisma from '../../../shared/prisma';
-import { Customer, InvoiceBillStatus, Prisma } from '@prisma/client';
+import { DistClient, InvoiceBillStatus, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { ICustomerDetails, ICustomerFilters } from './customer.interface';
+import { IDistClientDetails, IDistClientFilters } from './distClient.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { customerSearchableFields } from './customer.constant';
-import { generateCustomerId } from './customer.utils';
-import config from '../../../config';
+import { distClientSearchableFields } from './distClient.constant';
+import { generateDistClientId } from './distClient.utils';
 
 // create
-const insertIntoDB = async (data: Customer): Promise<Customer | null> => {
-  // generate customer id
-  const customerId = await generateCustomerId();
+const insertIntoDB = async (data: DistClient): Promise<DistClient | null> => {
+  // generate distClient id
+  const customerId = await generateDistClientId();
 
-  // set customer id
+  // set distClient id
   data.customerId = customerId;
-
-  const result = await prisma.$transaction(async trans => {
-    const saveCustomer = await trans.customer.create({
-      data,
-      include: { group: true },
-    });
-
-    if (saveCustomer?.group?.label === 'DISTRIBUTOR') {
-      await trans.user.create({
-        data: {
-          fullName: saveCustomer?.customerName,
-          userName: saveCustomer?.customerId,
-          password: await bcrypt.hash(
-            '12345',
-            Number(config.bcrypt_salt_rounds)
-          ),
-          distributorId: saveCustomer.id,
-        },
-      });
-    }
-
-    return saveCustomer;
-  });
+  const result = await prisma.distClient.create({ data });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
@@ -50,8 +26,8 @@ const insertIntoDB = async (data: Customer): Promise<Customer | null> => {
 };
 
 // create
-const insertIntoDBAll = async (data: Customer[]): Promise<string | null> => {
-  const result = await prisma.customer.createMany({ data });
+const insertIntoDBAll = async (data: DistClient[]): Promise<string | null> => {
+  const result = await prisma.distClient.createMany({ data });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
@@ -62,9 +38,9 @@ const insertIntoDBAll = async (data: Customer[]): Promise<string | null> => {
 
 // get all
 const getAll = async (
-  filters: ICustomerFilters,
+  filters: IDistClientFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Customer[]>> => {
+): Promise<IGenericResponse<DistClient[]>> => {
   const { searchTerm, forVoucher, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -73,7 +49,7 @@ const getAll = async (
 
   if (searchTerm) {
     andConditions.push({
-      OR: customerSearchableFields.map(field => ({
+      OR: distClientSearchableFields.map(field => ({
         [field]: {
           contains: searchTerm,
           mode: 'insensitive',
@@ -90,10 +66,10 @@ const getAll = async (
     });
   }
 
-  const whereConditions: Prisma.CustomerWhereInput =
+  const whereConditions: Prisma.DistClientWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const result = await prisma.customer.findMany({
+  const result = await prisma.distClient.findMany({
     where: whereConditions,
     orderBy: {
       [sortBy]: sortOrder,
@@ -101,8 +77,7 @@ const getAll = async (
     skip,
     take: limit,
     include: {
-      group: true,
-      invoices: forVoucher
+      distInvoices: forVoucher
         ? {
             where: {
               status: {
@@ -114,7 +89,7 @@ const getAll = async (
     },
   });
 
-  const total = await prisma.customer.count({
+  const total = await prisma.distClient.count({
     where: whereConditions,
   });
   const totalPage = Math.ceil(total / limit);
@@ -131,13 +106,10 @@ const getAll = async (
 };
 
 // get single
-const getSingle = async (id: string): Promise<Customer | null> => {
-  const result = await prisma.customer.findUnique({
+const getSingle = async (id: string): Promise<DistClient | null> => {
+  const result = await prisma.distClient.findUnique({
     where: {
       id,
-    },
-    include: {
-      group: true,
     },
   });
 
@@ -147,10 +119,10 @@ const getSingle = async (id: string): Promise<Customer | null> => {
 // update
 const updateSingle = async (
   id: string,
-  payload: Partial<Customer>
-): Promise<Customer | null> => {
+  payload: Partial<DistClient>
+): Promise<DistClient | null> => {
   // check is exist
-  const isExist = await prisma.customer.findUnique({
+  const isExist = await prisma.distClient.findUnique({
     where: {
       id,
     },
@@ -160,52 +132,11 @@ const updateSingle = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  const result = await prisma.$transaction(async trans => {
-    const updateCustomer = await trans.customer.update({
-      where: {
-        id,
-      },
-      data: payload,
-      include: {
-        group: true,
-      },
-    });
-    const findUser = await trans.user.findFirst({
-      where: { distributorId: id },
-    });
-
-    if (findUser && updateCustomer?.group?.label === 'DISTRIBUTOR') {
-      await trans.user.update({
-        where: { id: findUser?.id },
-        data: {
-          isActive: true,
-        },
-      });
-    }
-
-    if (!findUser && updateCustomer?.group?.label === 'DISTRIBUTOR') {
-      await trans.user.create({
-        data: {
-          fullName: updateCustomer?.customerName,
-          userName: updateCustomer?.customerId,
-          password: await bcrypt.hash(
-            '12345',
-            Number(config.bcrypt_salt_rounds)
-          ),
-          distributorId: updateCustomer.id,
-        },
-      });
-    }
-    if (findUser && updateCustomer?.group?.label !== 'DISTRIBUTOR') {
-      await trans.user.update({
-        where: { id: findUser.id },
-        data: {
-          isActive: false,
-        },
-      });
-    }
-
-    return updateCustomer;
+  const result = await prisma.distClient.update({
+    where: {
+      id,
+    },
+    data: payload,
   });
 
   if (!result) {
@@ -216,9 +147,9 @@ const updateSingle = async (
 };
 
 // delete
-const deleteFromDB = async (id: string): Promise<Customer | null> => {
+const deleteFromDB = async (id: string): Promise<DistClient | null> => {
   // check is exist
-  const isExist = await prisma.customer.findUnique({
+  const isExist = await prisma.distClient.findUnique({
     where: {
       id,
     },
@@ -228,7 +159,7 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  const result = await prisma.customer.delete({
+  const result = await prisma.distClient.delete({
     where: {
       id,
     },
@@ -237,8 +168,10 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
   return result;
 };
 
-// get customer details
-const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
+// get distClient details
+const getDistClientDetails = async (
+  filters: IDistClientFilters
+): Promise<IDistClientDetails[]> => {
   // find invoices
   const invoices = await prisma.invoice.groupBy({
     by: ['customerId'],
@@ -262,11 +195,37 @@ const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
     },
   });
 
-  // customers
-  const customers = await prisma.customer.findMany({
-    where: {
-      isActive: true,
-    },
+  // searching
+  const { searchTerm, ...filterData } = filters;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: distClientSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.entries(filterData).map(([field, value]) => ({
+        [field]: value === 'true' ? true : value === 'false' ? false : value,
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.DistClientWhereInput =
+    andConditions.length > 0
+      ? { AND: andConditions, isActive: true }
+      : { isActive: true };
+
+  // distClients
+  const distClients = await prisma.distClient.findMany({
+    where: whereConditions,
     select: {
       id: true,
       customerId: true,
@@ -275,10 +234,13 @@ const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
       mobile: true,
       address: true,
     },
+    orderBy: {
+      customerName: 'asc',
+    },
   });
 
-  // set voucher and invoices in customer
-  const result = customers.map(el => {
+  // set voucher and invoices in distClient
+  const result = distClients.map(el => {
     const findInvoiceSum = invoices?.find(inv => inv.customerId === el.id);
     const findVoucherSum = vouchers?.find(vou => vou.customerId === el.id);
 
@@ -297,12 +259,12 @@ const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
   return result;
 };
 
-export const CustomerService = {
+export const DistClientService = {
   insertIntoDB,
   insertIntoDBAll,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
-  getCustomerDetails,
+  getDistClientDetails,
 };

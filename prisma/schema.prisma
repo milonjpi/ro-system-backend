@@ -11,22 +11,29 @@ datasource db {
 }
 
 model User {
-  id         String              @id @default(uuid())
-  fullName   String
-  userName   String              @unique
-  password   String
-  role       UserRole            @default(user)
-  profileImg String?
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  menus      MenuPermission[]
-  subMenus   SubMenuPermission[]
-  sections   SectionPermission[]
-  invoices   Invoice[]
-  bills      Bill[]
-  expenses   Expense[]
-  orders     Order[]
-  voucher    Voucher[]
+  id            String    @id @default(uuid())
+  fullName      String
+  userName      String    @unique
+  password      String
+  role          UserRole  @default(user)
+  profileImg    String?
+  distributorId String?
+  distributor   Customer? @relation(fields: [distributorId], references: [id])
+  isActive      Boolean   @default(true)
+
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  menus        MenuPermission[]
+  subMenus     SubMenuPermission[]
+  sections     SectionPermission[]
+  invoices     Invoice[]
+  bills        Bill[]
+  expenses     Expense[]
+  orders       Order[]
+  voucher      Voucher[]
+  distInvoices DistInvoice[]
+  distVouchers DistVoucher[]
+  distExpenses DistExpense[]
 
   @@map("users")
 }
@@ -123,12 +130,16 @@ model Customer {
   address        String?
   groupId        String?
   group          CustomerGroup? @relation(fields: [groupId], references: [id])
+  isDistributor  Boolean        @default(false)
   isActive       Boolean        @default(true)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   invoices       Invoice[]
   orders         Order[]
   vouchers       Voucher[]
+  users          User[]
+  distClients    DistClient[]
+  distExpenses   DistExpense[]
 
   @@map("customers")
 }
@@ -154,17 +165,18 @@ model Vendor {
 
 // product
 model Product {
-  id               String            @id @default(uuid())
-  productId        String            @unique
-  label            String            @unique
-  description      String?
-  uom              String
-  price            Float
-  isActive         Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  invoicedProducts InvoicedProduct[]
-  orderedProducts  OrderedProduct[]
+  id                   String                @id @default(uuid())
+  productId            String                @unique
+  label                String                @unique
+  description          String?
+  uom                  String
+  price                Float
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  invoicedProducts     InvoicedProduct[]
+  orderedProducts      OrderedProduct[]
+  distInvoicedProducts DistInvoicedProduct[]
 }
 
 // order
@@ -337,11 +349,12 @@ model EquipmentOut {
 
 // expense
 model ExpenseHead {
-  id        String    @id @default(uuid())
-  label     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  expenses  Expense[]
+  id           String        @id @default(uuid())
+  label        String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  expenses     Expense[]
+  distExpenses DistExpense[]
 
   @@map("expenseHeads")
 }
@@ -511,6 +524,136 @@ model IncomeExpense {
   updatedAt DateTime @updatedAt
 
   @@map("incomeExpenses")
+}
+
+// distribution
+
+// client list
+model DistClient {
+  id             String  @id @default(uuid())
+  customerId     String  @unique
+  customerName   String
+  customerNameBn String?
+  mobile         String?
+  address        String?
+  isActive       Boolean @default(true)
+
+  distributorId String
+  distributor   Customer @relation(fields: [distributorId], references: [id])
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  distInvoices DistInvoice[]
+  distVouchers DistVoucher[]
+
+  @@map("distClients")
+}
+
+// vendor list
+model DistVendor {
+  id           String  @id @default(uuid())
+  vendorId     String  @unique
+  vendorName   String
+  vendorNameBn String?
+  mobile       String?
+  address      String?
+  isActive     Boolean @default(true)
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  distVouchers DistVoucher[]
+
+  @@map("distVendors")
+}
+
+// dist invoice
+model DistInvoice {
+  id         String            @id @default(uuid())
+  invoiceNo  String            @unique
+  date       DateTime
+  customerId String
+  customer   DistClient        @relation(fields: [customerId], references: [id])
+  totalQty   Float
+  totalPrice Float
+  discount   Float
+  amount     Float
+  paidAmount Float             @default(0)
+  status     InvoiceBillStatus @default(Due)
+
+  userId     String
+  preparedBy User   @relation(fields: [userId], references: [id])
+
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  distInvoicedProducts DistInvoicedProduct[]
+  distVoucherDetails   DistVoucherDetail[]
+
+  @@map("distInvoices")
+}
+
+model DistInvoicedProduct {
+  id         String      @id @default(uuid())
+  invoiceId  String
+  invoice    DistInvoice @relation(fields: [invoiceId], references: [id])
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id])
+  unitPrice  Float
+  quantity   Float
+  totalPrice Float
+
+  @@map("distInvoicedProducts")
+}
+
+// dist voucher
+model DistVoucher {
+  id                 String              @id @default(uuid())
+  voucherNo          String              @unique
+  type               VoucherType
+  date               DateTime
+  amount             Int
+  customerId         String?
+  customer           DistClient?         @relation(fields: [customerId], references: [id])
+  vendorId           String?
+  vendor             DistVendor?         @relation(fields: [vendorId], references: [id])
+  narration          String?
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  distVoucherDetails DistVoucherDetail[]
+
+  @@map("distVouchers")
+}
+
+model DistVoucherDetail {
+  id            String       @id @default(uuid())
+  voucherId     String
+  voucher       DistVoucher  @relation(fields: [voucherId], references: [id])
+  invoiceId     String?
+  invoice       DistInvoice? @relation(fields: [invoiceId], references: [id])
+  receiveAmount Int
+
+  @@map("distVoucherDetails")
+}
+
+model DistExpense {
+  id            String      @id @default(uuid())
+  date          DateTime
+  distributorId String
+  distributor   Customer    @relation(fields: [distributorId], references: [id])
+  expenseHeadId String
+  expenseHead   ExpenseHead @relation(fields: [expenseHeadId], references: [id])
+  vendor        String?
+  amount        Float
+  remarks       String?
+
+  userId     String
+  preparedBy User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("distExpenses")
 }
 
 // ENUMS

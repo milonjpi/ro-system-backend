@@ -6,9 +6,7 @@ const create = z.object({
     customerNameBn: z.string().optional(),
     mobile: z.string().optional().nullable(),
     address: z.string().optional().nullable(),
-    groupId: z.string().optional().nullable(),
-    isActive: z.boolean().optional(),
-    isDistributor: z.boolean().optional(),
+    distributorId: z.string({ required_error: 'Distributor ID is Required' }),
   }),
 });
 
@@ -18,13 +16,12 @@ const update = z.object({
     customerNameBn: z.string().optional(),
     mobile: z.string().optional().nullable(),
     address: z.string().optional().nullable(),
-    groupId: z.string().optional().nullable(),
+    distributorId: z.string().optional(),
     isActive: z.boolean().optional(),
-    isDistributor: z.boolean().optional(),
   }),
 });
 
-export const CustomerValidation = {
+export const DistClientValidation = {
   create,
   update,
 };

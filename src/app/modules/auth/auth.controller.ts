@@ -15,9 +15,9 @@ const signIn = catchAsync(async (req: Request, res: Response) => {
 
   // set refresh token into cookie
   const cookieOptions = {
-    secure: true,
+    secure: false,
     httpOnly: true,
-    sameSite: 'none',
+    // sameSite: 'none',
     maxAge: parseInt(config.jwt.cookie_max_age || '31536000000'),
   };
 

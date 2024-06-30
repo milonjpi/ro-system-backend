@@ -11,6 +11,7 @@ const getProfile = async (id: string): Promise<User | null> => {
       menus: true,
       subMenus: true,
       sections: true,
+      distributor: true,
     },
   });
 

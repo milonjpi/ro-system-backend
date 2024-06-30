@@ -33,6 +33,12 @@ import { IncomeExpenseHeadRoutes } from '../modules/incomeExpenseHead/incomeExpe
 import { ModeOfPaymentRoutes } from '../modules/modeOfPayment/modeOfPayment.route';
 import { IncomeExpenseRoutes } from '../modules/incomeExpense/incomeExpense.route';
 import { PaymentReportRoutes } from '../modules/paymentReport/paymentReport.route';
+import { DistClientRoutes } from '../modules/distClient/distClient.route';
+import { DistVendorRoutes } from '../modules/distVendor/distVendor.route';
+import { DistInvoiceRoutes } from '../modules/distInvoice/distInvoice.route';
+import { DistVoucherRoutes } from '../modules/distVoucher/distVoucher.route';
+import { DistReportRoutes } from '../modules/distReport/distReport.route';
+import { DistExpenseRoutes } from '../modules/distExpense/distExpense.route';
 
 const router = express.Router();
 
@@ -172,6 +178,30 @@ const moduleRoutes = [
   {
     path: '/income-expense',
     route: IncomeExpenseRoutes,
+  },
+  {
+    path: '/dist-client',
+    route: DistClientRoutes,
+  },
+  {
+    path: '/dist-vendor',
+    route: DistVendorRoutes,
+  },
+  {
+    path: '/dist-invoice',
+    route: DistInvoiceRoutes,
+  },
+  {
+    path: '/dist-expense',
+    route: DistExpenseRoutes,
+  },
+  {
+    path: '/dist-voucher',
+    route: DistVoucherRoutes,
+  },
+  {
+    path: '/dist-report',
+    route: DistReportRoutes,
   },
 ];
 

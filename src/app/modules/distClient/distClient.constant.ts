@@ -1,4 +1,4 @@
-export const customerSearchableFields = [
+export const distClientSearchableFields = [
   'customerId',
   'customerName',
   'customerNameBn',
@@ -6,10 +6,9 @@ export const customerSearchableFields = [
   'address',
 ];
 
-export const customerFilterableFields = [
+export const distClientFilterableFields = [
   'searchTerm',
-  'groupId',
-  'isDistributor',
+  'distributorId',
   'isActive',
   'forVoucher',
 ];

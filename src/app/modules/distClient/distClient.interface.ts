@@ -1,14 +1,13 @@
-import { Customer } from '@prisma/client';
+import { DistClient } from '@prisma/client';
 
-export type ICustomerFilters = {
+export type IDistClientFilters = {
   searchTerm?: string;
-  groupId?: string;
-  isDistributor?: string;
+  distributorId?: string;
   forVoucher?: string;
   isActive?: string;
 };
 
-export type IInvoiceDetails = {
+type IInvoiceDetails = {
   invoices: {
     saleAmount: number | null | undefined;
     paidAmount: number | null | undefined;
@@ -18,4 +17,4 @@ export type IInvoiceDetails = {
   };
 };
 
-export type ICustomerDetails = Customer | IInvoiceDetails;
+export type IDistClientDetails = DistClient | IInvoiceDetails;

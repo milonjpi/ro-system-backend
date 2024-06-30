@@ -12,6 +12,7 @@ const create = z.object({
     password: z.string({
       required_error: 'Password is required',
     }),
+    distributorId: z.string().optional(),
     role: z.enum(userRoles as [string, ...string[]]).optional(),
     profileImg: z.string().optional(),
   }),
@@ -22,8 +23,10 @@ const update = z.object({
     fullName: z.string().optional(),
     userName: z.string().optional(),
     password: z.string().optional(),
+    distributorId: z.string().optional(),
     role: z.enum(userRoles as [string, ...string[]]).optional(),
     profileImg: z.string().optional().nullable(),
+    isActive: z.boolean().optional(),
   }),
 });
 

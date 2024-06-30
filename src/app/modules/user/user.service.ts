@@ -22,7 +22,10 @@ const createUser = async (data: User): Promise<User | null> => {
 
 // get all users
 const getAllUsers = async (): Promise<User[]> => {
-  const result = await prisma.user.findMany();
+  const result = await prisma.user.findMany({
+    where: { isActive: true },
+    include: { distributor: true },
+  });
 
   return result;
 };

@@ -6,4 +6,4 @@ export const productSearchableFields = [
   'price',
 ];
 
-export const productFilterableFields = ['searchTerm', 'isActive'];
+export const productFilterableFields = ['searchTerm', 'isDist', 'isActive'];

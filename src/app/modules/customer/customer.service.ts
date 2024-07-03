@@ -218,7 +218,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Customer | null> => {
   // check is exist
-  const isExist = await prisma.customer.findUnique({
+  const isExist = await prisma.customer.findFirst({
     where: {
       id,
     },
@@ -238,7 +238,37 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
 };
 
 // get customer details
-const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
+const getCustomerDetails = async (
+  filters: ICustomerFilters
+): Promise<ICustomerDetails[]> => {
+  const { searchTerm, ...filterData } = filters;
+
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: customerSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.entries(filterData).map(([field, value]) => ({
+        [field]: value === 'true' ? true : value === 'false' ? false : value,
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.CustomerWhereInput =
+    andConditions.length > 0
+      ? { AND: andConditions, isActive: true }
+      : { isActive: true };
+
   // find invoices
   const invoices = await prisma.invoice.groupBy({
     by: ['customerId'],
@@ -264,9 +294,7 @@ const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
 
   // customers
   const customers = await prisma.customer.findMany({
-    where: {
-      isActive: true,
-    },
+    where: whereConditions,
     select: {
       id: true,
       customerId: true,
@@ -274,6 +302,9 @@ const getCustomerDetails = async (): Promise<ICustomerDetails[]> => {
       customerNameBn: true,
       mobile: true,
       address: true,
+    },
+    orderBy: {
+      customerName: 'asc',
     },
   });
 

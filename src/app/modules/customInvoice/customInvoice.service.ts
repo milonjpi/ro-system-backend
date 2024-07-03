@@ -10,9 +10,22 @@ const getCustomInvoices = async (
   filters: ICustomInvoiceFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Customer[]>> => {
-  const { customerId, startDate, endDate } = filters;
+  const { groupId, customerId, startDate, endDate } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
+
+  const customerConditions = [];
+
+  if (groupId) {
+    customerConditions.push({ groupId: groupId });
+  }
+
+  if (customerId) {
+    customerConditions.push({ id: customerId });
+  }
+
+  const customerWhereConditions: Prisma.CustomerWhereInput =
+    customerConditions.length > 0 ? { AND: customerConditions } : {};
 
   const andConditions = [];
 
@@ -35,7 +48,7 @@ const getCustomInvoices = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.customer.findMany({
-    where: customerId ? { id: customerId } : {},
+    where: customerWhereConditions,
     orderBy: {
       [sortBy]: sortOrder,
     },
@@ -57,7 +70,7 @@ const getCustomInvoices = async (
   });
 
   const total = await prisma.customer.count({
-    where: customerId ? { id: customerId } : {},
+    where: customerWhereConditions,
   });
   const totalPage = Math.ceil(total / limit);
 

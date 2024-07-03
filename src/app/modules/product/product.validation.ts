@@ -6,6 +6,7 @@ const create = z.object({
     description: z.string().optional(),
     uom: z.string({ required_error: 'UOM is required' }),
     price: z.number({ required_error: 'Price is required' }),
+    isDist: z.boolean().optional(),
     isActive: z.boolean().optional(),
   }),
 });
@@ -16,6 +17,7 @@ const update = z.object({
     description: z.string().optional(),
     uom: z.string().optional(),
     price: z.number().optional(),
+    isDist: z.boolean().optional(),
     isActive: z.boolean().optional(),
   }),
 });

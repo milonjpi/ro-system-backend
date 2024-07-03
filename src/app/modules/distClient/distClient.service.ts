@@ -107,7 +107,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<DistClient | null> => {
-  const result = await prisma.distClient.findUnique({
+  const result = await prisma.distClient.findFirst({
     where: {
       id,
     },
@@ -122,7 +122,7 @@ const updateSingle = async (
   payload: Partial<DistClient>
 ): Promise<DistClient | null> => {
   // check is exist
-  const isExist = await prisma.distClient.findUnique({
+  const isExist = await prisma.distClient.findFirst({
     where: {
       id,
     },
@@ -149,14 +149,24 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<DistClient | null> => {
   // check is exist
-  const isExist = await prisma.distClient.findUnique({
+  const isExist = await prisma.distClient.findFirst({
     where: {
       id,
     },
+    include: {
+      distInvoices: true,
+      distVouchers: true,
+    },
   });
+
+
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.distInvoices?.length || isExist.distVouchers?.length) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Client Engaged with invoice');
   }
 
   const result = await prisma.distClient.delete({

@@ -97,7 +97,8 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
 
 // set voucher and invoices in customer
 const getCustomerDetails = catchAsync(async (req: Request, res: Response) => {
-  const result = await CustomerService.getCustomerDetails();
+  const filters = pick(req.query, customerFilterableFields);
+  const result = await CustomerService.getCustomerDetails(filters);
 
   sendResponse<ICustomerDetails[]>(res, {
     statusCode: httpStatus.OK,

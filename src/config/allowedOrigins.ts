@@ -10,6 +10,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://erp.fl-bd.com',
   'https://erp.fl-bd.com',
+  'http://ap.tbz.com.bd',
+  'http://ro.tbz.com.bd',
 ];
 
 export default allowedOrigins;

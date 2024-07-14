@@ -39,6 +39,9 @@ import { DistInvoiceRoutes } from '../modules/distInvoice/distInvoice.route';
 import { DistVoucherRoutes } from '../modules/distVoucher/distVoucher.route';
 import { DistReportRoutes } from '../modules/distReport/distReport.route';
 import { DistExpenseRoutes } from '../modules/distExpense/distExpense.route';
+import { FosCustomerRoutes } from '../modules/fosCustomer/fosCustomer.route';
+import { FosProductRoutes } from '../modules/fosProduct/fosProduct.route';
+import { FosInvoiceRoutes } from '../modules/fosInvoice/fosInvoice.route';
 
 const router = express.Router();
 
@@ -202,6 +205,18 @@ const moduleRoutes = [
   {
     path: '/dist-report',
     route: DistReportRoutes,
+  },
+  {
+    path: '/fos-customer',
+    route: FosCustomerRoutes,
+  },
+  {
+    path: '/fos-product',
+    route: FosProductRoutes,
+  },
+  {
+    path: '/fos-invoice',
+    route: FosInvoiceRoutes,
   },
 ];
 

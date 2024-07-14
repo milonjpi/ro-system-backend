@@ -34,6 +34,7 @@ model User {
   distInvoices DistInvoice[]
   distVouchers DistVoucher[]
   distExpenses DistExpense[]
+  fosInvoices  FosInvoice[]
 
   @@map("users")
 }
@@ -655,6 +656,71 @@ model DistExpense {
   updatedAt DateTime @updatedAt
 
   @@map("distExpenses")
+}
+
+// free of cost area
+// fos customer
+model FosCustomer {
+  id             String  @id @default(uuid())
+  customerId     String  @unique
+  customerName   String
+  customerNameBn String?
+  mobile         String?
+  address        String?
+  isActive       Boolean @default(true)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  fosInvoices FosInvoice[]
+
+  @@map("fosCustomers")
+}
+
+// fos product
+model FosProduct {
+  id          String  @id @default(uuid())
+  productId   String  @unique
+  label       String  @unique
+  description String?
+  uom         String
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fosInvoicedProducts FosInvoicedProduct[]
+
+  @@map("fosProducts")
+}
+
+// fos invoice
+model FosInvoice {
+  id            String      @id @default(uuid())
+  invoiceNo     String      @unique
+  date          DateTime
+  fosCustomerId String
+  fosCustomer   FosCustomer @relation(fields: [fosCustomerId], references: [id])
+  totalQty      Float
+
+  userId     String
+  preparedBy User   @relation(fields: [userId], references: [id])
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  fosInvoicedProducts FosInvoicedProduct[]
+
+  @@map("fosInvoices")
+}
+
+model FosInvoicedProduct {
+  id           String     @id @default(uuid())
+  fosInvoiceId String
+  fosInvoice   FosInvoice @relation(fields: [fosInvoiceId], references: [id])
+  fosProductId String
+  fosProduct   FosProduct @relation(fields: [fosProductId], references: [id])
+  quantity     Float
+
+  @@map("fosInvoicedProducts")
 }
 
 // ENUMS

@@ -7,3 +7,5 @@ export const fosInvoiceFilterableFields = [
   'fosCustomerId',
   'userId',
 ];
+
+export const fosSummaryFilterableFields = ['startDate', 'endDate'];

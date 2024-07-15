@@ -5,6 +5,8 @@ import ApiError from '../../../errors/ApiError';
 import {
   IFosInvoiceFilters,
   IFosInvoiceResponse,
+  IFosSummaryFilters,
+  IFosSummaryReport,
 } from './fosInvoice.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -231,10 +233,62 @@ const deleteFromDB = async (id: string): Promise<FosInvoice | null> => {
   return result;
 };
 
+// summary
+const summary = async (
+  filters: IFosSummaryFilters
+): Promise<IFosSummaryReport[]> => {
+  const { startDate, endDate } = filters;
+
+  const andConditions = [];
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+  const whereConditions: Prisma.FosInvoiceWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+  // find invoices
+  const invoices = await prisma.fosInvoice.groupBy({
+    where: whereConditions,
+    by: ['fosCustomerId'],
+    _sum: {
+      totalQty: true,
+    },
+  });
+
+  // customers
+  const customers = await prisma.fosCustomer.findMany();
+
+  // set voucher and invoices in customer
+  const result = invoices
+    .map(el => {
+      const findCustomer = customers?.find(cm => cm.id === el.fosCustomerId);
+
+      return {
+        ...findCustomer,
+        quantity: el?._sum?.totalQty || 0,
+      };
+    })
+    .sort((a, b) => b.quantity - a.quantity);
+
+  return result;
+};
+
 export const FosInvoiceService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  summary,
 };

@@ -6,8 +6,11 @@ import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { FosInvoiceService } from './fosInvoice.service';
 import { FosInvoice, UserRole } from '@prisma/client';
-import { fosInvoiceFilterableFields } from './fosInvoice.constant';
-import { IFosInvoiceResponse } from './fosInvoice.interface';
+import {
+  fosInvoiceFilterableFields,
+  fosSummaryFilterableFields,
+} from './fosInvoice.constant';
+import { IFosInvoiceResponse, IFosSummaryReport } from './fosInvoice.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -92,10 +95,24 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//  summary
+const summary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, fosSummaryFilterableFields);
+  const result = await FosInvoiceService.summary(filters);
+
+  sendResponse<IFosSummaryReport[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Summary retrieved successfully',
+    data: result,
+  });
+});
+
 export const FosInvoiceController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  summary,
 };

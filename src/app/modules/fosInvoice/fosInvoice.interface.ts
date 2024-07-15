@@ -1,4 +1,4 @@
-import { FosInvoice } from '@prisma/client';
+import { FosCustomer, FosInvoice } from '@prisma/client';
 
 export type IFosInvoiceFilters = {
   searchTerm?: string;
@@ -18,3 +18,11 @@ export type IFosInvoiceResponse = {
   data: FosInvoice[];
   sum: ISum;
 };
+
+// summary
+export type IFosSummaryFilters = {
+  startDate?: string;
+  endDate?: string;
+};
+
+export type IFosSummaryReport = FosCustomer | { quantity: number };

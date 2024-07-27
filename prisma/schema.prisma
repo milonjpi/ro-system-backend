@@ -35,6 +35,8 @@ model User {
   distVouchers DistVoucher[]
   distExpenses DistExpense[]
   fosInvoices  FosInvoice[]
+  drInvoices   DrInvoice[]
+  drVouchers   DrVoucher[]
 
   @@map("users")
 }
@@ -723,6 +725,139 @@ model FosInvoicedProduct {
   @@map("fosInvoicedProducts")
 }
 
+// Dr separate
+model DrCustomer {
+  id             String  @id @default(uuid())
+  customerId     String  @unique
+  customerName   String
+  customerNameBn String?
+  mobile         String?
+  address        String?
+
+  isActive   Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  drInvoices DrInvoice[]
+  drVouchers DrVoucher[]
+
+  @@map("drCustomers")
+}
+
+// dr product
+model DrProduct {
+  id          String  @id @default(uuid())
+  productId   String  @unique
+  label       String  @unique
+  description String?
+  uom         String
+  price       Float
+
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  drInvoicedProducts DrInvoicedProduct[]
+
+  @@map("drProducts")
+}
+
+// Dr invoice
+model DrInvoice {
+  id                 String              @id @default(uuid())
+  invoiceNo          String              @unique
+  date               DateTime
+  customerId         String
+  customer           DrCustomer          @relation(fields: [customerId], references: [id])
+  totalQty           Float
+  totalPrice         Float
+  discount           Float
+  amount             Float
+  paidAmount         Float               @default(0)
+  status             InvoiceBillStatus   @default(Due)
+  userId             String
+  preparedBy         User                @relation(fields: [userId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  drInvoicedProducts DrInvoicedProduct[]
+  drVoucherDetails   DrVoucherDetail[]
+
+  @@map("drInvoices")
+}
+
+model DrInvoicedProduct {
+  id         String    @id @default(uuid())
+  invoiceId  String
+  invoice    DrInvoice @relation(fields: [invoiceId], references: [id])
+  productId  String
+  product    DrProduct @relation(fields: [productId], references: [id])
+  unitPrice  Float
+  quantity   Float
+  totalPrice Float
+
+  @@map("drInvoicedProducts")
+}
+
+// dr voucher
+model DrVoucher {
+  id               String            @id @default(uuid())
+  voucherNo        String            @unique
+  date             DateTime
+  amount           Int
+  customerId       String
+  customer         DrCustomer        @relation(fields: [customerId], references: [id])
+  narration        String?
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  drVoucherDetails DrVoucherDetail[]
+
+  @@map("drVouchers")
+}
+
+model DrVoucherDetail {
+  id            String     @id @default(uuid())
+  voucherId     String
+  voucher       DrVoucher  @relation(fields: [voucherId], references: [id])
+  invoiceId     String?
+  invoice       DrInvoice? @relation(fields: [invoiceId], references: [id])
+  receiveAmount Int
+
+  @@map("drVoucherDetails")
+}
+
+// electricity management
+model Meter {
+  id       String  @id @default(uuid())
+  label    String
+  location String?
+  remarks  String?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  electricityBills ElectricityBill[]
+
+  @@map("meters")
+}
+
+model ElectricityBill {
+  id      String                @id @default(uuid())
+  meterId String
+  meter   Meter                 @relation(fields: [meterId], references: [id])
+  month   String
+  year    String
+  unit    Int?
+  amount  Int
+  paidBy  String
+  remarks String?
+  status  ElectricityBillStatus @default(Due)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([month, year])
+  @@map("electricityBills")
+}
+
 // ENUMS
 enum UserRole {
   super_admin
@@ -734,6 +869,11 @@ enum InvoiceBillStatus {
   Due
   Partial
   Canceled
+  Paid
+}
+
+enum ElectricityBillStatus {
+  Due
   Paid
 }
 

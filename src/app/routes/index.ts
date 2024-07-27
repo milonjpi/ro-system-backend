@@ -42,6 +42,7 @@ import { DistExpenseRoutes } from '../modules/distExpense/distExpense.route';
 import { FosCustomerRoutes } from '../modules/fosCustomer/fosCustomer.route';
 import { FosProductRoutes } from '../modules/fosProduct/fosProduct.route';
 import { FosInvoiceRoutes } from '../modules/fosInvoice/fosInvoice.route';
+import { MeterRoutes } from '../modules/meter/meter.route';
 
 const router = express.Router();
 
@@ -217,6 +218,14 @@ const moduleRoutes = [
   {
     path: '/fos-invoice',
     route: FosInvoiceRoutes,
+  },
+  {
+    path: '/meter',
+    route: MeterRoutes,
+  },
+  {
+    path: '/electricity-bill',
+    route: MeterRoutes,
   },
 ];
 

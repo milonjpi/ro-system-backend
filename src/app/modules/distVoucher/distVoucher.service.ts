@@ -82,7 +82,7 @@ const updateReceivePayment = async (
 
   // generate voucher no
   const convertDate = moment(data.date).format('YYYYMMDD');
-  if (!data.voucherNo?.includes(convertDate)) {
+  if (!isExist.voucherNo?.includes(convertDate)) {
     const voucherNo = await generateDistVoucherNo(convertDate);
 
     // set voucher no

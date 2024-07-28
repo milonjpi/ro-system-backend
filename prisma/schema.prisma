@@ -841,6 +841,7 @@ model Meter {
 
 model ElectricityBill {
   id      String                @id @default(uuid())
+  date    DateTime?
   meterId String
   meter   Meter                 @relation(fields: [meterId], references: [id])
   month   String

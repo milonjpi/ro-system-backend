@@ -43,6 +43,11 @@ import { FosCustomerRoutes } from '../modules/fosCustomer/fosCustomer.route';
 import { FosProductRoutes } from '../modules/fosProduct/fosProduct.route';
 import { FosInvoiceRoutes } from '../modules/fosInvoice/fosInvoice.route';
 import { MeterRoutes } from '../modules/meter/meter.route';
+import { DrCustomerRoutes } from '../modules/drCustomer/drCustomer.route';
+import { DrProductRoutes } from '../modules/drProduct/drProduct.route';
+import { DrInvoiceRoutes } from '../modules/drInvoice/drInvoice.route';
+import { DrVoucherRoutes } from '../modules/drVoucher/drVoucher.route';
+import { ElectricityBillRoutes } from '../modules/electricityBill/electricityBill.route';
 
 const router = express.Router();
 
@@ -225,7 +230,23 @@ const moduleRoutes = [
   },
   {
     path: '/electricity-bill',
-    route: MeterRoutes,
+    route: ElectricityBillRoutes,
+  },
+  {
+    path: '/dr-customer',
+    route: DrCustomerRoutes,
+  },
+  {
+    path: '/dr-product',
+    route: DrProductRoutes,
+  },
+  {
+    path: '/dr-invoice',
+    route: DrInvoiceRoutes,
+  },
+  {
+    path: '/dr-voucher',
+    route: DrVoucherRoutes,
   },
 ];
 

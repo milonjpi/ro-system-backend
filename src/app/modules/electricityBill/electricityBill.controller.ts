@@ -7,6 +7,11 @@ import { paginationFields } from '../../../constants/pagination';
 import { ElectricityBillService } from './electricityBill.service';
 import { ElectricityBill } from '@prisma/client';
 import { electricityBillFilterableFields } from './electricityBill.constant';
+import {
+  IElectricityBillResponse,
+  IElectricMonthSummary,
+  IElectricYearSummary,
+} from './electricityBill.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -31,7 +36,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
     paginationOptions
   );
 
-  sendResponse<ElectricityBill[]>(res, {
+  sendResponse<IElectricityBillResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Electricity Bills retrieved successfully',
@@ -83,10 +88,40 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// month summary
+const monthSummary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, electricityBillFilterableFields);
+
+  const result = await ElectricityBillService.monthSummary(filters);
+
+  sendResponse<IElectricMonthSummary[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Electricity Summary retrieved successfully',
+    data: result,
+  });
+});
+
+// year summary
+const yearSummary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, electricityBillFilterableFields);
+
+  const result = await ElectricityBillService.yearSummary(filters);
+
+  sendResponse<IElectricYearSummary[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Electricity Summary retrieved successfully',
+    data: result,
+  });
+});
+
 export const ElectricityBillController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  monthSummary,
+  yearSummary,
 };

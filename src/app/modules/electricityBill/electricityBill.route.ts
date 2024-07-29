@@ -22,6 +22,20 @@ router.get(
   ElectricityBillController.getAll
 );
 
+// month summary
+router.get(
+  '/month-summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ElectricityBillController.monthSummary
+);
+
+// year summary
+router.get(
+  '/year-summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ElectricityBillController.yearSummary
+);
+
 // get single
 router.get(
   '/:id',

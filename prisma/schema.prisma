@@ -846,7 +846,7 @@ model ElectricityBill {
   meter   Meter                 @relation(fields: [meterId], references: [id])
   month   String
   year    String
-  unit    Int?
+  unit    Int? @default(0)
   amount  Int
   paidBy  String
   remarks String?
@@ -855,7 +855,7 @@ model ElectricityBill {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([month, year])
+  @@unique([meterId, month, year])
   @@map("electricityBills")
 }
 

@@ -2,7 +2,12 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { ElectricityBill, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IElectricityBillFilters } from './electricityBill.interface';
+import {
+  IElectricityBillFilters,
+  IElectricityBillResponse,
+  IElectricMonthSummary,
+  IElectricYearSummary,
+} from './electricityBill.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -25,7 +30,7 @@ const insertIntoDB = async (
 const getAll = async (
   filters: IElectricityBillFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<ElectricityBill[]>> => {
+): Promise<IGenericResponse<IElectricityBillResponse>> => {
   const { searchTerm, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -71,6 +76,14 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.electricityBill.aggregate({
+    where: whereConditions,
+    _sum: {
+      unit: true,
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -78,7 +91,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 
@@ -148,10 +164,69 @@ const deleteFromDB = async (id: string): Promise<ElectricityBill | null> => {
   return result;
 };
 
+const monthSummary = async (
+  filters: IElectricityBillFilters
+): Promise<IElectricMonthSummary[]> => {
+  const { meterId, year } = filters;
+
+  const andConditions = [];
+
+  if (meterId) {
+    andConditions.push({ meterId: meterId });
+  }
+
+  if (year) {
+    andConditions.push({ year: year });
+  }
+
+  const whereConditions: Prisma.ElectricityBillWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.electricityBill.groupBy({
+    by: ['month'],
+    where: whereConditions,
+    _sum: {
+      unit: true,
+      amount: true,
+    },
+  });
+
+  return result;
+};
+
+const yearSummary = async (
+  filters: IElectricityBillFilters
+): Promise<IElectricYearSummary[]> => {
+  const { meterId } = filters;
+
+  const andConditions = [];
+
+  if (meterId) {
+    andConditions.push({ meterId: meterId });
+  }
+
+  const whereConditions: Prisma.ElectricityBillWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.electricityBill.groupBy({
+    by: ['meterId', 'year'],
+    where: whereConditions,
+    _sum: {
+      unit: true,
+      amount: true,
+    },
+    orderBy: { year: 'asc' },
+  });
+
+  return result;
+};
+
 export const ElectricityBillService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  monthSummary,
+  yearSummary,
 };

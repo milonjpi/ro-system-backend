@@ -827,10 +827,12 @@ model DrVoucherDetail {
 
 // electricity management
 model Meter {
-  id       String  @id @default(uuid())
-  label    String
-  location String?
-  remarks  String?
+  id           String  @id @default(uuid())
+  label        String
+  smsAccount   String?
+  customerName String?
+  location     String?
+  remarks      String?
 
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -846,7 +848,7 @@ model ElectricityBill {
   meter   Meter                 @relation(fields: [meterId], references: [id])
   month   String
   year    String
-  unit    Int? @default(0)
+  unit    Int?                  @default(0)
   amount  Int
   paidBy  String
   remarks String?

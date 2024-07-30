@@ -1,3 +1,9 @@
-export const meterSearchableFields = ['label', 'location', 'remarks'];
+export const meterSearchableFields = [
+  'label',
+  'smsAccount',
+  'customerName',
+  'location',
+  'remarks',
+];
 
 export const meterFilterableFields = ['searchTerm'];

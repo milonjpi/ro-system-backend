@@ -48,6 +48,7 @@ import { DrProductRoutes } from '../modules/drProduct/drProduct.route';
 import { DrInvoiceRoutes } from '../modules/drInvoice/drInvoice.route';
 import { DrVoucherRoutes } from '../modules/drVoucher/drVoucher.route';
 import { ElectricityBillRoutes } from '../modules/electricityBill/electricityBill.route';
+import { DrSummaryRoutes } from '../modules/drReport/drReport.route';
 
 const router = express.Router();
 
@@ -247,6 +248,10 @@ const moduleRoutes = [
   {
     path: '/dr-voucher',
     route: DrVoucherRoutes,
+  },
+  {
+    path: '/dr-summary',
+    route: DrSummaryRoutes,
   },
 ];
 

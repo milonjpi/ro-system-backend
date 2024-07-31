@@ -12,7 +12,7 @@ import { expenseSearchableFields } from './expense.constant';
 const insertIntoDB = async (data: Expense): Promise<Expense | null> => {
   // set account head
   const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'General Expense' },
+    where: { label: 'GENERAL EXPENSE' },
   });
 
   if (!findAccountHead) {

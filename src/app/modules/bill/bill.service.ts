@@ -22,7 +22,7 @@ const insertIntoDB = async (
 
   // set account head
   const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'Purchase' },
+    where: { label: 'PURCHASE' },
   });
 
   if (!findAccountHead) {

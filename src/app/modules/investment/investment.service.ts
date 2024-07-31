@@ -15,7 +15,7 @@ import { investmentSearchableFields } from './investment.constant';
 const insertIntoDB = async (data: Investment): Promise<Investment | null> => {
   // set account head
   const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'Cash and Equivalent' },
+    where: { label: 'CASH AND EQUIVALENT' },
   });
 
   if (!findAccountHead) {

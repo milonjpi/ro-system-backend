@@ -39,7 +39,7 @@ const receivePayment = async (
   // find account head
   const findHead = await prisma.accountHead.findFirst({
     where: {
-      label: 'Cash and Equivalent',
+      label: 'CASH AND EQUIVALENT',
     },
   });
 
@@ -200,7 +200,7 @@ const makePayment = async (
   // find account head
   const findHead = await prisma.accountHead.findFirst({
     where: {
-      label: 'Cash and Equivalent',
+      label: 'CASH AND EQUIVALENT',
     },
   });
 

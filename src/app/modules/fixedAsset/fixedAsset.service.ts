@@ -15,7 +15,7 @@ import { fixedAssetSearchableFields } from './fixedAsset.constant';
 const insertIntoDB = async (data: FixedAsset): Promise<FixedAsset | null> => {
   // set account head
   const findAccountHead = await prisma.accountHead.findFirst({
-    where: { label: 'Fixed Asset' },
+    where: { label: 'FIXED ASSET' },
   });
 
   if (!findAccountHead) {

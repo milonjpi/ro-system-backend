@@ -2,6 +2,7 @@ import { ElectricityBill } from '@prisma/client';
 
 export type IElectricityBillFilters = {
   searchTerm?: string;
+  smsAccount?: string;
   meterId?: string;
   year?: string;
   month?: string;

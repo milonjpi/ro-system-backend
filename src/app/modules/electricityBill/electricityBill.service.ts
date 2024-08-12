@@ -31,7 +31,7 @@ const getAll = async (
   filters: IElectricityBillFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IElectricityBillResponse>> => {
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, smsAccount, ...filterData } = filters;
   const { page, limit, skip } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -45,6 +45,12 @@ const getAll = async (
           mode: 'insensitive',
         },
       })),
+    });
+  }
+
+  if (smsAccount) {
+    andConditions.push({
+      meter: { smsAccount },
     });
   }
 

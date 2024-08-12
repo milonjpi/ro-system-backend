@@ -8,6 +8,7 @@ export const electricityBillSearchableFields = [
 
 export const electricityBillFilterableFields = [
   'searchTerm',
+  'smsAccount',
   'meterId',
   'year',
   'month',

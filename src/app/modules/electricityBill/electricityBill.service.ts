@@ -32,7 +32,7 @@ const getAll = async (
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IElectricityBillResponse>> => {
   const { searchTerm, ...filterData } = filters;
-  const { page, limit, skip, sortBy, sortOrder } =
+  const { page, limit, skip } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
@@ -61,9 +61,17 @@ const getAll = async (
 
   const result = await prisma.electricityBill.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
+    orderBy: [
+      {
+        year: 'desc',
+      },
+      {
+        date: 'desc',
+      },
+      {
+        createdAt: 'desc',
+      },
+    ],
     skip,
     take: limit,
     include: {
@@ -80,6 +88,8 @@ const getAll = async (
     where: whereConditions,
     _sum: {
       unit: true,
+      netBill: true,
+      serviceCharge: true,
       amount: true,
     },
   });
@@ -187,6 +197,8 @@ const monthSummary = async (
     where: whereConditions,
     _sum: {
       unit: true,
+      netBill: true,
+      serviceCharge: true,
       amount: true,
     },
   });
@@ -213,6 +225,8 @@ const yearSummary = async (
     where: whereConditions,
     _sum: {
       unit: true,
+      netBill: true,
+      serviceCharge: true,
       amount: true,
     },
     orderBy: { year: 'asc' },

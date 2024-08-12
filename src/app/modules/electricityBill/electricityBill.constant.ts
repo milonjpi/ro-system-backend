@@ -1,6 +1,10 @@
 export const electricityBillStatus = ['Due', 'Paid'];
 
-export const electricityBillSearchableFields = ['paidBy', 'remarks'];
+export const electricityBillSearchableFields = [
+  'unitDetails',
+  'paidBy',
+  'remarks',
+];
 
 export const electricityBillFilterableFields = [
   'searchTerm',

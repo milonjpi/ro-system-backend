@@ -10,8 +10,10 @@ export type IElectricityBillFilters = {
 
 type ISum = {
   _sum: {
-    amount: number | null;
     unit: number | null;
+    netBill: number | null;
+    serviceCharge: number | null;
+    amount: number | null;
   };
 };
 export type IElectricityBillResponse = {
@@ -20,5 +22,4 @@ export type IElectricityBillResponse = {
 };
 
 export type IElectricMonthSummary = Pick<ElectricityBill, 'month'> & ISum;
-export type IElectricYearSummary = Pick<ElectricityBill, 'meterId' | 'year'> &
-  ISum;
+export type IElectricYearSummary = Pick<ElectricityBill, 'meterId' | 'year'> & ISum;

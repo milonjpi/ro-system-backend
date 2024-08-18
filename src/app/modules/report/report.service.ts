@@ -264,6 +264,14 @@ const balanceSheet = async (): Promise<IBalanceSheet> => {
     },
   });
 
+  // distributor
+  const distributor = await prisma.drInvoice.aggregate({
+    _sum: {
+      amount: true,
+      paidAmount: true,
+    },
+  });
+
   return {
     invoices,
     bills,
@@ -274,6 +282,7 @@ const balanceSheet = async (): Promise<IBalanceSheet> => {
     investments,
     withdraws,
     vouchers,
+    distributor,
   };
 };
 

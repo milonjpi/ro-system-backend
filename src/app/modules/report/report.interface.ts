@@ -103,6 +103,12 @@ export type IBalanceSheet = {
     };
   };
   vouchers: IVoucher[];
+  distributor: {
+    _sum: {
+      amount: number | null;
+      paidAmount: number | null;
+    };
+  };
 };
 
 // donation report

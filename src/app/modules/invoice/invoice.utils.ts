@@ -10,7 +10,7 @@ const findLastId = async (date: string): Promise<string> => {
       },
     },
     orderBy: {
-      createdAt: 'desc',
+      invoiceNo: 'desc',
     },
     select: {
       invoiceNo: true,
@@ -27,5 +27,5 @@ export const generateInvoiceNo = async (date: string): Promise<string> => {
   const currentId = parseInt(await findLastId(date));
   const incrementId = currentId + 1;
 
-  return 'I' + date + '-' + incrementId;
+  return 'I' + date + '-' + incrementId.toString().padStart(3, '000');
 };

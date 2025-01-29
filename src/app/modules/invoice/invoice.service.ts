@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Invoice, InvoicedProduct, Prisma } from '@prisma/client';
+import { Invoice, InvoicedProduct, Prisma, VoucherType } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { IInvoiceFilters, IInvoiceResponse } from './invoice.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -9,11 +9,13 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { invoiceSearchableFields } from './invoice.constant';
 import { generateInvoiceNo } from './invoice.utils';
 import moment from 'moment';
+import { generateVoucherNo } from '../voucher/voucher.utils';
 
 // create
 const insertIntoDB = async (
   data: Invoice,
-  invoicedProducts: InvoicedProduct[]
+  invoicedProducts: InvoicedProduct[],
+  voucher: { amount: number }
 ): Promise<Invoice | null> => {
   // generate invoice no
   const convertDate = moment(data.date).format('YYYYMMDD');
@@ -32,8 +34,56 @@ const insertIntoDB = async (
   }
   data.accountHeadId = findAccountHead.id;
 
-  const result = await prisma.invoice.create({
-    data: { ...data, invoicedProducts: { create: invoicedProducts } },
+  const result = await prisma.$transaction(async trans => {
+    const createInvoice = await trans.invoice.create({
+      data: { ...data, invoicedProducts: { create: invoicedProducts } },
+    });
+
+    // generate voucher No
+    const convertDate = moment(data.date).format('YYYYMMDD');
+    const voucherNo = await generateVoucherNo(convertDate);
+
+    // find account head
+    const findHead = await trans.accountHead.upsert({
+      where: {
+        label: 'CASH AND EQUIVALENT',
+      },
+      create: {
+        label: 'CASH AND EQUIVALENT',
+        accountType: { connect: { label: 'ASSET' } },
+      },
+      update: {},
+    });
+
+    if (!findHead) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Please setup your account head first!'
+      );
+    }
+
+    await trans.voucher.create({
+      data: {
+        voucherNo: voucherNo,
+        type: VoucherType.Received,
+        accountHeadId: findHead.id,
+        date: data.date,
+        amount: voucher.amount,
+        customerId: data.customerId,
+        narration: '',
+        userId: data?.userId,
+        voucherDetails: {
+          create: [
+            {
+              invoiceId: createInvoice.id,
+              receiveAmount: voucher.amount,
+            },
+          ],
+        },
+      },
+    });
+
+    return createInvoice;
   });
 
   if (!result) {
@@ -101,7 +151,7 @@ const getAll = async (
     include: {
       customer: true,
       refNo: true,
-      voucherDetails: true,
+      voucherDetails: { include: { voucher: true } },
       invoicedProducts: {
         include: {
           product: true,
@@ -159,7 +209,7 @@ const updateSingle = async (
   invoicedProducts: InvoicedProduct[]
 ): Promise<Invoice | null> => {
   // check is exist
-  const isExist = await prisma.invoice.findUnique({
+  const isExist = await prisma.invoice.findFirst({
     where: {
       id,
     },
@@ -224,7 +274,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   // check is exist
-  const isExist = await prisma.invoice.findUnique({
+  const isExist = await prisma.invoice.findFirst({
     where: {
       id,
     },

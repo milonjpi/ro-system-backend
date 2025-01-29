@@ -23,6 +23,11 @@ const create = z.object({
       }),
       { required_error: 'Products is required' }
     ),
+    voucher: z
+      .object({
+        amount: z.number().optional(),
+      })
+      .optional(),
   }),
 });
 
@@ -49,6 +54,11 @@ const update = z.object({
           totalPrice: z.number().optional(),
         })
       )
+      .optional(),
+    voucher: z
+      .object({
+        amount: z.number().optional(),
+      })
       .optional(),
   }),
 });

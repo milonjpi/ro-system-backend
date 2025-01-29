@@ -19,7 +19,8 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 
   const result = await InvoiceService.insertIntoDB(
     data?.data,
-    data?.invoicedProducts
+    data?.invoicedProducts,
+    data?.voucher
   );
 
   sendResponse<Invoice>(res, {

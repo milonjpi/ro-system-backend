@@ -57,6 +57,7 @@ const update = z.object({
       .optional(),
     voucher: z
       .object({
+        id: z.string().optional(),
         amount: z.number().optional(),
       })
       .optional(),

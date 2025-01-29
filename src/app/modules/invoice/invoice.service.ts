@@ -206,7 +206,8 @@ const getSingle = async (id: string): Promise<Invoice | null> => {
 const updateSingle = async (
   id: string,
   payload: Partial<Invoice>,
-  invoicedProducts: InvoicedProduct[]
+  invoicedProducts: InvoicedProduct[],
+  voucher: { id: string; amount: number }
 ): Promise<Invoice | null> => {
   // check is exist
   const isExist = await prisma.invoice.findFirst({
@@ -224,10 +225,6 @@ const updateSingle = async (
 
   if (isExist.status === 'Canceled') {
     throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update after canceled');
-  }
-
-  if (isExist.voucherDetails?.length) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant Update');
   }
 
   // generate invoice no
@@ -251,7 +248,7 @@ const updateSingle = async (
       },
     });
 
-    return await trans.invoice.update({
+    const updateIn = await trans.invoice.update({
       where: {
         id,
       },
@@ -262,6 +259,23 @@ const updateSingle = async (
         },
       },
     });
+
+    await trans.voucher.update({
+      where: { id: voucher.id },
+      data: {
+        date: payload.date,
+        amount: voucher.amount,
+        narration: '',
+        voucherDetails: {
+          updateMany: {
+            where: { invoiceId: id },
+            data: { receiveAmount: voucher.amount },
+          },
+        },
+      },
+    });
+
+    return updateIn;
   });
 
   if (!result) {

@@ -88,7 +88,7 @@ const updateReceivePayment = async (
   voucherDetails: VoucherDetail[]
 ): Promise<Voucher | null> => {
   // check is exist
-  const isExist = await prisma.voucher.findUnique({
+  const isExist = await prisma.voucher.findFirst({
     where: {
       id,
     },
@@ -129,7 +129,7 @@ const updateReceivePayment = async (
 // delete receive amount
 const deleteReceiveVoucher = async (id: string): Promise<Voucher | null> => {
   // check is exist
-  const isExist = await prisma.voucher.findUnique({
+  const isExist = await prisma.voucher.findFirst({
     where: {
       id,
     },

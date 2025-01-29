@@ -68,7 +68,8 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
   const result = await InvoiceService.updateSingle(
     id,
     data?.data,
-    data?.invoicedProducts
+    data?.invoicedProducts,
+    data?.voucher
   );
 
   sendResponse<Invoice>(res, {

@@ -11,16 +11,12 @@ import { IVoucherResponse } from './voucher.interface';
 
 // receive payment
 const receivePayment = catchAsync(async (req: Request, res: Response) => {
-  const { invoices, voucherDetails, ...otherData } = req.body;
+  const data = req.body;
   const user = req.user as { id: string; role: UserRole };
 
-  otherData.userId = user.id;
+  data.userId = user.id;
 
-  const result = await VoucherService.receivePayment(
-    otherData,
-    invoices,
-    voucherDetails
-  );
+  const result = await VoucherService.receivePayment(data);
 
   sendResponse<Voucher>(res, {
     success: true,
@@ -33,14 +29,9 @@ const receivePayment = catchAsync(async (req: Request, res: Response) => {
 // update receive payment
 const updateReceivePayment = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { invoices, voucherDetails, ...otherData } = req.body;
+  const data = req.body;
 
-  const result = await VoucherService.updateReceivePayment(
-    id,
-    otherData,
-    invoices,
-    voucherDetails
-  );
+  const result = await VoucherService.updateReceivePayment(id, data);
 
   sendResponse<Voucher>(res, {
     success: true,

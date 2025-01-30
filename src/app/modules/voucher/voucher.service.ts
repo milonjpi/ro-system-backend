@@ -23,11 +23,7 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { voucherSearchableFields } from './voucher.constant';
 
 // create receive payment
-const receivePayment = async (
-  data: Voucher,
-  invoices: Partial<Invoice[]>,
-  voucherDetails: VoucherDetail[]
-): Promise<Voucher | null> => {
+const receivePayment = async (data: Voucher): Promise<Voucher | null> => {
   // generate voucher No
   const convertDate = moment(data.date).format('YYYYMMDD');
   const voucherNo = await generateVoucherNo(convertDate);
@@ -53,29 +49,7 @@ const receivePayment = async (
   // set head in data
   data.accountHeadId = findHead.id;
 
-  const result = await prisma.$transaction(async trans => {
-    const insertVoucher = await trans.voucher.create({
-      data: { ...data, voucherDetails: { create: voucherDetails } },
-    });
-
-    if (!insertVoucher) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
-    }
-
-    if (invoices.length) {
-      await Promise.all(
-        invoices.map(async invoice => {
-          const { id, ...otherValue } = invoice as Invoice;
-          await trans.invoice.update({
-            where: { id },
-            data: otherValue,
-          });
-        })
-      );
-    }
-
-    return insertVoucher;
-  });
+  const result = await prisma.voucher.create({ data });
 
   return result;
 };

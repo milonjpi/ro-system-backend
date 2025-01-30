@@ -36,52 +36,59 @@ const insertIntoDB = async (
 
   const result = await prisma.$transaction(async trans => {
     const createInvoice = await trans.invoice.create({
-      data: { ...data, invoicedProducts: { create: invoicedProducts } },
-    });
-
-    // generate voucher No
-    const convertDate = moment(data.date).format('YYYYMMDD');
-    const voucherNo = await generateVoucherNo(convertDate);
-
-    // find account head
-    const findHead = await trans.accountHead.upsert({
-      where: {
-        label: 'CASH AND EQUIVALENT',
-      },
-      create: {
-        label: 'CASH AND EQUIVALENT',
-        accountType: { connect: { label: 'ASSET' } },
-      },
-      update: {},
-    });
-
-    if (!findHead) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Please setup your account head first!'
-      );
-    }
-
-    await trans.voucher.create({
       data: {
-        voucherNo: voucherNo,
-        type: VoucherType.Received,
-        accountHeadId: findHead.id,
-        date: data.date,
-        amount: voucher.amount,
-        customerId: data.customerId,
-        narration: '',
-        userId: data?.userId,
-        voucherDetails: {
-          create: [
-            {
-              invoiceId: createInvoice.id,
-              receiveAmount: voucher.amount,
-            },
-          ],
-        },
+        ...data,
+        version: true,
+        invoicedProducts: { create: invoicedProducts },
       },
     });
+
+    if (voucher.amount > 0) {
+      // generate voucher No
+      const convertDate = moment(data.date).format('YYYYMMDD');
+      const voucherNo = await generateVoucherNo(convertDate);
+
+      // find account head
+      const findHead = await trans.accountHead.upsert({
+        where: {
+          label: 'CASH AND EQUIVALENT',
+        },
+        create: {
+          label: 'CASH AND EQUIVALENT',
+          accountType: { connect: { label: 'ASSET' } },
+        },
+        update: {},
+      });
+
+      if (!findHead) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Please setup your account head first!'
+        );
+      }
+
+      await trans.voucher.create({
+        data: {
+          voucherNo: voucherNo,
+          type: VoucherType.Received,
+          accountHeadId: findHead.id,
+          date: data.date,
+          amount: voucher.amount,
+          customerId: data.customerId,
+          narration: '',
+          userId: data?.userId,
+          version: true,
+          voucherDetails: {
+            create: [
+              {
+                invoiceId: createInvoice.id,
+                receiveAmount: voucher.amount,
+              },
+            ],
+          },
+        },
+      });
+    }
 
     return createInvoice;
   });
@@ -260,20 +267,84 @@ const updateSingle = async (
       },
     });
 
-    await trans.voucher.update({
+    const findVoucher = await trans.voucher.findFirst({
       where: { id: voucher.id },
-      data: {
-        date: payload.date,
-        amount: voucher.amount,
-        narration: '',
-        voucherDetails: {
-          updateMany: {
-            where: { invoiceId: id },
-            data: { receiveAmount: voucher.amount },
-          },
-        },
-      },
     });
+
+    if (findVoucher) {
+      if (voucher.amount > 0) {
+        await trans.voucher.update({
+          where: { id: voucher.id },
+          data: {
+            date: payload.date,
+            amount: voucher.amount,
+            narration: '',
+            voucherDetails: {
+              updateMany: {
+                where: { invoiceId: id },
+                data: { receiveAmount: voucher.amount },
+              },
+            },
+          },
+        });
+      } else {
+        await trans.voucher.update({
+          where: { id: voucher.id },
+          data: { voucherDetails: { deleteMany: {} } },
+        });
+
+        await trans.voucher.delete({
+          where: { id: voucher.id },
+        });
+      }
+    } else {
+      if (voucher.amount > 0) {
+        // generate voucher No
+        const convertDate = moment(payload.date).format('YYYYMMDD');
+        const voucherNo = await generateVoucherNo(convertDate);
+
+        // find account head
+        const findHead = await trans.accountHead.upsert({
+          where: {
+            label: 'CASH AND EQUIVALENT',
+          },
+          create: {
+            label: 'CASH AND EQUIVALENT',
+            accountType: { connect: { label: 'ASSET' } },
+          },
+          update: {},
+        });
+
+        if (!findHead) {
+          throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            'Please setup your account head first!'
+          );
+        }
+
+        await trans.voucher.create({
+          data: {
+            voucherNo: voucherNo,
+            type: VoucherType.Received,
+            accountHeadId: findHead.id,
+            date: payload.date || new Date(),
+            amount: voucher.amount,
+            customerId: isExist.customerId,
+            narration: '',
+            userId: isExist?.userId,
+            version: true,
+            voucherDetails: {
+              create: [
+                {
+                  invoiceId: id,
+                  receiveAmount: voucher.amount,
+                },
+              ],
+            },
+          },
+        });
+      }
+    }
 
     return updateIn;
   });
@@ -291,6 +362,7 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
   const isExist = await prisma.invoice.findFirst({
     where: {
       id,
+      version: true,
     },
     include: {
       voucherDetails: true,
@@ -301,14 +373,19 @@ const deleteFromDB = async (id: string): Promise<Invoice | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (
-    (isExist.status === 'Paid' && isExist.voucherDetails?.length) ||
-    isExist.status === 'Partial'
-  ) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'You cant delete after paid');
-  }
-
   const result = await prisma.$transaction(async trans => {
+    if (isExist.voucherDetails?.length) {
+      // voucher
+      await trans.voucher.update({
+        where: { id: isExist.voucherDetails[0].voucherId },
+        data: { voucherDetails: { deleteMany: {} } },
+      });
+
+      await trans.voucher.delete({
+        where: { id: isExist.voucherDetails[0].voucherId },
+      });
+    }
+
     await trans.invoice.update({
       where: {
         id,

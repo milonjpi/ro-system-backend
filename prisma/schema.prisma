@@ -232,6 +232,7 @@ model Invoice {
   status           InvoiceBillStatus @default(Due)
   userId           String
   preparedBy       User              @relation(fields: [userId], references: [id])
+  version          Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   invoicedProducts InvoicedProduct[]
@@ -396,6 +397,7 @@ model Voucher {
   vendor         Vendor?         @relation(fields: [vendorId], references: [id])
   narration      String?
   userId         String
+  version        Boolean         @default(false)
   user           User            @relation(fields: [userId], references: [id])
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt

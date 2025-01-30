@@ -13,6 +13,7 @@ const create = z.object({
       paidAmount: z.number().optional().default(0),
       orderId: z.string().optional(),
       status: z.enum(invoiceStatus as [string, ...string[]]).optional(),
+      version: z.boolean().optional(),
     }),
     invoicedProducts: z.array(
       z.object({
@@ -44,6 +45,7 @@ const update = z.object({
       orderId: z.string().optional(),
       userId: z.string().optional(),
       status: z.enum(invoiceStatus as [string, ...string[]]).optional(),
+      version: z.boolean().optional(),
     }),
     invoicedProducts: z
       .array(

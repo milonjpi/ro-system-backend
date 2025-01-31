@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import {
   Bill,
-  Invoice,
   InvoiceBillStatus,
   Prisma,
   Voucher,
@@ -57,9 +56,7 @@ const receivePayment = async (data: Voucher): Promise<Voucher | null> => {
 // update receive payment
 const updateReceivePayment = async (
   id: string,
-  data: Voucher,
-  invoices: Partial<Invoice[]>,
-  voucherDetails: VoucherDetail[]
+  data: Voucher
 ): Promise<Voucher | null> => {
   // check is exist
   const isExist = await prisma.voucher.findFirst({
@@ -72,30 +69,35 @@ const updateReceivePayment = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Document Not Found');
   }
 
-  const result = await prisma.$transaction(async trans => {
-    await trans.voucher.update({
-      where: { id },
-      data: { voucherDetails: { deleteMany: {} } },
-    });
-    const updateVoucher = await trans.voucher.update({
-      where: { id },
-      data: { ...data, voucherDetails: { create: voucherDetails } },
-    });
-
-    if (invoices.length) {
-      await Promise.all(
-        invoices.map(async invoice => {
-          const { id, ...otherValue } = invoice as Invoice;
-          await trans.invoice.update({
-            where: { id },
-            data: otherValue,
-          });
-        })
-      );
-    }
-
-    return updateVoucher;
+  // find invoices
+  const invoices = await prisma.invoice.aggregate({
+    where: {
+      customerId: isExist.customerId || '123',
+    },
+    _sum: {
+      paidAmount: true,
+    },
   });
+
+  // find vouchers
+  const vouchers = await prisma.voucher.aggregate({
+    where: { customerId: isExist.customerId || '123' },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  const paidAmount = invoices._sum.paidAmount || 0;
+  const voucherAmount =
+    (vouchers._sum.amount || 0) -
+    isExist.amount +
+    (data.amount || isExist.amount);
+
+  if (paidAmount > voucherAmount) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Amount Less than Paid Amount');
+  }
+
+  const result = await prisma.voucher.update({ where: { id }, data: data });
 
   return result;
 };
@@ -121,6 +123,34 @@ const deleteReceiveVoucher = async (id: string): Promise<Voucher | null> => {
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  // find invoices
+  const invoices = await prisma.invoice.aggregate({
+    where: {
+      customerId: isExist.customerId || '123',
+    },
+    _sum: {
+      paidAmount: true,
+    },
+  });
+
+  // find vouchers
+  const vouchers = await prisma.voucher.aggregate({
+    where: { customerId: isExist.customerId || '123' },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  const paidAmount = invoices._sum.paidAmount || 0;
+  const voucherAmount = vouchers._sum.amount || 0;
+
+  if (paidAmount > voucherAmount) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Received Amount Less than Paid Amount'
+    );
   }
 
   const { voucherDetails } = isExist;

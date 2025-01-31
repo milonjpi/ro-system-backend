@@ -1,4 +1,4 @@
-export const expenseSearchableFields = ['remarks'];
+export const expenseSearchableFields = ['expenseDetails', 'remarks'];
 
 export const expenseFilterableFields = [
   'searchTerm',

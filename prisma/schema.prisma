@@ -365,20 +365,21 @@ model ExpenseHead {
 }
 
 model Expense {
-  id            String      @id @default(uuid())
-  date          DateTime
-  accountHeadId String
-  accountHead   AccountHead @relation(fields: [accountHeadId], references: [id])
-  expenseHeadId String
-  expenseHead   ExpenseHead @relation(fields: [expenseHeadId], references: [id])
-  vendorId      String?
-  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
-  amount        Float
-  remarks       String?
-  userId        String
-  preparedBy    User        @relation(fields: [userId], references: [id])
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id             String      @id @default(uuid())
+  date           DateTime
+  accountHeadId  String
+  accountHead    AccountHead @relation(fields: [accountHeadId], references: [id])
+  expenseHeadId  String
+  expenseHead    ExpenseHead @relation(fields: [expenseHeadId], references: [id])
+  vendorId       String?
+  vendor         Vendor?     @relation(fields: [vendorId], references: [id])
+  amount         Float
+  expenseDetails String?
+  remarks        String?
+  userId         String
+  preparedBy     User        @relation(fields: [userId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   @@map("expenses")
 }

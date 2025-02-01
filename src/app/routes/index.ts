@@ -49,6 +49,12 @@ import { DrInvoiceRoutes } from '../modules/drInvoice/drInvoice.route';
 import { DrVoucherRoutes } from '../modules/drVoucher/drVoucher.route';
 import { ElectricityBillRoutes } from '../modules/electricityBill/electricityBill.route';
 import { DrSummaryRoutes } from '../modules/drReport/drReport.route';
+import { BuildingExpenseHeadRoutes } from '../modules/buildingExpenseHead/buildingExpenseHead.route';
+import { BuildingVendorRoutes } from '../modules/buildingVendor/buildingVendor.route';
+import { BuildingBrandRoutes } from '../modules/buildingBrand/buildingBrand.route';
+import { BuildingUomRoutes } from '../modules/buildingUom/buildingUom.route';
+import { BuildingPaymentMethodRoutes } from '../modules/buildingPaymentMethod/buildingPaymentMethod.route';
+import { BuildingPaymentRoutes } from '../modules/buildingPayment/buildingPayment.route';
 
 const router = express.Router();
 
@@ -252,6 +258,30 @@ const moduleRoutes = [
   {
     path: '/dr-summary',
     route: DrSummaryRoutes,
+  },
+  {
+    path: '/building-expense-head',
+    route: BuildingExpenseHeadRoutes,
+  },
+  {
+    path: '/building-vendor',
+    route: BuildingVendorRoutes,
+  },
+  {
+    path: '/building-brand',
+    route: BuildingBrandRoutes,
+  },
+  {
+    path: '/building-uom',
+    route: BuildingUomRoutes,
+  },
+  {
+    path: '/building-payment-method',
+    route: BuildingPaymentMethodRoutes,
+  },
+  {
+    path: '/building-payment',
+    route: BuildingPaymentRoutes,
   },
 ];
 

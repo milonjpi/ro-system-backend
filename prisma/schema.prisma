@@ -922,14 +922,14 @@ model BuildingExpense {
   expenseHead   BuildingExpenseHead @relation(fields: [expenseHeadId], references: [id])
   vendorId      String
   vendor        BuildingVendor      @relation(fields: [vendorId], references: [id])
-  brandId       String
-  brand         BuildingBrand       @relation(fields: [brandId], references: [id])
+  brandId       String?
+  brand         BuildingBrand?      @relation(fields: [brandId], references: [id])
   uomId         String
   uom           BuildingUom         @relation(fields: [uomId], references: [id])
   quantity      Float
   unitPrice     Float
   amount        Float
-  paidAmount    Float
+  paidAmount    Float               @default(0)
   remarks       String?
 
   createdAt        DateTime          @default(now())

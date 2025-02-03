@@ -55,6 +55,9 @@ import { BuildingBrandRoutes } from '../modules/buildingBrand/buildingBrand.rout
 import { BuildingUomRoutes } from '../modules/buildingUom/buildingUom.route';
 import { BuildingPaymentMethodRoutes } from '../modules/buildingPaymentMethod/buildingPaymentMethod.route';
 import { BuildingPaymentRoutes } from '../modules/buildingPayment/buildingPayment.route';
+import { BuildingInvestmentSourceRoutes } from '../modules/buildingInvestmentSource/buildingInvestmentSource.route';
+import { BuildingInvestmentRoutes } from '../modules/buildingInvestment/buildingInvestment.route';
+import { BuildingExpenseRoutes } from '../modules/buildingExpense/buildingExpense.route';
 
 const router = express.Router();
 
@@ -276,12 +279,24 @@ const moduleRoutes = [
     route: BuildingUomRoutes,
   },
   {
+    path: '/building-expense',
+    route: BuildingExpenseRoutes,
+  },
+  {
     path: '/building-payment-method',
     route: BuildingPaymentMethodRoutes,
   },
   {
     path: '/building-payment',
     route: BuildingPaymentRoutes,
+  },
+  {
+    path: '/building-investment-source',
+    route: BuildingInvestmentSourceRoutes,
+  },
+  {
+    path: '/building-investment',
+    route: BuildingInvestmentRoutes,
   },
 ];
 

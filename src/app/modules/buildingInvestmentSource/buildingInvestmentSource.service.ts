@@ -1,17 +1,18 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { BuildingPayment, Prisma } from '@prisma/client';
+import { BuildingInvestmentSource, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IBuildingPaymentFilters } from './buildingPayment.interface';
+import { IBuildingInvestmentSourceFilters } from './buildingInvestmentSource.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { buildingInvestmentSourceSearchableFields } from './buildingInvestmentSource.constant';
 
 // create
 const insertIntoDB = async (
-  data: BuildingPayment
-): Promise<BuildingPayment | null> => {
-  const result = await prisma.buildingPayment.create({ data });
+  data: BuildingInvestmentSource
+): Promise<BuildingInvestmentSource | null> => {
+  const result = await prisma.buildingInvestmentSource.create({ data });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
@@ -22,27 +23,23 @@ const insertIntoDB = async (
 
 // get all
 const getAll = async (
-  filters: IBuildingPaymentFilters,
+  filters: IBuildingInvestmentSourceFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<BuildingPayment[]>> => {
-  const { startDate, endDate, ...filterData } = filters;
+): Promise<IGenericResponse<BuildingInvestmentSource[]>> => {
+  const { searchTerm, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
 
-  if (startDate) {
+  if (searchTerm) {
     andConditions.push({
-      date: {
-        gte: new Date(`${startDate}, 00:00:00`),
-      },
-    });
-  }
-  if (endDate) {
-    andConditions.push({
-      date: {
-        lte: new Date(`${endDate}, 23:59:59`),
-      },
+      OR: buildingInvestmentSourceSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
     });
   }
 
@@ -54,23 +51,19 @@ const getAll = async (
     });
   }
 
-  const whereConditions: Prisma.BuildingPaymentWhereInput =
+  const whereConditions: Prisma.BuildingInvestmentSourceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const result = await prisma.buildingPayment.findMany({
+  const result = await prisma.buildingInvestmentSource.findMany({
     where: whereConditions,
     orderBy: {
       [sortBy]: sortOrder,
     },
     skip,
     take: limit,
-    include: {
-      expense: true,
-      paymentMethod: true,
-    },
   });
 
-  const total = await prisma.buildingPayment.count({
+  const total = await prisma.buildingInvestmentSource.count({
     where: whereConditions,
   });
   const totalPage = Math.ceil(total / limit);
@@ -87,14 +80,12 @@ const getAll = async (
 };
 
 // get single
-const getSingle = async (id: string): Promise<BuildingPayment | null> => {
-  const result = await prisma.buildingPayment.findFirst({
+const getSingle = async (
+  id: string
+): Promise<BuildingInvestmentSource | null> => {
+  const result = await prisma.buildingInvestmentSource.findFirst({
     where: {
       id,
-    },
-    include: {
-      expense: true,
-      paymentMethod: true,
     },
   });
 
@@ -104,10 +95,10 @@ const getSingle = async (id: string): Promise<BuildingPayment | null> => {
 // update
 const updateSingle = async (
   id: string,
-  payload: Partial<BuildingPayment>
-): Promise<BuildingPayment | null> => {
+  payload: Partial<BuildingInvestmentSource>
+): Promise<BuildingInvestmentSource | null> => {
   // check is exist
-  const isExist = await prisma.buildingPayment.findFirst({
+  const isExist = await prisma.buildingInvestmentSource.findFirst({
     where: {
       id,
     },
@@ -117,7 +108,7 @@ const updateSingle = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  const result = await prisma.buildingPayment.update({
+  const result = await prisma.buildingInvestmentSource.update({
     where: {
       id,
     },
@@ -132,9 +123,11 @@ const updateSingle = async (
 };
 
 // delete
-const deleteFromDB = async (id: string): Promise<BuildingPayment | null> => {
+const deleteFromDB = async (
+  id: string
+): Promise<BuildingInvestmentSource | null> => {
   // check is exist
-  const isExist = await prisma.buildingPayment.findFirst({
+  const isExist = await prisma.buildingInvestmentSource.findFirst({
     where: {
       id,
     },
@@ -144,7 +137,7 @@ const deleteFromDB = async (id: string): Promise<BuildingPayment | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  const result = await prisma.buildingPayment.delete({
+  const result = await prisma.buildingInvestmentSource.delete({
     where: {
       id,
     },
@@ -153,7 +146,7 @@ const deleteFromDB = async (id: string): Promise<BuildingPayment | null> => {
   return result;
 };
 
-export const BuildingPaymentService = {
+export const BuildingInvestmentSourceService = {
   insertIntoDB,
   getAll,
   getSingle,

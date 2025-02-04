@@ -87,6 +87,11 @@ const getAll = async (
       vendor: true,
       brand: true,
       uom: true,
+      buildingPayments: {
+        include: {
+          paymentMethod: true,
+        },
+      },
     },
   });
 
@@ -132,6 +137,11 @@ const getSingle = async (id: string): Promise<BuildingExpense | null> => {
       vendor: true,
       brand: true,
       uom: true,
+      buildingPayments: {
+        include: {
+          paymentMethod: true,
+        },
+      },
     },
   });
 

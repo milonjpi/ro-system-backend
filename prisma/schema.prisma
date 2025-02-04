@@ -931,6 +931,7 @@ model BuildingExpense {
   amount        Float
   paidAmount    Float               @default(0)
   remarks       String?
+  status        InvoiceBillStatus   @default(Due)
 
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -957,6 +958,7 @@ model BuildingPayment {
   date            DateTime
   paymentMethodId String
   paymentMethod   BuildingPaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  paymentDetails  String?
   amount          Float
 
   createdAt DateTime @default(now())

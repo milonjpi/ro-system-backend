@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { invoiceStatus } from '../invoice/invoice.constant';
 
 const create = z.object({
   body: z.object({
@@ -18,6 +19,7 @@ const create = z.object({
     amount: z.number({ required_error: 'Amount is Required' }),
     paidAmount: z.number().optional(),
     remarks: z.string().optional().nullable(),
+    status: z.enum(invoiceStatus as [string, ...string[]]).optional(),
     buildingPayments: z
       .array(
         z.object({
@@ -25,6 +27,7 @@ const create = z.object({
           paymentMethodId: z.string({
             required_error: 'Payment Method ID is Required',
           }),
+          paymentDetails: z.string().optional().nullable(),
           amount: z.number({ required_error: 'Payment Amount is Required' }),
         }),
         { required_error: 'Payments are Required' }
@@ -53,6 +56,7 @@ const update = z.object({
     amount: z.number().optional(),
     paidAmount: z.number().optional(),
     remarks: z.string().optional().nullable(),
+    status: z.enum(invoiceStatus as [string, ...string[]]).optional(),
     buildingPayments: z
       .array(
         z.object({
@@ -60,6 +64,7 @@ const update = z.object({
           paymentMethodId: z.string({
             required_error: 'Payment Method ID is Required',
           }),
+          paymentDetails: z.string().optional().nullable(),
           amount: z.number({ required_error: 'Payment Amount is Required' }),
         }),
         { required_error: 'Payments are Required' }

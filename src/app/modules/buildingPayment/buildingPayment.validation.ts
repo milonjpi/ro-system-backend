@@ -7,6 +7,7 @@ const create = z.object({
     paymentMethodId: z.string({
       required_error: 'Payment Method ID is Required',
     }),
+    paymentDetails: z.string().optional().nullable(),
     amount: z.number({ required_error: 'Amount is Required' }),
   }),
 });
@@ -16,6 +17,7 @@ const update = z.object({
     expenseId: z.string().optional(),
     date: z.string().optional(),
     paymentMethodId: z.string().optional(),
+    paymentDetails: z.string().optional().nullable(),
     amount: z.number().optional(),
   }),
 });

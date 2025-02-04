@@ -8,4 +8,5 @@ export const buildingExpenseFilterableFields = [
   'uomId',
   'startDate',
   'endDate',
+  'status',
 ];

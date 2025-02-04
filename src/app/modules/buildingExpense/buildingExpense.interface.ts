@@ -8,6 +8,7 @@ export type IBuildingExpenseFilters = {
   uomId?: string;
   startDate?: string;
   endDate?: string;
+  status?: string;
 };
 
 type ISum = {

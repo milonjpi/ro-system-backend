@@ -7,7 +7,10 @@ import { paginationFields } from '../../../constants/pagination';
 import { BuildingExpenseService } from './buildingExpense.service';
 import { BuildingExpense } from '@prisma/client';
 import { buildingExpenseFilterableFields } from './buildingExpense.constant';
-import { IBuildingExpenseResponse } from './buildingExpense.interface';
+import {
+  IBuildingExpenseResponse,
+  IExpenseSummary,
+} from './buildingExpense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -91,10 +94,24 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get expense summary
+const getExpenseSummary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, buildingExpenseFilterableFields);
+  const result = await BuildingExpenseService.getExpenseSummary(filters);
+
+  sendResponse<IExpenseSummary[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
 export const BuildingExpenseController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getExpenseSummary,
 };

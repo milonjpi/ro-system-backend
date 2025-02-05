@@ -5,6 +5,7 @@ import ApiError from '../../../errors/ApiError';
 import {
   IBuildingExpenseFilters,
   IBuildingExpenseResponse,
+  IExpenseSummary,
 } from './buildingExpense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -209,10 +210,84 @@ const deleteFromDB = async (id: string): Promise<BuildingExpense | null> => {
   return result;
 };
 
+// get expense summary
+const getExpenseSummary = async (
+  filters: IBuildingExpenseFilters
+): Promise<IExpenseSummary[]> => {
+  const { searchTerm, startDate, endDate, ...filterData } = filters;
+
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: buildingExpenseSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.entries(filterData).map(([field, value]) => ({
+        [field]: value === 'true' ? true : value === 'false' ? false : value,
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.BuildingExpenseWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const expenseSummary = await prisma.buildingExpense.groupBy({
+    where: whereConditions,
+    by: ['expenseHeadId'],
+    _sum: {
+      amount: true,
+      quantity: true,
+      paidAmount: true,
+    },
+    _avg: {
+      unitPrice: true,
+    },
+  });
+  const expenseHeads = await prisma.buildingExpenseHead.findMany();
+
+  const combinedExpenses = expenseSummary
+    ?.map(el => ({
+      ...el,
+      expenseHead: expenseHeads.find(bl => bl.id === el.expenseHeadId),
+    }))
+    .sort((a, b) => {
+      const itemA = a.expenseHead?.label || '';
+      const itemB = b.expenseHead?.label || '';
+      return itemA.localeCompare(itemB);
+    });
+
+  return combinedExpenses;
+};
+
 export const BuildingExpenseService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  getExpenseSummary,
 };

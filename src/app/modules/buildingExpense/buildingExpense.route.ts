@@ -22,6 +22,13 @@ router.get(
   BuildingExpenseController.getAll
 );
 
+// get expense summary
+router.get(
+  '/summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  BuildingExpenseController.getExpenseSummary
+);
+
 // get single
 router.get(
   '/:id',

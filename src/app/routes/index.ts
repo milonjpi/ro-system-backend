@@ -58,6 +58,7 @@ import { BuildingPaymentRoutes } from '../modules/buildingPayment/buildingPaymen
 import { BuildingInvestmentSourceRoutes } from '../modules/buildingInvestmentSource/buildingInvestmentSource.route';
 import { BuildingInvestmentRoutes } from '../modules/buildingInvestment/buildingInvestment.route';
 import { BuildingExpenseRoutes } from '../modules/buildingExpense/buildingExpense.route';
+import { ExpenseAreaRoutes } from '../modules/expenseArea/expenseArea.route';
 
 const router = express.Router();
 
@@ -297,6 +298,10 @@ const moduleRoutes = [
   {
     path: '/building-investment',
     route: BuildingInvestmentRoutes,
+  },
+  {
+    path: '/expense-area',
+    route: ExpenseAreaRoutes,
   },
 ];
 

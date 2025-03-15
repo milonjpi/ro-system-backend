@@ -993,6 +993,112 @@ model BuildingInvestment {
   @@map("buildingInvestments")
 }
 
+// monthly expense
+model ExpenseArea {
+  id          String  @id @default(uuid())
+  label       String  @unique
+  description String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  monthlyExpenses MonthlyExpense[]
+
+  @@map("expenseAreas")
+}
+
+model Vehicle {
+  id          String  @id @default(uuid())
+  label       String  @unique
+  description String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  monthlyExpenses MonthlyExpense[]
+
+  @@map("vehicles")
+}
+
+model ExpenseType {
+  id          String  @id @default(uuid())
+  label       String  @unique
+  description String?
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  monthlyExpenseHeads MonthlyExpenseHead[]
+  monthlyExpenses     MonthlyExpense[]
+
+  @@map("expenseTypes")
+}
+
+model MonthlyExpenseHead {
+  id            String      @id @default(uuid())
+  expenseTypeId String
+  expenseType   ExpenseType @relation(fields: [expenseTypeId], references: [id])
+  label         String
+  description   String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  monthlyExpenses MonthlyExpense[]
+
+  @@unique([expenseTypeId, label])
+  @@map("monthlyExpenseHeads")
+}
+
+model PaymentSource {
+  id          String  @id @default(uuid())
+  label       String  @unique
+  limit       Float   @default(0)
+  description String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  monthlyExpenses MonthlyExpense[]
+  openingBalances OpeningBalance[]
+
+  @@map("paymentSources")
+}
+
+model MonthlyExpense {
+  id                   String             @id @default(uuid())
+  year                 String
+  month                String
+  expenseAreaId        String
+  expenseArea          ExpenseArea        @relation(fields: [expenseAreaId], references: [id])
+  vehicleId            String?
+  vehicle              Vehicle?           @relation(fields: [vehicleId], references: [id])
+  expenseTypeId        String
+  expenseType          ExpenseType        @relation(fields: [expenseTypeId], references: [id])
+  monthlyExpenseHeadId String
+  monthlyExpenseHead   MonthlyExpenseHead @relation(fields: [monthlyExpenseHeadId], references: [id])
+  expenseDetails       String?
+  amount               Float
+  paymentSourceId      String
+  paymentSource        PaymentSource      @relation(fields: [paymentSourceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("monthlyExpenses")
+}
+
+model OpeningBalance {
+  id              String        @id @default(uuid())
+  year            String
+  month           String
+  amount          Float
+  paymentSourceId String
+  paymentSource   PaymentSource @relation(fields: [paymentSourceId], references: [id])
+  remarks         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month, paymentSourceId])
+  @@map("openingBalances")
+}
+
 // ENUMS
 enum UserRole {
   super_admin

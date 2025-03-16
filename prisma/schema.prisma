@@ -1010,6 +1010,7 @@ model Vehicle {
   id          String  @id @default(uuid())
   label       String  @unique
   description String?
+  isActive    Boolean @default(true)
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -1064,6 +1065,7 @@ model MonthlyExpense {
   id                   String             @id @default(uuid())
   year                 String
   month                String
+  date                 DateTime
   expenseAreaId        String
   expenseArea          ExpenseArea        @relation(fields: [expenseAreaId], references: [id])
   vehicleId            String?

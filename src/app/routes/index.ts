@@ -59,6 +59,12 @@ import { BuildingInvestmentSourceRoutes } from '../modules/buildingInvestmentSou
 import { BuildingInvestmentRoutes } from '../modules/buildingInvestment/buildingInvestment.route';
 import { BuildingExpenseRoutes } from '../modules/buildingExpense/buildingExpense.route';
 import { ExpenseAreaRoutes } from '../modules/expenseArea/expenseArea.route';
+import { VehicleRoutes } from '../modules/vehicle/vehicle.route';
+import { ExpenseTypeRoutes } from '../modules/expenseType/expenseType.route';
+import { MonthlyExpenseHeadRoutes } from '../modules/monthlyExpenseHead/monthlyExpenseHead.route';
+import { PaymentSourceRoutes } from '../modules/paymentSource/paymentSource.route';
+import { MonthlyExpenseRoutes } from '../modules/monthlyExpense/monthlyExpense.route';
+import { OpeningBalanceRoutes } from '../modules/openingBalance/openingBalance.route';
 
 const router = express.Router();
 
@@ -302,6 +308,30 @@ const moduleRoutes = [
   {
     path: '/expense-area',
     route: ExpenseAreaRoutes,
+  },
+  {
+    path: '/vehicle',
+    route: VehicleRoutes,
+  },
+  {
+    path: '/expense-type',
+    route: ExpenseTypeRoutes,
+  },
+  {
+    path: '/monthly-expense-head',
+    route: MonthlyExpenseHeadRoutes,
+  },
+  {
+    path: '/payment-source',
+    route: PaymentSourceRoutes,
+  },
+  {
+    path: '/monthly-expense',
+    route: MonthlyExpenseRoutes,
+  },
+  {
+    path: '/opening-balance',
+    route: OpeningBalanceRoutes,
   },
 ];
 

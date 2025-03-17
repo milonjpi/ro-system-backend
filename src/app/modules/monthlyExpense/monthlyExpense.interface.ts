@@ -6,7 +6,6 @@ export type IMonthlyExpenseFilters = {
   endDate?: string;
   expenseAreaId?: string;
   vehicleId?: string;
-  expenseTypeId?: string;
   monthlyExpenseHeadId?: string;
   paymentSourceId?: string;
 };

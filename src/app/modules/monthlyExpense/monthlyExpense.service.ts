@@ -76,6 +76,21 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      expenseArea: true,
+      vehicle: true,
+      monthlyExpenseHead: true,
+      paymentSource: {
+        include: {
+          openingBalances: {
+            where: {
+              month: filterData?.month || '123',
+              year: filterData?.year || '123',
+            },
+          },
+        },
+      },
+    },
   });
 
   const total = await prisma.monthlyExpense.count({
@@ -102,7 +117,30 @@ const getSingle = async (id: string): Promise<MonthlyExpense | null> => {
     },
   });
 
-  return result;
+  if (!result) return null;
+
+  const { month, year } = result;
+
+  const detailedResult = await prisma.monthlyExpense.findFirst({
+    where: { id },
+    include: {
+      expenseArea: true,
+      vehicle: true,
+      monthlyExpenseHead: true,
+      paymentSource: {
+        include: {
+          openingBalances: {
+            where: {
+              month,
+              year,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return detailedResult;
 };
 
 // update

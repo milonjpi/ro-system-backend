@@ -60,7 +60,6 @@ import { BuildingInvestmentRoutes } from '../modules/buildingInvestment/building
 import { BuildingExpenseRoutes } from '../modules/buildingExpense/buildingExpense.route';
 import { ExpenseAreaRoutes } from '../modules/expenseArea/expenseArea.route';
 import { VehicleRoutes } from '../modules/vehicle/vehicle.route';
-import { ExpenseTypeRoutes } from '../modules/expenseType/expenseType.route';
 import { MonthlyExpenseHeadRoutes } from '../modules/monthlyExpenseHead/monthlyExpenseHead.route';
 import { PaymentSourceRoutes } from '../modules/paymentSource/paymentSource.route';
 import { MonthlyExpenseRoutes } from '../modules/monthlyExpense/monthlyExpense.route';
@@ -312,10 +311,6 @@ const moduleRoutes = [
   {
     path: '/vehicle',
     route: VehicleRoutes,
-  },
-  {
-    path: '/expense-type',
-    route: ExpenseTypeRoutes,
   },
   {
     path: '/monthly-expense-head',

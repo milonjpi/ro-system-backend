@@ -1019,31 +1019,15 @@ model Vehicle {
   @@map("vehicles")
 }
 
-model ExpenseType {
+model MonthlyExpenseHead {
   id          String  @id @default(uuid())
   label       String  @unique
   description String?
-
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  monthlyExpenseHeads MonthlyExpenseHead[]
-  monthlyExpenses     MonthlyExpense[]
-
-  @@map("expenseTypes")
-}
-
-model MonthlyExpenseHead {
-  id            String      @id @default(uuid())
-  expenseTypeId String
-  expenseType   ExpenseType @relation(fields: [expenseTypeId], references: [id])
-  label         String
-  description   String?
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   monthlyExpenses MonthlyExpense[]
 
-  @@unique([expenseTypeId, label])
   @@map("monthlyExpenseHeads")
 }
 
@@ -1070,8 +1054,6 @@ model MonthlyExpense {
   expenseArea          ExpenseArea        @relation(fields: [expenseAreaId], references: [id])
   vehicleId            String?
   vehicle              Vehicle?           @relation(fields: [vehicleId], references: [id])
-  expenseTypeId        String
-  expenseType          ExpenseType        @relation(fields: [expenseTypeId], references: [id])
   monthlyExpenseHeadId String
   monthlyExpenseHead   MonthlyExpenseHead @relation(fields: [monthlyExpenseHeadId], references: [id])
   expenseDetails       String?

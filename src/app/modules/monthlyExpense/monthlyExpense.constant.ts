@@ -8,7 +8,6 @@ export const monthlyExpenseFilterableFields = [
   'endDate',
   'expenseAreaId',
   'vehicleId',
-  'expenseTypeId',
   'monthlyExpenseHeadId',
   'paymentSourceId',
 ];

@@ -7,7 +7,6 @@ const create = z.object({
     date: z.string({ required_error: 'Date is Required' }),
     expenseAreaId: z.string({ required_error: 'Expense Area ID is Required' }),
     vehicleId: z.string().optional().nullable(),
-    expenseTypeId: z.string({ required_error: 'Expense Type ID is Required' }),
     monthlyExpenseHeadId: z.string({
       required_error: 'Expense Head ID is Required',
     }),
@@ -26,7 +25,6 @@ const update = z.object({
     date: z.string().optional(),
     expenseAreaId: z.string().optional(),
     vehicleId: z.string().optional().nullable(),
-    expenseTypeId: z.string().optional(),
     monthlyExpenseHeadId: z.string().optional(),
     expenseDetails: z.string().optional().nullable(),
     amount: z.number().optional(),

@@ -61,6 +61,9 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      paymentSource: true,
+    },
   });
 
   const total = await prisma.openingBalance.count({
@@ -84,6 +87,9 @@ const getSingle = async (id: string): Promise<OpeningBalance | null> => {
   const result = await prisma.openingBalance.findFirst({
     where: {
       id,
+    },
+    include: {
+      paymentSource: true,
     },
   });
 

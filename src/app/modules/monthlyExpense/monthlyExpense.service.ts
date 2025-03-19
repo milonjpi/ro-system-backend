@@ -2,30 +2,31 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { MonthlyExpense, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IMonthlyExpenseFilters } from './monthlyExpense.interface';
+import {
+  IMonthlyExpenseFilters,
+  IMonthlyExpenseResponse,
+} from './monthlyExpense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { monthlyExpenseSearchableFields } from './monthlyExpense.constant';
 
 // create
-const insertIntoDB = async (
-  data: MonthlyExpense
-): Promise<MonthlyExpense | null> => {
-  const result = await prisma.monthlyExpense.create({ data });
+const insertIntoDB = async (data: MonthlyExpense[]): Promise<string> => {
+  const result = await prisma.monthlyExpense.createMany({ data });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Create');
   }
 
-  return result;
+  return 'Success';
 };
 
 // get all
 const getAll = async (
   filters: IMonthlyExpenseFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<MonthlyExpense[]>> => {
+): Promise<IGenericResponse<IMonthlyExpenseResponse>> => {
   const { searchTerm, startDate, endDate, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -98,6 +99,13 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
+  const totalAmount = await prisma.monthlyExpense.aggregate({
+    where: whereConditions,
+    _sum: {
+      amount: true,
+    },
+  });
+
   return {
     meta: {
       page,
@@ -105,7 +113,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: result,
+      sum: totalAmount,
+    },
   };
 };
 

@@ -2,19 +2,25 @@ import { z } from 'zod';
 
 const create = z.object({
   body: z.object({
-    year: z.string({ required_error: 'Year is Required' }),
-    month: z.string({ required_error: 'Month is Required' }),
-    date: z.string({ required_error: 'Date is Required' }),
-    expenseAreaId: z.string({ required_error: 'Expense Area ID is Required' }),
-    vehicleId: z.string().optional().nullable(),
-    monthlyExpenseHeadId: z.string({
-      required_error: 'Expense Head ID is Required',
-    }),
-    expenseDetails: z.string().optional().nullable(),
-    amount: z.number({ required_error: 'Amount is Required' }),
-    paymentSourceId: z.string({
-      required_error: 'Payment Source ID is Required',
-    }),
+    data: z
+      .object({
+        year: z.string({ required_error: 'Year is Required' }),
+        month: z.string({ required_error: 'Month is Required' }),
+        date: z.string({ required_error: 'Date is Required' }),
+        expenseAreaId: z.string({
+          required_error: 'Expense Area ID is Required',
+        }),
+        vehicleId: z.string().optional().nullable(),
+        monthlyExpenseHeadId: z.string({
+          required_error: 'Expense Head ID is Required',
+        }),
+        expenseDetails: z.string().optional().nullable(),
+        amount: z.number({ required_error: 'Amount is Required' }),
+        paymentSourceId: z.string({
+          required_error: 'Payment Source ID is Required',
+        }),
+      })
+      .array(),
   }),
 });
 

@@ -7,14 +7,15 @@ import { paginationFields } from '../../../constants/pagination';
 import { MonthlyExpenseService } from './monthlyExpense.service';
 import { MonthlyExpense } from '@prisma/client';
 import { monthlyExpenseFilterableFields } from './monthlyExpense.constant';
+import { IMonthlyExpenseResponse } from './monthlyExpense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const data = req.body;
+  const { data } = req.body;
 
   const result = await MonthlyExpenseService.insertIntoDB(data);
 
-  sendResponse<MonthlyExpense>(res, {
+  sendResponse<string>(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Expense Created Successfully',
@@ -28,7 +29,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await MonthlyExpenseService.getAll(filters, paginationOptions);
 
-  sendResponse<MonthlyExpense[]>(res, {
+  sendResponse<IMonthlyExpenseResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Expenses retrieved successfully',

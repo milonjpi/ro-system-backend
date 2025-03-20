@@ -64,6 +64,8 @@ import { MonthlyExpenseHeadRoutes } from '../modules/monthlyExpenseHead/monthlyE
 import { PaymentSourceRoutes } from '../modules/paymentSource/paymentSource.route';
 import { MonthlyExpenseRoutes } from '../modules/monthlyExpense/monthlyExpense.route';
 import { OpeningBalanceRoutes } from '../modules/openingBalance/openingBalance.route';
+import { RecipientRoutes } from '../modules/recipient/recipient.route';
+import { ZakatRoutes } from '../modules/zakat/zakat.route';
 
 const router = express.Router();
 
@@ -327,6 +329,14 @@ const moduleRoutes = [
   {
     path: '/opening-balance',
     route: OpeningBalanceRoutes,
+  },
+  {
+    path: '/recipient',
+    route: RecipientRoutes,
+  },
+  {
+    path: '/zakat',
+    route: ZakatRoutes,
   },
 ];
 

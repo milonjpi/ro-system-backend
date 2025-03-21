@@ -56,13 +56,27 @@ const getAll = async (
 
   const result = await prisma.openingBalance.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
+    orderBy: [
+      {
+        paymentSource: { label: 'asc' },
+      },
+      {
+        [sortBy]: sortOrder,
+      },
+    ],
     skip,
     take: limit,
     include: {
-      paymentSource: true,
+      paymentSource: {
+        include: {
+          monthlyExpenses: {
+            where: {
+              year: filterData.year,
+              month: filterData.month,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -89,7 +103,11 @@ const getSingle = async (id: string): Promise<OpeningBalance | null> => {
       id,
     },
     include: {
-      paymentSource: true,
+      paymentSource: {
+        include: {
+          monthlyExpenses: true,
+        },
+      },
     },
   });
 

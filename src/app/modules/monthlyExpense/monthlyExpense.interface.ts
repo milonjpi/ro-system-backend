@@ -1,4 +1,9 @@
-import { MonthlyExpense } from '@prisma/client';
+import {
+  ExpenseArea,
+  MonthlyExpense,
+  MonthlyExpenseHead,
+  PaymentSource,
+} from '@prisma/client';
 
 export type IMonthlyExpenseFilters = {
   searchTerm?: string;
@@ -20,4 +25,33 @@ type ISum = {
 export type IMonthlyExpenseResponse = {
   data: MonthlyExpense[];
   sum: ISum;
+};
+
+// result
+export type IAreaWiseResponse = {
+  expenseArea: ExpenseArea | undefined;
+  month: string;
+  amount: number;
+};
+
+export type IAreaWiseDashResponse = {
+  expenseArea: string;
+  amount: number;
+};
+
+export type IHeadWiseResponse = {
+  expenseHead: MonthlyExpenseHead | undefined;
+  month: string;
+  amount: number;
+};
+
+export type IHeadWiseDashResponse = {
+  expenseHead: string;
+  amount: number;
+};
+
+export type ISourceWiseResponse = {
+  paymentSource: PaymentSource | undefined;
+  month: string;
+  amount: number;
 };

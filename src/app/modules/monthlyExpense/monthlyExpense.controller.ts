@@ -7,7 +7,14 @@ import { paginationFields } from '../../../constants/pagination';
 import { MonthlyExpenseService } from './monthlyExpense.service';
 import { MonthlyExpense } from '@prisma/client';
 import { monthlyExpenseFilterableFields } from './monthlyExpense.constant';
-import { IMonthlyExpenseResponse } from './monthlyExpense.interface';
+import {
+  IAreaWiseDashResponse,
+  IAreaWiseResponse,
+  IHeadWiseDashResponse,
+  IHeadWiseResponse,
+  IMonthlyExpenseResponse,
+  ISourceWiseResponse,
+} from './monthlyExpense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -81,10 +88,81 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// report
+// area wise
+const areaWiseReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, monthlyExpenseFilterableFields);
+  const result = await MonthlyExpenseService.areaWiseReport(filters);
+
+  sendResponse<IAreaWiseResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
+// area wise dash
+const areaWiseDashReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, monthlyExpenseFilterableFields);
+  const result = await MonthlyExpenseService.areaWiseDashReport(filters);
+
+  sendResponse<IAreaWiseDashResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
+// head wise
+const headWiseReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, monthlyExpenseFilterableFields);
+  const result = await MonthlyExpenseService.headWiseReport(filters);
+
+  sendResponse<IHeadWiseResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
+// head wise dash
+const headWiseDashReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, monthlyExpenseFilterableFields);
+  const result = await MonthlyExpenseService.headWiseDashReport(filters);
+
+  sendResponse<IHeadWiseDashResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
+// source wise
+const sourceWiseReport = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, monthlyExpenseFilterableFields);
+  const result = await MonthlyExpenseService.sourceWiseReport(filters);
+
+  sendResponse<ISourceWiseResponse[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
 export const MonthlyExpenseController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  areaWiseReport,
+  areaWiseDashReport,
+  headWiseReport,
+  headWiseDashReport,
+  sourceWiseReport,
 };

@@ -2,11 +2,12 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Recipient, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IRecipientFilters } from './recipient.interface';
+import { IRecipientFilters, IRecipientResponse } from './recipient.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { recipientSearchableFields } from './recipient.constant';
+import { totalSum } from '../../../shared/utils';
 
 // create
 const insertIntoDB = async (data: Recipient): Promise<Recipient | null> => {
@@ -23,9 +24,9 @@ const insertIntoDB = async (data: Recipient): Promise<Recipient | null> => {
 const getAll = async (
   filters: IRecipientFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<Recipient[]>> => {
+): Promise<IGenericResponse<IRecipientResponse>> => {
   const { searchTerm, ...filterData } = filters;
-  const { page, limit, skip, sortBy, sortOrder } =
+  const { page, limit, skip } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
@@ -54,20 +55,38 @@ const getAll = async (
 
   const result = await prisma.recipient.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
     skip,
     take: limit,
     include: {
-      zakats: true,
+      zakats: {
+        orderBy: {
+          year: 'asc',
+        },
+      },
     },
+  });
+  const sortResult = result.sort((a, b) => {
+    const sumA = a.zakats.reduce((acc, zakat) => acc + zakat.amount, 0);
+    const sumB = b.zakats.reduce((acc, zakat) => acc + zakat.amount, 0);
+    return sumB - sumA;
   });
 
   const total = await prisma.recipient.count({
     where: whereConditions,
   });
   const totalPage = Math.ceil(total / limit);
+
+  const totalRecipients = await prisma.recipient.findMany({
+    where: whereConditions,
+    include: {
+      zakats: true,
+    },
+  });
+
+  const totalAmount = totalSum(
+    totalRecipients?.map(el => ({ amount: totalSum(el.zakats, 'amount') })),
+    'amount'
+  );
 
   return {
     meta: {
@@ -76,7 +95,10 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: result,
+    data: {
+      data: sortResult,
+      sum: totalAmount,
+    },
   };
 };
 

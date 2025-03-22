@@ -59,7 +59,7 @@ const getAll = async (
         year: 'asc',
       },
       {
-        recipient: { fullName: 'asc' },
+        amount: 'desc',
       },
     ],
     skip,

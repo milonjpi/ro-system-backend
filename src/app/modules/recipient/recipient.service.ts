@@ -64,11 +64,9 @@ const getAll = async (
         },
       },
     },
-  });
-  const sortResult = result.sort((a, b) => {
-    const sumA = a.zakats.reduce((acc, zakat) => acc + zakat.amount, 0);
-    const sumB = b.zakats.reduce((acc, zakat) => acc + zakat.amount, 0);
-    return sumB - sumA;
+    orderBy: {
+      fullName: 'asc',
+    },
   });
 
   const total = await prisma.recipient.count({
@@ -96,7 +94,7 @@ const getAll = async (
       totalPage,
     },
     data: {
-      data: sortResult,
+      data: result,
       sum: totalAmount,
     },
   };

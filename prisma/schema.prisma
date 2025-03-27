@@ -1107,6 +1107,7 @@ model Zakat {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([year, recipientId])
   @@map("zakats")
 }
 

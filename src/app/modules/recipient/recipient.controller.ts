@@ -7,7 +7,6 @@ import { paginationFields } from '../../../constants/pagination';
 import { RecipientService } from './recipient.service';
 import { Recipient } from '@prisma/client';
 import { recipientFilterableFields } from './recipient.constant';
-import { IRecipientResponse } from './recipient.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -29,7 +28,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
   const result = await RecipientService.getAll(filters, paginationOptions);
 
-  sendResponse<IRecipientResponse>(res, {
+  sendResponse<Recipient[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Recipients retrieved successfully',

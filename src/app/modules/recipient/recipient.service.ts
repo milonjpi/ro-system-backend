@@ -2,12 +2,11 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Recipient, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IRecipientFilters, IRecipientResponse } from './recipient.interface';
+import { IRecipientFilters } from './recipient.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { recipientSearchableFields } from './recipient.constant';
-import { totalSum } from '../../../shared/utils';
 
 // create
 const insertIntoDB = async (data: Recipient): Promise<Recipient | null> => {
@@ -24,7 +23,7 @@ const insertIntoDB = async (data: Recipient): Promise<Recipient | null> => {
 const getAll = async (
   filters: IRecipientFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<IRecipientResponse>> => {
+): Promise<IGenericResponse<Recipient[]>> => {
   const { searchTerm, ...filterData } = filters;
   const { page, limit, skip } =
     paginationHelpers.calculatePagination(paginationOptions);
@@ -74,18 +73,6 @@ const getAll = async (
   });
   const totalPage = Math.ceil(total / limit);
 
-  const totalRecipients = await prisma.recipient.findMany({
-    where: whereConditions,
-    include: {
-      zakats: true,
-    },
-  });
-
-  const totalAmount = totalSum(
-    totalRecipients?.map(el => ({ amount: totalSum(el.zakats, 'amount') })),
-    'amount'
-  );
-
   return {
     meta: {
       page,
@@ -93,10 +80,7 @@ const getAll = async (
       total,
       totalPage,
     },
-    data: {
-      data: result,
-      sum: totalAmount,
-    },
+    data: result,
   };
 };
 

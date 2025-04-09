@@ -66,6 +66,7 @@ import { MonthlyExpenseRoutes } from '../modules/monthlyExpense/monthlyExpense.r
 import { OpeningBalanceRoutes } from '../modules/openingBalance/openingBalance.route';
 import { RecipientRoutes } from '../modules/recipient/recipient.route';
 import { ZakatRoutes } from '../modules/zakat/zakat.route';
+import { ExpenseDetailRoutes } from '../modules/expenseDetail/expenseDetail.route';
 
 const router = express.Router();
 
@@ -317,6 +318,10 @@ const moduleRoutes = [
   {
     path: '/monthly-expense-head',
     route: MonthlyExpenseHeadRoutes,
+  },
+  {
+    path: '/expense-detail',
+    route: ExpenseDetailRoutes,
   },
   {
     path: '/payment-source',

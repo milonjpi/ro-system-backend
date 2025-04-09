@@ -86,6 +86,7 @@ const getAll = async (
       expenseArea: true,
       vehicle: true,
       monthlyExpenseHead: true,
+      expenseDetail: true,
       paymentSource: {
         include: {
           openingBalances: {
@@ -143,6 +144,7 @@ const getSingle = async (id: string): Promise<MonthlyExpense | null> => {
       expenseArea: true,
       vehicle: true,
       monthlyExpenseHead: true,
+      expenseDetail: true,
       paymentSource: {
         include: {
           openingBalances: {

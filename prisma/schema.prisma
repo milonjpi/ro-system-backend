@@ -1031,6 +1031,17 @@ model MonthlyExpenseHead {
   @@map("monthlyExpenseHeads")
 }
 
+model ExpenseDetail {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  MonthlyExpense MonthlyExpense[]
+
+  @@map("expenseDetails")
+}
+
 model PaymentSource {
   id          String  @id @default(uuid())
   label       String  @unique
@@ -1056,6 +1067,8 @@ model MonthlyExpense {
   vehicle              Vehicle?           @relation(fields: [vehicleId], references: [id])
   monthlyExpenseHeadId String
   monthlyExpenseHead   MonthlyExpenseHead @relation(fields: [monthlyExpenseHeadId], references: [id])
+  expenseDetailId      String?
+  expenseDetail        ExpenseDetail?     @relation(fields: [expenseDetailId], references: [id])
   expenseDetails       String?
   amount               Float
   paymentSourceId      String

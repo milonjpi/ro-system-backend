@@ -119,10 +119,20 @@ const deleteFromDB = async (id: string): Promise<ExpenseDetail | null> => {
     where: {
       id,
     },
+    include: {
+      MonthlyExpense: true,
+    },
   });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.MonthlyExpense?.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `${isExist.MonthlyExpense?.length} Documents Engaged with this`
+    );
   }
 
   const result = await prisma.expenseDetail.delete({

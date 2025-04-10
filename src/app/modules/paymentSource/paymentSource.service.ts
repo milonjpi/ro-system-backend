@@ -119,10 +119,24 @@ const deleteFromDB = async (id: string): Promise<PaymentSource | null> => {
     where: {
       id,
     },
+    include: {
+      monthlyExpenses: true,
+      openingBalances: true,
+    },
   });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.monthlyExpenses?.length || isExist.openingBalances?.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `${
+        (isExist.monthlyExpenses?.length || 0) +
+        (isExist.openingBalances?.length || 0)
+      } Documents Engaged with this`
+    );
   }
 
   const result = await prisma.paymentSource.delete({

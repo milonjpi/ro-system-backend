@@ -1051,7 +1051,6 @@ model PaymentSource {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   monthlyExpenses MonthlyExpense[]
-  openingBalances OpeningBalance[]
 
   @@map("paymentSources")
 }
@@ -1085,14 +1084,12 @@ model OpeningBalance {
   year            String
   month           String
   amount          Float
-  paymentSourceId String
-  paymentSource   PaymentSource @relation(fields: [paymentSourceId], references: [id])
   remarks         String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([year, month, paymentSourceId])
+  @@unique([year, month])
   @@map("openingBalances")
 }
 

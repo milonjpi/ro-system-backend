@@ -121,7 +121,6 @@ const deleteFromDB = async (id: string): Promise<PaymentSource | null> => {
     },
     include: {
       monthlyExpenses: true,
-      openingBalances: true,
     },
   });
 
@@ -129,13 +128,10 @@ const deleteFromDB = async (id: string): Promise<PaymentSource | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.monthlyExpenses?.length || isExist.openingBalances?.length) {
+  if (isExist.monthlyExpenses?.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `${
-        (isExist.monthlyExpenses?.length || 0) +
-        (isExist.openingBalances?.length || 0)
-      } Documents Engaged with this`
+      `${isExist.monthlyExpenses?.length || 0} Documents Engaged with this`
     );
   }
 

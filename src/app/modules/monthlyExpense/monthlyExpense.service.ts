@@ -87,16 +87,7 @@ const getAll = async (
       vehicle: true,
       monthlyExpenseHead: true,
       expenseDetail: true,
-      paymentSource: {
-        include: {
-          openingBalances: {
-            where: {
-              month: filterData?.month || '123',
-              year: filterData?.year || '123',
-            },
-          },
-        },
-      },
+      paymentSource: true,
     },
   });
 
@@ -136,8 +127,6 @@ const getSingle = async (id: string): Promise<MonthlyExpense | null> => {
 
   if (!result) return null;
 
-  const { month, year } = result;
-
   const detailedResult = await prisma.monthlyExpense.findFirst({
     where: { id },
     include: {
@@ -145,16 +134,7 @@ const getSingle = async (id: string): Promise<MonthlyExpense | null> => {
       vehicle: true,
       monthlyExpenseHead: true,
       expenseDetail: true,
-      paymentSource: {
-        include: {
-          openingBalances: {
-            where: {
-              month,
-              year,
-            },
-          },
-        },
-      },
+      paymentSource: true,
     },
   });
 

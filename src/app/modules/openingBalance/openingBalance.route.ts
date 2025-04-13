@@ -22,6 +22,13 @@ router.get(
   OpeningBalanceController.getAll
 );
 
+// present balance
+router.get(
+  '/present-balance',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  OpeningBalanceController.presentBalance
+);
+
 // get single
 router.get(
   '/:id',

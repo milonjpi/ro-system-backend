@@ -7,6 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { OpeningBalanceService } from './openingBalance.service';
 import { OpeningBalance } from '@prisma/client';
 import { openingBalanceFilterableFields } from './openingBalance.constant';
+import { IPresentBalance } from './openingBalance.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -80,10 +81,36 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get all
+const presentBalance = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, openingBalanceFilterableFields);
+  const getFilter = {
+    year: filters.year || '',
+    month: filters.month || '',
+  } as {
+    year: string;
+    month: string;
+  };
+  const paginationOptions = pick(req.query, paginationFields);
+  const result = await OpeningBalanceService.presentBalance(
+    getFilter,
+    paginationOptions
+  );
+
+  sendResponse<IPresentBalance[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Present Balance retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const OpeningBalanceController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  presentBalance,
 };

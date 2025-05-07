@@ -10,6 +10,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { openingBalanceSearchableFields } from './openingBalance.constant';
+import moment from 'moment';
 
 // create
 const insertIntoDB = async (
@@ -29,7 +30,7 @@ const getAll = async (
   filters: IOpeningBalanceFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<OpeningBalance[]>> => {
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, startDate, endDate, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -43,6 +44,21 @@ const getAll = async (
           mode: 'insensitive',
         },
       })),
+    });
+  }
+
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
     });
   }
 
@@ -69,6 +85,9 @@ const getAll = async (
     ],
     skip,
     take: limit,
+    include: {
+      source: true,
+    },
   });
 
   const total = await prisma.openingBalance.count({
@@ -92,6 +111,9 @@ const getSingle = async (id: string): Promise<OpeningBalance | null> => {
   const result = await prisma.openingBalance.findFirst({
     where: {
       id,
+    },
+    include: {
+      source: true,
     },
   });
 
@@ -153,40 +175,85 @@ const deleteFromDB = async (id: string): Promise<OpeningBalance | null> => {
 // present balance
 const presentBalance = async (
   filters: {
-    year: string;
-    month: string;
+    year?: string;
+    month?: string;
   },
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IPresentBalance[]>> => {
-  const { ...filterData } = filters;
-  const { page, limit, skip, sortBy, sortOrder } =
+  const { month, year } = filters;
+  const { page, limit } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
 
-  if (Object.keys(filterData).length > 0) {
+  if (month) {
     andConditions.push({
-      AND: Object.entries(filterData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      month,
+    });
+  }
+  if (year) {
+    andConditions.push({
+      year,
     });
   }
 
   const whereConditions: Prisma.OpeningBalanceWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const result = await prisma.openingBalance.findMany({
+  const whereCostConditions: Prisma.MonthlyExpenseWhereInput =
+    andConditions.length > 0
+      ? {
+          AND: [
+            ...andConditions,
+            {
+              OR: [
+                {
+                  paymentSource: {
+                    label: {
+                      contains: 'cash',
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+                {
+                  paymentSource: {
+                    label: {
+                      contains: 'npsb',
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        }
+      : {
+          OR: [
+            {
+              paymentSource: {
+                label: {
+                  contains: 'cash',
+                  mode: 'insensitive',
+                },
+              },
+            },
+            {
+              paymentSource: {
+                label: {
+                  contains: 'npsb',
+                  mode: 'insensitive',
+                },
+              },
+            },
+          ],
+        };
+
+  const result = await prisma.openingBalance.groupBy({
+    by: ['year', 'month'],
     where: whereConditions,
-    orderBy: [
-      {
-        year: 'desc',
-      },
-      {
-        [sortBy]: sortOrder,
-      },
-    ],
-    skip,
-    take: limit,
+    _sum: {
+      amount: true,
+    },
   });
 
   const total = await prisma.openingBalance.count({
@@ -195,27 +262,8 @@ const presentBalance = async (
   const totalPage = Math.ceil(total / limit);
 
   const costAmount = await prisma.monthlyExpense.groupBy({
-    where: {
-      OR: [
-        {
-          paymentSource: {
-            label: {
-              contains: 'cash',
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          paymentSource: {
-            label: {
-              contains: 'npsb',
-              mode: 'insensitive',
-            },
-          },
-        },
-      ],
-    },
     by: ['year', 'month'],
+    where: whereCostConditions,
     _sum: { amount: true },
   });
 
@@ -224,9 +272,18 @@ const presentBalance = async (
       bl => bl.year === el.year && bl.month === el.month
     );
     return {
-      ...el,
+      year: el.year,
+      month: el.month,
+      amount: el._sum?.amount || 0,
       cost: findCost?._sum?.amount || 0,
     };
+  });
+
+  const sortResult = mapResult.sort((a, b) => {
+    const itemA = moment(a.month, 'MMMM');
+    const itemB = moment(b.month, 'MMMM');
+
+    return itemA.diff(itemB);
   });
 
   return {
@@ -236,7 +293,7 @@ const presentBalance = async (
       total,
       totalPage,
     },
-    data: mapResult,
+    data: sortResult,
   };
 };
 

@@ -1055,6 +1055,18 @@ model PaymentSource {
   @@map("paymentSources")
 }
 
+model Source {
+  id          String  @id @default(uuid())
+  label       String  @unique
+  description String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  openingBalances OpeningBalance[]
+
+  @@map("sources")
+}
+
 model MonthlyExpense {
   id                   String             @id @default(uuid())
   year                 String
@@ -1080,16 +1092,18 @@ model MonthlyExpense {
 }
 
 model OpeningBalance {
-  id              String        @id @default(uuid())
-  year            String
-  month           String
-  amount          Float
-  remarks         String?
+  id       String    @id @default(uuid())
+  sourceId String?
+  source   Source?   @relation(fields: [sourceId], references: [id])
+  date     DateTime?
+  year     String
+  month    String
+  amount   Float
+  remarks  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([year, month])
   @@map("openingBalances")
 }
 

@@ -1,3 +1,10 @@
 export const openingBalanceSearchableFields = ['remarks'];
 
-export const openingBalanceFilterableFields = ['searchTerm', 'year', 'month'];
+export const openingBalanceFilterableFields = [
+  'searchTerm',
+  'sourceId',
+  'startDate',
+  'endDate',
+  'year',
+  'month',
+];

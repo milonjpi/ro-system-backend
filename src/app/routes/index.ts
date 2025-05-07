@@ -67,6 +67,7 @@ import { OpeningBalanceRoutes } from '../modules/openingBalance/openingBalance.r
 import { RecipientRoutes } from '../modules/recipient/recipient.route';
 import { ZakatRoutes } from '../modules/zakat/zakat.route';
 import { ExpenseDetailRoutes } from '../modules/expenseDetail/expenseDetail.route';
+import { SourceRoutes } from '../modules/source/source.route';
 
 const router = express.Router();
 
@@ -330,6 +331,10 @@ const moduleRoutes = [
   {
     path: '/monthly-expense',
     route: MonthlyExpenseRoutes,
+  },
+  {
+    path: '/source',
+    route: SourceRoutes,
   },
   {
     path: '/opening-balance',

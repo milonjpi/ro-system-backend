@@ -215,14 +215,14 @@ const presentBalance = async (
                     },
                   },
                 },
-                {
-                  paymentSource: {
-                    label: {
-                      contains: 'npsb',
-                      mode: 'insensitive',
-                    },
-                  },
-                },
+                // {
+                //   paymentSource: {
+                //     label: {
+                //       contains: 'npsb',
+                //       mode: 'insensitive',
+                //     },
+                //   },
+                // },
               ],
             },
           ],
@@ -237,14 +237,14 @@ const presentBalance = async (
                 },
               },
             },
-            {
-              paymentSource: {
-                label: {
-                  contains: 'npsb',
-                  mode: 'insensitive',
-                },
-              },
-            },
+            // {
+            //   paymentSource: {
+            //     label: {
+            //       contains: 'npsb',
+            //       mode: 'insensitive',
+            //     },
+            //   },
+            // },
           ],
         };
 

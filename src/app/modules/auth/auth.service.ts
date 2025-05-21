@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import ApiError from '../../../errors/ApiError';
 import prisma from '../../../shared/prisma';
 import { User } from '@prisma/client';

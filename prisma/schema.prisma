@@ -1135,6 +1135,81 @@ model Zakat {
   @@map("zakats")
 }
 
+// Jewellery
+model JewelleryType {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jewelleries Jewellery[]
+
+  @@map("jewelleryTypes")
+}
+
+model Carat {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jewelleries Jewellery[]
+
+  @@map("carats")
+}
+
+model JewelleryVendor {
+  id      String  @id @default(uuid())
+  label   String  @unique
+  mobile  String?
+  address String?
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jewelleries Jewellery[]
+
+  @@map("jewelleryVendors")
+}
+
+model JewelleryUom {
+  id    String @id @default(uuid())
+  label String @unique
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jewelleries Jewellery[]
+
+  @@map("jewelleryUom")
+}
+
+model Jewellery {
+  id              String          @id @default(uuid())
+  jewelleryTypeId String
+  jewelleryType   JewelleryType   @relation(fields: [jewelleryTypeId], references: [id])
+  caratId         String
+  carat           Carat           @relation(fields: [caratId], references: [id])
+  vendorId        String
+  vendor          JewelleryVendor @relation(fields: [vendorId], references: [id])
+  invoiceNo       String
+  dop             DateTime
+  year            String
+  month           String
+  uomId           String?
+  uom             JewelleryUom?   @relation(fields: [uomId], references: [id])
+  unitPrice       Float? @default(0)
+  weight          Float
+  price           Int
+  remarks         String?
+  isSold          Boolean         @default(false)
+  isExchanged     Boolean         @default(false)
+  soldDate        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jewelleries")
+}
+
 // ENUMS
 enum UserRole {
   super_admin

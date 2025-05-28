@@ -1,3 +1,3 @@
 export const caratSearchableFields = ['label'];
 
-export const caratFilterableFields = ['searchTerm'];
+export const caratFilterableFields = ['searchTerm', 'category'];

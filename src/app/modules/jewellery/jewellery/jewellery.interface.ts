@@ -2,6 +2,7 @@ import { Jewellery } from '@prisma/client';
 
 export type IJewelleryFilters = {
   searchTerm?: string;
+  category?: string;
   jewelleryTypeId?: string;
   caratId?: string;
   vendorId?: string;

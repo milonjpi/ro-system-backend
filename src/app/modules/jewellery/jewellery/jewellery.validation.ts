@@ -1,9 +1,13 @@
 import { z } from 'zod';
+import { jewelleryCategory } from './jewellery.constant';
 
 const create = z.object({
   body: z.object({
     data: z
       .object({
+        category: z.enum(jewelleryCategory as [string, ...string[]], {
+          required_error: 'Category is Required',
+        }),
         jewelleryTypeId: z.string({
           required_error: 'Jewellery Type ID is Required',
         }),
@@ -25,8 +29,6 @@ const create = z.object({
         month: z.string({
           required_error: 'Month is Required',
         }),
-        uomId: z.string().optional().nullable(),
-        unitPrice: z.number().optional(),
         weight: z.number({
           required_error: 'Weight is Required',
         }),
@@ -44,6 +46,7 @@ const create = z.object({
 
 const update = z.object({
   body: z.object({
+    category: z.enum(jewelleryCategory as [string, ...string[]]).optional(),
     jewelleryTypeId: z.string().optional(),
     caratId: z.string().optional(),
     vendorId: z.string().optional(),
@@ -51,8 +54,6 @@ const update = z.object({
     dop: z.string().optional(),
     year: z.string().optional(),
     month: z.string().optional(),
-    uomId: z.string().optional().nullable(),
-    unitPrice: z.number().optional(),
     weight: z.number().optional(),
     price: z.number().optional(),
     remarks: z.string().optional().nullable(),

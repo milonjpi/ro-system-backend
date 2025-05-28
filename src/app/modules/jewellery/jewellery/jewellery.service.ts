@@ -63,7 +63,6 @@ const getAll = async (
       jewelleryType: true,
       carat: true,
       vendor: true,
-      uom: true,
     },
   });
 
@@ -104,7 +103,6 @@ const getSingle = async (id: string): Promise<Jewellery | null> => {
       jewelleryType: true,
       carat: true,
       vendor: true,
-      uom: true,
     },
   });
 

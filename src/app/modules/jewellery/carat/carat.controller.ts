@@ -17,7 +17,7 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Carat>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Carat Created Successfully',
+    message: 'KDM Created Successfully',
     data: result,
   });
 });
@@ -31,7 +31,7 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Carat[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Carats retrieved successfully',
+    message: 'KDMs retrieved successfully',
     meta: result.meta,
     data: result.data,
   });
@@ -46,7 +46,7 @@ const getSingle = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Carat>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Carat retrieved successfully',
+    message: 'KDM retrieved successfully',
     data: result,
   });
 });
@@ -61,7 +61,7 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Carat>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Carat Updated Successfully',
+    message: 'KDM Updated Successfully',
     data: result,
   });
 });
@@ -75,7 +75,7 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Carat>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Carat Deleted successfully',
+    message: 'KDM Deleted successfully',
     data: result,
   });
 });

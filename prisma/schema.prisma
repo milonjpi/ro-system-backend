@@ -1152,9 +1152,10 @@ model Carat {
   label    String
   category JewelleryCategory @default(GOLD)
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  jewelleries Jewellery[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  jewelleries   Jewellery[]
+  JewelleryRate JewelleryRate[]
 
   @@unique([label, category])
   @@map("carats")
@@ -1197,6 +1198,20 @@ model Jewellery {
   updatedAt DateTime @updatedAt
 
   @@map("jewelleries")
+}
+
+model JewelleryRate {
+  id      String @id @default(uuid())
+  date    String
+  caratId String
+  carat   Carat  @relation(fields: [caratId], references: [id])
+  price   Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, caratId])
+  @@map("jewelleryRates")
 }
 
 // ENUMS

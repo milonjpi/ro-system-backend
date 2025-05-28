@@ -72,6 +72,7 @@ import { JewelleryTypeRoutes } from '../modules/jewellery/jewelleryType/jeweller
 import { CaratRoutes } from '../modules/jewellery/carat/carat.route';
 import { JewelleryVendorRoutes } from '../modules/jewellery/jewelleryVendor/jewelleryVendor.route';
 import { JewelleryRoutes } from '../modules/jewellery/jewellery/jewellery.route';
+import { JewelleryRateRoutes } from '../modules/jewellery/jewelleryRate/jewelleryRate.routes';
 
 const router = express.Router();
 
@@ -367,6 +368,10 @@ const moduleRoutes = [
   {
     path: '/jewellery',
     route: JewelleryRoutes,
+  },
+  {
+    path: '/jewellery-rate',
+    route: JewelleryRateRoutes,
   },
 ];
 

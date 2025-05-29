@@ -8,7 +8,6 @@ export type IJewelleryFilters = {
   vendorId?: string;
   year?: string;
   month?: string;
-  uomId?: string;
   isSold?: string;
   isExchanged?: string;
 };

@@ -9,7 +9,6 @@ export const jewelleryFilterableFields = [
   'vendorId',
   'year',
   'month',
-  'uomId',
   'isSold',
   'isExchanged',
 ];

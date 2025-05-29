@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { JewelleryRate, Prisma } from '@prisma/client';
+import { JewelleryCategory, JewelleryRate, Prisma } from '@prisma/client';
 import { IJewelleryRateFilters } from './jewelleryRate.interface';
 import prisma from '../../../../shared/prisma';
 import ApiError from '../../../../errors/ApiError';
@@ -25,11 +25,21 @@ const getAll = async (
   filters: IJewelleryRateFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<JewelleryRate[]>> => {
-  const { ...filterData } = filters;
+  const { category, ...filterData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
+
+  if (category) {
+    andConditions.push({
+      carat: {
+        is: {
+          category: category as JewelleryCategory,
+        },
+      },
+    });
+  }
 
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
@@ -74,9 +84,19 @@ const getAll = async (
 const getDistinctDate = async (
   filters: IJewelleryRateFilters
 ): Promise<JewelleryRate[]> => {
-  const { ...filterData } = filters;
+  const { category, ...filterData } = filters;
 
   const andConditions = [];
+
+  if (category) {
+    andConditions.push({
+      carat: {
+        is: {
+          category: category as JewelleryCategory,
+        },
+      },
+    });
+  }
 
   if (Object.keys(filterData).length > 0) {
     andConditions.push({

@@ -12,6 +12,7 @@ const allowedOrigins = [
   'https://erp.fl-bd.com',
   'http://ap.tbz.com.bd',
   'http://ro.tbz.com.bd',
+  'https://ro.tbz.com.bd',
 ];
 
 export default allowedOrigins;

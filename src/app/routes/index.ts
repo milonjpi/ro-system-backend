@@ -74,6 +74,7 @@ import { JewelleryVendorRoutes } from '../modules/jewellery/jewelleryVendor/jewe
 import { JewelleryRoutes } from '../modules/jewellery/jewellery/jewellery.route';
 import { JewelleryRateRoutes } from '../modules/jewellery/jewelleryRate/jewelleryRate.routes';
 import { JewelleryReportRoutes } from '../modules/jewellery/jewelleryReport/jewelleryReport.route';
+import { SoldJewelleryRoutes } from '../modules/soldJewellery/soldJewellery.route';
 
 const router = express.Router();
 
@@ -369,6 +370,10 @@ const moduleRoutes = [
   {
     path: '/jewellery',
     route: JewelleryRoutes,
+  },
+  {
+    path: '/sold-jewellery',
+    route: SoldJewelleryRoutes,
   },
   {
     path: '/jewellery-rate',

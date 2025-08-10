@@ -94,7 +94,7 @@ model AccountHead {
   updatedAt     DateTime     @updatedAt
   invoices      Invoice[]
   bills         Bill[]
-  Eexpenses     Expense[]
+  expenses      Expense[]
   vouchers      Voucher[]
   fixedAssets   FixedAsset[]
   investments   Investment[]
@@ -1167,9 +1167,10 @@ model JewelleryVendor {
   mobile  String?
   address String?
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  jewelleries Jewellery[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  jewelleries     Jewellery[]
+  soldJewelleries SoldJewellery[]
 
   @@map("jewelleryVendors")
 }
@@ -1194,8 +1195,9 @@ model Jewellery {
   isExchanged     Boolean           @default(false)
   soldDate        DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  soldJewelleries SoldJewellery[]
 
   @@map("jewelleries")
 }
@@ -1212,6 +1214,28 @@ model JewelleryRate {
 
   @@unique([date, caratId])
   @@map("jewelleryRates")
+}
+
+model SoldJewellery {
+  id          String          @id @default(uuid())
+  soldType    SoldType
+  invoiceNo   String?
+  jewelleryId String
+  jewellery   Jewellery       @relation(fields: [jewelleryId], references: [id])
+  vendorId    String
+  vendor      JewelleryVendor @relation(fields: [vendorId], references: [id])
+  soldDate    DateTime
+  year        String
+  month       String
+  percent     String
+  weight      Float
+  price       Int
+  remarks     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("soldJewelleries")
 }
 
 // ENUMS
@@ -1253,4 +1277,9 @@ enum JewelleryCategory {
   DIAMOND
   GOLD
   SILVER
+}
+
+enum SoldType {
+  SALE
+  EXCHANGE
 }

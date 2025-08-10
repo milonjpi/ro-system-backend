@@ -146,10 +146,27 @@ const deleteFromDB = async (id: string): Promise<Jewellery | null> => {
     where: {
       id,
     },
+    include: {
+      soldJewelleries: true,
+    },
   });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (isExist.isSold) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      '!!Forbidden, This Item is Sold'
+    );
+  }
+
+  if (isExist.soldJewelleries?.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Engaged with ${isExist.soldJewelleries?.length} Docs`
+    );
   }
 
   const result = await prisma.jewellery.delete({

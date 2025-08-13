@@ -32,6 +32,10 @@ const create = z.object({
         weight: z.number({
           required_error: 'Weight is Required',
         }),
+        unitPrice: z.number().optional(),
+        makingCharge: z.number().optional(),
+        vat: z.number().optional(),
+        totalPrice: z.number().optional(),
         price: z.number({
           required_error: 'Price is Required',
         }),
@@ -55,6 +59,10 @@ const update = z.object({
     year: z.string().optional(),
     month: z.string().optional(),
     weight: z.number().optional(),
+    unitPrice: z.number().optional(),
+    makingCharge: z.number().optional(),
+    vat: z.number().optional(),
+    totalPrice: z.number().optional(),
     price: z.number().optional(),
     remarks: z.string().optional().nullable(),
     isSold: z.boolean().optional(),

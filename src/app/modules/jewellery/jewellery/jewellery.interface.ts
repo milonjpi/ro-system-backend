@@ -15,8 +15,14 @@ export type IJewelleryFilters = {
 export type IJewelleryResponse = {
   data: Jewellery[];
   sum: {
+    _avg: {
+      unitPrice: number | null;
+    };
     _sum: {
       weight: number | null;
+      makingCharge: number | null;
+      vat: number | null;
+      totalPrice: number | null;
       price: number | null;
     };
   };

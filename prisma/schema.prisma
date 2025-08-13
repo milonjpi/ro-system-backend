@@ -1167,10 +1167,9 @@ model JewelleryVendor {
   mobile  String?
   address String?
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  jewelleries     Jewellery[]
-  soldJewelleries SoldJewellery[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jewelleries Jewellery[]
 
   @@map("jewelleryVendors")
 }
@@ -1189,6 +1188,10 @@ model Jewellery {
   year            String
   month           String
   weight          Float
+  unitPrice       Int               @default(0)
+  makingCharge    Int               @default(0)
+  vat             Int               @default(0)
+  totalPrice      Int               @default(0)
   price           Int
   remarks         String?
   isSold          Boolean           @default(false)
@@ -1217,18 +1220,18 @@ model JewelleryRate {
 }
 
 model SoldJewellery {
-  id          String          @id @default(uuid())
+  id          String    @id @default(uuid())
   soldType    SoldType
-  invoiceNo   String?
   jewelleryId String
-  jewellery   Jewellery       @relation(fields: [jewelleryId], references: [id])
-  vendorId    String
-  vendor      JewelleryVendor @relation(fields: [vendorId], references: [id])
+  jewellery   Jewellery @relation(fields: [jewelleryId], references: [id])
   soldDate    DateTime
   year        String
   month       String
-  percent     String
   weight      Float
+  unitPrice   Int       @default(0)
+  totalPrice  Int       @default(0)
+  percent     String
+  deduction   Int       @default(0)
   price       Int
   remarks     String?
 

@@ -6,7 +6,6 @@ export type ISoldJewelleryFilters = {
   category?: string;
   jewelleryTypeId?: string;
   jewelleryId?: string;
-  vendorId?: string;
   year?: string;
   month?: string;
 };
@@ -14,8 +13,13 @@ export type ISoldJewelleryFilters = {
 export type ISoldJewelleryResponse = {
   data: SoldJewellery[];
   sum: {
+    _avg: {
+      unitPrice: number | null;
+    };
     _sum: {
       weight: number | null;
+      totalPrice: number | null;
+      deduction: number | null;
       price: number | null;
     };
   };

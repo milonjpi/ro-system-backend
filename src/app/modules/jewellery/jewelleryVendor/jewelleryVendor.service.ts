@@ -129,7 +129,6 @@ const deleteFromDB = async (id: string): Promise<JewelleryVendor | null> => {
     },
     include: {
       jewelleries: true,
-      soldJewelleries: true,
     },
   });
 
@@ -137,12 +136,10 @@ const deleteFromDB = async (id: string): Promise<JewelleryVendor | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
   }
 
-  if (isExist.jewelleries?.length || isExist.soldJewelleries?.length) {
+  if (isExist.jewelleries?.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Engaged with ${
-        isExist.jewelleries?.length + isExist.soldJewelleries?.length
-      } Documents`
+      `Engaged with ${isExist.jewelleries?.length} Documents`
     );
   }
 

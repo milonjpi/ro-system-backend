@@ -1,6 +1,6 @@
 export const soldTypes = ['SALE', 'EXCHANGE'];
 
-export const soldJewellerySearchableFields = ['invoiceNo', 'remarks'];
+export const soldJewellerySearchableFields = ['remarks'];
 
 export const soldJewelleryFilterableFields = [
   'searchTerm',
@@ -8,7 +8,6 @@ export const soldJewelleryFilterableFields = [
   'category',
   'jewelleryTypeId',
   'jewelleryId',
-  'vendorId',
   'year',
   'month',
 ];

@@ -73,8 +73,14 @@ const getAll = async (
 
   const totalAmount = await prisma.jewellery.aggregate({
     where: whereConditions,
+    _avg: {
+      unitPrice: true,
+    },
     _sum: {
       weight: true,
+      makingCharge: true,
+      vat: true,
+      totalPrice: true,
       price: true,
     },
   });

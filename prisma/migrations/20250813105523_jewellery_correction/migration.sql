@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "jewelleries" ADD COLUMN     "makingCharge" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "unitPrice" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "vat" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "soldJewelleries" ADD COLUMN     "deduction" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "totalPrice" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "unitPrice" INTEGER NOT NULL DEFAULT 0;

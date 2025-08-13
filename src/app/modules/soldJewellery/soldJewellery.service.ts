@@ -87,7 +87,6 @@ const getAll = async (
       jewellery: {
         include: { jewelleryType: true, carat: true, vendor: true },
       },
-      vendor: true,
     },
   });
 
@@ -98,8 +97,14 @@ const getAll = async (
 
   const totalAmount = await prisma.soldJewellery.aggregate({
     where: whereConditions,
+    _avg: {
+      unitPrice: true,
+    },
     _sum: {
+      unitPrice: true,
       weight: true,
+      deduction: true,
+      totalPrice: true,
       price: true,
     },
   });
@@ -128,7 +133,6 @@ const getSingle = async (id: string): Promise<SoldJewellery | null> => {
       jewellery: {
         include: { jewelleryType: true, carat: true, vendor: true },
       },
-      vendor: true,
     },
   });
 

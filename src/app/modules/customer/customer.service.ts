@@ -302,6 +302,18 @@ const getCustomerDetails = async (
       customerNameBn: true,
       mobile: true,
       address: true,
+      invoices: {
+        where: {
+          status: { in: ['Due', 'Partial'] },
+        },
+        select: {
+          id: true,
+          invoiceNo: true,
+          amount: true,
+          paidAmount: true,
+          status: true,
+        },
+      },
     },
     orderBy: {
       customerName: 'asc',
@@ -315,6 +327,7 @@ const getCustomerDetails = async (
 
     return {
       ...el,
+      due: el.invoices,
       invoices: {
         saleAmount: findInvoiceSum?._sum?.amount,
         paidAmount: findInvoiceSum?._sum?.paidAmount,

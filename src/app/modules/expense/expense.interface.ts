@@ -1,4 +1,4 @@
-import { Expense } from '@prisma/client';
+import { Expense, ExpenseHead } from '@prisma/client';
 
 export type IExpenseFilters = {
   searchTerm?: string;
@@ -17,4 +17,10 @@ type ISum = {
 export type IExpenseResponse = {
   data: Expense[];
   sum: ISum;
+};
+
+// expense summary
+export type IExpenseHeadSummary = {
+  expenseHead: ExpenseHead | undefined;
+  amount: number;
 };

@@ -22,6 +22,13 @@ router.get(
   ExpenseController.getAll
 );
 
+// get expense head summary
+router.get(
+  '/head-summary',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ExpenseController.expenseHeadSummary
+);
+
 // get single
 router.get(
   '/:id',

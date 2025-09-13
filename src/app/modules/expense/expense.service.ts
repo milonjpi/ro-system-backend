@@ -2,7 +2,11 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Expense, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IExpenseFilters, IExpenseResponse } from './expense.interface';
+import {
+  IExpenseFilters,
+  IExpenseHeadSummary,
+  IExpenseResponse,
+} from './expense.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -177,10 +181,53 @@ const deleteFromDB = async (id: string): Promise<Expense | null> => {
   return result;
 };
 
+// expense head summary
+const expenseHeadSummary = async (
+  filters: IExpenseFilters
+): Promise<IExpenseHeadSummary[]> => {
+  const { startDate, endDate } = filters;
+
+  const andConditions = [];
+  if (startDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(`${startDate}, 00:00:00`),
+      },
+    });
+  }
+  if (endDate) {
+    andConditions.push({
+      date: {
+        lte: new Date(`${endDate}, 23:59:59`),
+      },
+    });
+  }
+
+  const whereConditions: Prisma.ExpenseWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const expenses = await prisma.expense.groupBy({
+    where: whereConditions,
+    by: ['expenseHeadId'],
+    _sum: { amount: true },
+  });
+  const expenseHeads = await prisma.expenseHead.findMany();
+
+  const result = expenses.map(el => ({
+    expenseHead: expenseHeads.find(bl => bl.id === el.expenseHeadId),
+    amount: el._sum.amount || 0,
+  }));
+
+  const sortResult = result.sort((a, b) => b.amount - a.amount);
+
+  return sortResult;
+};
+
 export const ExpenseService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  expenseHeadSummary,
 };

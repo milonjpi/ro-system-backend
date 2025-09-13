@@ -7,7 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { ExpenseService } from './expense.service';
 import { Expense, UserRole } from '@prisma/client';
 import { expenseFilterableFields } from './expense.constant';
-import { IExpenseResponse } from './expense.interface';
+import { IExpenseHeadSummary, IExpenseResponse } from './expense.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -84,10 +84,25 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get expense head summary
+const expenseHeadSummary = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, expenseFilterableFields);
+  const result = await ExpenseService.expenseHeadSummary(filters);
+
+  sendResponse<IExpenseHeadSummary[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expenses retrieved successfully',
+    data: result,
+  });
+});
+
+
 export const ExpenseController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  expenseHeadSummary,
 };

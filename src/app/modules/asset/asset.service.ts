@@ -78,7 +78,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Asset | null> => {
-  const result = await prisma.asset.findUnique({
+  const result = await prisma.asset.findFirst({
     where: {
       id,
     },
@@ -93,7 +93,7 @@ const updateSingle = async (
   payload: Partial<Asset>
 ): Promise<Asset | null> => {
   // check is exist
-  const isExist = await prisma.asset.findUnique({
+  const isExist = await prisma.asset.findFirst({
     where: {
       id,
     },
@@ -120,7 +120,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Asset | null> => {
   // check is exist
-  const isExist = await prisma.asset.findUnique({
+  const isExist = await prisma.asset.findFirst({
     where: {
       id,
     },

@@ -113,7 +113,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Order | null> => {
-  const result = await prisma.order.findUnique({
+  const result = await prisma.order.findFirst({
     where: {
       id,
     },
@@ -129,7 +129,7 @@ const updateSingle = async (
   orderedProducts: OrderedProduct[]
 ): Promise<Order | null> => {
   // check is exist
-  const isExist = await prisma.order.findUnique({
+  const isExist = await prisma.order.findFirst({
     where: {
       id,
     },
@@ -181,7 +181,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Order | null> => {
   // check is exist
-  const isExist = await prisma.order.findUnique({
+  const isExist = await prisma.order.findFirst({
     where: {
       id,
     },
@@ -219,7 +219,7 @@ const deleteFromDB = async (id: string): Promise<Order | null> => {
 
 const cancelOrder = async (id: string): Promise<Order | null> => {
   // check is exist
-  const isExist = await prisma.order.findUnique({
+  const isExist = await prisma.order.findFirst({
     where: {
       id,
     },

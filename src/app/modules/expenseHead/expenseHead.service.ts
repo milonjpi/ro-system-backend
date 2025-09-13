@@ -51,6 +51,11 @@ const getAll = async (
     },
     skip,
     take: limit,
+    include: {
+      _count: {
+        select: { expenses: true, expenseSubHeads: true, distExpenses: true },
+      },
+    },
   });
 
   const total = await prisma.expenseHead.count({
@@ -71,7 +76,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<ExpenseHead | null> => {
-  const result = await prisma.expenseHead.findUnique({
+  const result = await prisma.expenseHead.findFirst({
     where: {
       id,
     },
@@ -86,7 +91,7 @@ const updateSingle = async (
   payload: Partial<ExpenseHead>
 ): Promise<ExpenseHead | null> => {
   // check is exist
-  const isExist = await prisma.expenseHead.findUnique({
+  const isExist = await prisma.expenseHead.findFirst({
     where: {
       id,
     },
@@ -113,14 +118,38 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<ExpenseHead | null> => {
   // check is exist
-  const isExist = await prisma.expenseHead.findUnique({
+  const isExist = await prisma.expenseHead.findFirst({
     where: {
       id,
+    },
+    include: {
+      _count: {
+        select: {
+          expenses: true,
+          expenseSubHeads: true,
+          distExpenses: true,
+        },
+      },
     },
   });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not Found');
+  }
+
+  if (
+    isExist._count.expenses ||
+    isExist._count.expenseSubHeads ||
+    isExist._count.expenseSubHeads
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `!!Forbidden, Engaged with ${
+        isExist._count.expenses +
+        isExist._count.expenseSubHeads +
+        isExist._count.expenseSubHeads
+      } Docs`
+    );
   }
 
   const result = await prisma.expenseHead.delete({

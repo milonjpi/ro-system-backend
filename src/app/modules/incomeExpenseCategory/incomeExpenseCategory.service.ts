@@ -73,7 +73,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<IncomeExpenseCategory | null> => {
-  const result = await prisma.incomeExpenseCategory.findUnique({
+  const result = await prisma.incomeExpenseCategory.findFirst({
     where: {
       id,
     },
@@ -88,7 +88,7 @@ const updateSingle = async (
   payload: Partial<IncomeExpenseCategory>
 ): Promise<IncomeExpenseCategory | null> => {
   // check is exist
-  const isExist = await prisma.incomeExpenseCategory.findUnique({
+  const isExist = await prisma.incomeExpenseCategory.findFirst({
     where: {
       id,
     },
@@ -117,7 +117,7 @@ const deleteFromDB = async (
   id: string
 ): Promise<IncomeExpenseCategory | null> => {
   // check is exist
-  const isExist = await prisma.incomeExpenseCategory.findUnique({
+  const isExist = await prisma.incomeExpenseCategory.findFirst({
     where: {
       id,
     },

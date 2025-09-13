@@ -3,7 +3,7 @@ import { User } from '@prisma/client';
 
 // get profile
 const getProfile = async (id: string): Promise<User | null> => {
-  const result = await prisma.user.findUnique({
+  const result = await prisma.user.findFirst({
     where: {
       id,
     },

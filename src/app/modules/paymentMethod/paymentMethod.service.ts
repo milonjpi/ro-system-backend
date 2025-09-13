@@ -73,7 +73,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<PaymentMethod | null> => {
-  const result = await prisma.paymentMethod.findUnique({
+  const result = await prisma.paymentMethod.findFirst({
     where: {
       id,
     },
@@ -88,7 +88,7 @@ const updateSingle = async (
   payload: Partial<PaymentMethod>
 ): Promise<PaymentMethod | null> => {
   // check is exist
-  const isExist = await prisma.paymentMethod.findUnique({
+  const isExist = await prisma.paymentMethod.findFirst({
     where: {
       id,
     },
@@ -115,7 +115,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<PaymentMethod | null> => {
   // check is exist
-  const isExist = await prisma.paymentMethod.findUnique({
+  const isExist = await prisma.paymentMethod.findFirst({
     where: {
       id,
     },

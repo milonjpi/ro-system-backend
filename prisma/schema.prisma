@@ -354,32 +354,49 @@ model EquipmentOut {
 
 // expense
 model ExpenseHead {
-  id           String        @id @default(uuid())
-  label        String        @unique
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  expenses     Expense[]
-  distExpenses DistExpense[]
+  id              String           @id @default(uuid())
+  label           String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  expenses        Expense[]
+  distExpenses    DistExpense[]
+  expenseSubHeads ExpenseSubHead[]
 
   @@map("expenseHeads")
 }
 
+// expense
+model ExpenseSubHead {
+  id            String      @id @default(uuid())
+  expenseHeadId String
+  expenseHead   ExpenseHead @relation(fields: [expenseHeadId], references: [id])
+  label         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  expenses      Expense[]
+
+  @@unique([expenseHeadId, label])
+  @@map("expenseSubHeads")
+}
+
 model Expense {
-  id             String      @id @default(uuid())
-  date           DateTime
-  accountHeadId  String
-  accountHead    AccountHead @relation(fields: [accountHeadId], references: [id])
-  expenseHeadId  String
-  expenseHead    ExpenseHead @relation(fields: [expenseHeadId], references: [id])
-  vendorId       String?
-  vendor         Vendor?     @relation(fields: [vendorId], references: [id])
-  amount         Float
-  expenseDetails String?
-  remarks        String?
-  userId         String
-  preparedBy     User        @relation(fields: [userId], references: [id])
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id               String          @id @default(uuid())
+  date             DateTime
+  accountHeadId    String
+  accountHead      AccountHead     @relation(fields: [accountHeadId], references: [id])
+  expenseHeadId    String
+  expenseHead      ExpenseHead     @relation(fields: [expenseHeadId], references: [id])
+  expenseSubHeadId String?
+  expenseSubHead   ExpenseSubHead? @relation(fields: [expenseSubHeadId], references: [id])
+  vendorId         String?
+  vendor           Vendor?         @relation(fields: [vendorId], references: [id])
+  amount           Float
+  expenseDetails   String?
+  remarks          String?
+  userId           String
+  preparedBy       User            @relation(fields: [userId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@map("expenses")
 }

@@ -85,7 +85,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Product | null> => {
-  const result = await prisma.product.findUnique({
+  const result = await prisma.product.findFirst({
     where: {
       id,
     },
@@ -100,7 +100,7 @@ const updateSingle = async (
   payload: Partial<Product>
 ): Promise<Product | null> => {
   // check is exist
-  const isExist = await prisma.product.findUnique({
+  const isExist = await prisma.product.findFirst({
     where: {
       id,
     },
@@ -127,7 +127,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Product | null> => {
   // check is exist
-  const isExist = await prisma.product.findUnique({
+  const isExist = await prisma.product.findFirst({
     where: {
       id,
     },

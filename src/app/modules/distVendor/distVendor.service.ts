@@ -85,7 +85,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<DistVendor | null> => {
-  const result = await prisma.distVendor.findUnique({
+  const result = await prisma.distVendor.findFirst({
     where: {
       id,
     },
@@ -100,7 +100,7 @@ const updateSingle = async (
   payload: Partial<DistVendor>
 ): Promise<DistVendor | null> => {
   // check is exist
-  const isExist = await prisma.distVendor.findUnique({
+  const isExist = await prisma.distVendor.findFirst({
     where: {
       id,
     },
@@ -127,7 +127,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<DistVendor | null> => {
   // check is exist
-  const isExist = await prisma.distVendor.findUnique({
+  const isExist = await prisma.distVendor.findFirst({
     where: {
       id,
     },

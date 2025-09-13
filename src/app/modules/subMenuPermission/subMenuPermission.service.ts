@@ -19,7 +19,7 @@ const addSubMenu = async (
 // remove Menu
 const removeSubMenu = async (id: string): Promise<SubMenuPermission | null> => {
   // check is exist
-  const isExist = await prisma.subMenuPermission.findUnique({
+  const isExist = await prisma.subMenuPermission.findFirst({
     where: {
       id,
     },

@@ -16,7 +16,7 @@ const signIn = async (
 ): Promise<ILoginUserResponse> => {
   const { userName, password } = payload;
 
-  const isUserExist = await prisma.user.findUnique({
+  const isUserExist = await prisma.user.findFirst({
     where: {
       userName,
     },

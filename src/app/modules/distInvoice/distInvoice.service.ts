@@ -139,7 +139,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<DistInvoice | null> => {
-  const result = await prisma.distInvoice.findUnique({
+  const result = await prisma.distInvoice.findFirst({
     where: {
       id,
     },
@@ -155,7 +155,7 @@ const updateSingle = async (
   distInvoicedProducts: DistInvoicedProduct[]
 ): Promise<DistInvoice | null> => {
   // check is exist
-  const isExist = await prisma.distInvoice.findUnique({
+  const isExist = await prisma.distInvoice.findFirst({
     where: {
       id,
     },
@@ -220,7 +220,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<DistInvoice | null> => {
   // check is exist
-  const isExist = await prisma.distInvoice.findUnique({
+  const isExist = await prisma.distInvoice.findFirst({
     where: {
       id,
     },

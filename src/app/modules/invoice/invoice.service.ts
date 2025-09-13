@@ -200,7 +200,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Invoice | null> => {
-  const result = await prisma.invoice.findUnique({
+  const result = await prisma.invoice.findFirst({
     where: {
       id,
     },

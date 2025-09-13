@@ -75,6 +75,7 @@ import { JewelleryRoutes } from '../modules/jewellery/jewellery/jewellery.route'
 import { JewelleryRateRoutes } from '../modules/jewellery/jewelleryRate/jewelleryRate.routes';
 import { JewelleryReportRoutes } from '../modules/jewellery/jewelleryReport/jewelleryReport.route';
 import { SoldJewelleryRoutes } from '../modules/soldJewellery/soldJewellery.route';
+import { ExpenseSubHeadRoutes } from '../modules/expenseSubHead/expenseSubHead.route';
 
 const router = express.Router();
 
@@ -166,6 +167,10 @@ const moduleRoutes = [
   {
     path: '/expense-head',
     route: ExpenseHeadRoutes,
+  },
+  {
+    path: '/expense-sub-head',
+    route: ExpenseSubHeadRoutes,
   },
   {
     path: '/expense',

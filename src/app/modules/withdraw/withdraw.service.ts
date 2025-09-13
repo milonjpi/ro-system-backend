@@ -107,7 +107,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Withdraw | null> => {
-  const result = await prisma.withdraw.findUnique({
+  const result = await prisma.withdraw.findFirst({
     where: {
       id,
     },
@@ -122,7 +122,7 @@ const updateSingle = async (
   payload: Partial<Withdraw>
 ): Promise<Withdraw | null> => {
   // check is exist
-  const isExist = await prisma.withdraw.findUnique({
+  const isExist = await prisma.withdraw.findFirst({
     where: {
       id,
     },
@@ -149,7 +149,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Withdraw | null> => {
   // check is exist
-  const isExist = await prisma.withdraw.findUnique({
+  const isExist = await prisma.withdraw.findFirst({
     where: {
       id,
     },

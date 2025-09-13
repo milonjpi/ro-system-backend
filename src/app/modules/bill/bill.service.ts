@@ -137,7 +137,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Bill | null> => {
-  const result = await prisma.bill.findUnique({
+  const result = await prisma.bill.findFirst({
     where: {
       id,
     },
@@ -153,7 +153,7 @@ const updateSingle = async (
   billEquipments: BillEquipment[]
 ): Promise<Bill | null> => {
   // check is exist
-  const isExist = await prisma.bill.findUnique({
+  const isExist = await prisma.bill.findFirst({
     where: {
       id,
     },
@@ -206,7 +206,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<Bill | null> => {
   // check is exist
-  const isExist = await prisma.bill.findUnique({
+  const isExist = await prisma.bill.findFirst({
     where: {
       id,
     },

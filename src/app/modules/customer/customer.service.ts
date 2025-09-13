@@ -132,7 +132,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<Customer | null> => {
-  const result = await prisma.customer.findUnique({
+  const result = await prisma.customer.findFirst({
     where: {
       id,
     },
@@ -150,7 +150,7 @@ const updateSingle = async (
   payload: Partial<Customer>
 ): Promise<Customer | null> => {
   // check is exist
-  const isExist = await prisma.customer.findUnique({
+  const isExist = await prisma.customer.findFirst({
     where: {
       id,
     },

@@ -89,7 +89,7 @@ const getAll = async (
 
 // get single
 const getSingle = async (id: string): Promise<IncomeExpenseHead | null> => {
-  const result = await prisma.incomeExpenseHead.findUnique({
+  const result = await prisma.incomeExpenseHead.findFirst({
     where: {
       id,
     },
@@ -104,7 +104,7 @@ const updateSingle = async (
   payload: Partial<IncomeExpenseHead>
 ): Promise<IncomeExpenseHead | null> => {
   // check is exist
-  const isExist = await prisma.incomeExpenseHead.findUnique({
+  const isExist = await prisma.incomeExpenseHead.findFirst({
     where: {
       id,
     },
@@ -131,7 +131,7 @@ const updateSingle = async (
 // delete
 const deleteFromDB = async (id: string): Promise<IncomeExpenseHead | null> => {
   // check is exist
-  const isExist = await prisma.incomeExpenseHead.findUnique({
+  const isExist = await prisma.incomeExpenseHead.findFirst({
     where: {
       id,
     },

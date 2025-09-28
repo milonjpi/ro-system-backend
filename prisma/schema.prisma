@@ -862,21 +862,22 @@ model Meter {
 }
 
 model ElectricityBill {
-  id            String                @id @default(uuid())
-  date          DateTime?
-  meterId       String
-  meter         Meter                 @relation(fields: [meterId], references: [id])
-  month         String
-  year          String
-  meterReading  Int?                  @default(0)
-  unit          Int?                  @default(0)
-  unitDetails   String?
-  netBill       Int?                  @default(0)
-  serviceCharge Int?                  @default(0)
-  amount        Int
-  paidBy        String
-  remarks       String?
-  status        ElectricityBillStatus @default(Due)
+  id              String                @id @default(uuid())
+  date            DateTime?
+  meterId         String
+  meter           Meter                 @relation(fields: [meterId], references: [id])
+  month           String
+  year            String
+  previousReading Int?                  @default(0)
+  meterReading    Int?                  @default(0)
+  unit            Int?                  @default(0)
+  unitDetails     String?
+  netBill         Int?                  @default(0)
+  serviceCharge   Int?                  @default(0)
+  amount          Int
+  paidBy          String
+  remarks         String?
+  status          ElectricityBillStatus @default(Due)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

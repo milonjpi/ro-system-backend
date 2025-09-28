@@ -54,9 +54,14 @@ const getAll = async (
 
   const result = await prisma.meter.findMany({
     where: whereConditions,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
+    orderBy: [
+      {
+        smsAccount: 'asc',
+      },
+      {
+        [sortBy]: sortOrder,
+      },
+    ],
     skip,
     take: limit,
   });

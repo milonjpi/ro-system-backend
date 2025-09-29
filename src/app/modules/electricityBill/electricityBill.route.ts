@@ -15,11 +15,25 @@ router.post(
   ElectricityBillController.insertIntoDB
 );
 
+// create
+router.post(
+  '/create-many',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ElectricityBillController.createMany
+);
+
 // get all
 router.get(
   '/',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
   ElectricityBillController.getAll
+);
+
+// get all group
+router.get(
+  '/group',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  ElectricityBillController.getAllGroup
 );
 
 // month summary

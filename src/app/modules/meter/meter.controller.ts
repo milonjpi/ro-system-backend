@@ -37,6 +37,18 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get all
+const getSmsAccount = catchAsync(async (req: Request, res: Response) => {
+  const result = await MeterService.getSmsAccount();
+
+  sendResponse<Meter[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Meters retrieved successfully',
+    data: result,
+  });
+});
+
 // get single
 const getSingle = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
@@ -83,6 +95,7 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
 export const MeterController = {
   insertIntoDB,
   getAll,
+  getSmsAccount,
   getSingle,
   updateSingle,
   deleteFromDB,

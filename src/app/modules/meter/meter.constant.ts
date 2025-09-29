@@ -6,4 +6,4 @@ export const meterSearchableFields = [
   'remarks',
 ];
 
-export const meterFilterableFields = ['searchTerm'];
+export const meterFilterableFields = ['searchTerm', 'isActive'];

@@ -5,9 +5,10 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { ElectricityBillService } from './electricityBill.service';
-import { ElectricityBill } from '@prisma/client';
+import { ElectricityBill, Prisma } from '@prisma/client';
 import { electricityBillFilterableFields } from './electricityBill.constant';
 import {
+  IBillGroupResponse,
   IElectricityBillResponse,
   IElectricMonthSummary,
   IElectricYearSummary,
@@ -27,6 +28,20 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// create many
+const createMany = catchAsync(async (req: Request, res: Response) => {
+  const { data } = req.body;
+
+  const result = await ElectricityBillService.createMany(data);
+
+  sendResponse<Prisma.BatchPayload>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Electricity Bill Created Successfully',
+    data: result,
+  });
+});
+
 // get all
 const getAll = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, electricityBillFilterableFields);
@@ -37,6 +52,24 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse<IElectricityBillResponse>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Electricity Bills retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+// get all
+const getAllGroup = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, electricityBillFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
+  const result = await ElectricityBillService.getAllGroup(
+    filters,
+    paginationOptions
+  );
+
+  sendResponse<IBillGroupResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Electricity Bills retrieved successfully',
@@ -118,7 +151,9 @@ const yearSummary = catchAsync(async (req: Request, res: Response) => {
 
 export const ElectricityBillController = {
   insertIntoDB,
+  createMany,
   getAll,
+  getAllGroup,
   getSingle,
   updateSingle,
   deleteFromDB,

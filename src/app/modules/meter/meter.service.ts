@@ -7,6 +7,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { meterSearchableFields } from './meter.constant';
+import groupBy from 'lodash.groupby';
 
 // create
 const insertIntoDB = async (data: Meter): Promise<Meter | null> => {
@@ -93,6 +94,30 @@ const getSingle = async (id: string): Promise<Meter | null> => {
   return result;
 };
 
+// get sms account
+const getSmsAccount = async () => {
+  const meters = await prisma.meter.findMany({
+    where: { isActive: true },
+    include: {
+      electricityBills: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  const groupedResult = groupBy(meters, 'smsAccount');
+
+  const result = Object.values(groupedResult)
+    .map(group => group[0])
+    .sort((a, b) => (a.smsAccount || '').localeCompare(b.smsAccount || ''));
+
+  return result;
+};
+
 // update
 const updateSingle = async (
   id: string,
@@ -150,6 +175,7 @@ const deleteFromDB = async (id: string): Promise<Meter | null> => {
 export const MeterService = {
   insertIntoDB,
   getAll,
+  getSmsAccount,
   getSingle,
   updateSingle,
   deleteFromDB,

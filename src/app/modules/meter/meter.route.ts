@@ -22,6 +22,13 @@ router.get(
   MeterController.getAll
 );
 
+// get sms account
+router.get(
+  '/sms-account',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  MeterController.getSmsAccount
+);
+
 // get single
 router.get(
   '/:id',

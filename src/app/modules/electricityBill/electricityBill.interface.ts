@@ -23,4 +23,15 @@ export type IElectricityBillResponse = {
 };
 
 export type IElectricMonthSummary = Pick<ElectricityBill, 'month'> & ISum;
-export type IElectricYearSummary = Pick<ElectricityBill, 'meterId' | 'year'> & ISum;
+export type IElectricYearSummary = Pick<ElectricityBill, 'meterId' | 'year'> &
+  ISum;
+
+export type IBillGroupResponse = {
+  data: {
+    year: string;
+    month: string;
+    code: number;
+    data: ElectricityBill[];
+  }[];
+  sum: ISum;
+};

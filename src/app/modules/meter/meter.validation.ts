@@ -7,6 +7,7 @@ const create = z.object({
     smsAccount: z.string().optional(),
     customerName: z.string().optional(),
     remarks: z.string().optional().nullable(),
+    isActive: z.boolean().optional(),
   }),
 });
 
@@ -17,6 +18,7 @@ const update = z.object({
     smsAccount: z.string().optional(),
     customerName: z.string().optional(),
     remarks: z.string().optional().nullable(),
+    isActive: z.boolean().optional(),
   }),
 });
 

@@ -35,3 +35,27 @@ export type IBillGroupResponse = {
   }[];
   sum: ISum;
 };
+
+// all summary
+export type IElectricAllMonthSummary = {
+  meter: string;
+  year: string;
+  month: string;
+  unit: number;
+  amount: number;
+}
+
+export type IElectricYearGroup = {
+  year: string;
+  data: IElectricAllMonthSummary[];
+}
+
+export type IElectricMeterSummary = {
+  meter: string;
+  unit: number;
+  amount: number;
+  data: IElectricYearGroup[];
+}
+
+export type IElectricAllSummary = IElectricMeterSummary;
+

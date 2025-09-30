@@ -9,6 +9,7 @@ import { ElectricityBill, Prisma } from '@prisma/client';
 import { electricityBillFilterableFields } from './electricityBill.constant';
 import {
   IBillGroupResponse,
+  IElectricAllSummary,
   IElectricityBillResponse,
   IElectricMonthSummary,
   IElectricYearSummary,
@@ -149,6 +150,18 @@ const yearSummary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// all summary
+const allSummary = catchAsync(async (req: Request, res: Response) => {
+  const result = await ElectricityBillService.allSummary();
+
+  sendResponse<IElectricAllSummary[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Electricity Summary retrieved successfully',
+    data: result,
+  });
+});
+
 export const ElectricityBillController = {
   insertIntoDB,
   createMany,
@@ -159,4 +172,5 @@ export const ElectricityBillController = {
   deleteFromDB,
   monthSummary,
   yearSummary,
+  allSummary,
 };

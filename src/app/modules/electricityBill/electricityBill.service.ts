@@ -4,6 +4,7 @@ import { ElectricityBill, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import {
   IBillGroupResponse,
+  IElectricAllSummary,
   IElectricityBillFilters,
   IElectricityBillResponse,
   IElectricMonthSummary,
@@ -15,6 +16,7 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { electricityBillSearchableFields } from './electricityBill.constant';
 import moment from 'moment';
 import groupBy from 'lodash.groupby';
+import { totalSum } from '../../../shared/utils';
 
 // create
 const insertIntoDB = async (
@@ -346,6 +348,42 @@ const yearSummary = async (
   return result;
 };
 
+const allSummary = async (): Promise<IElectricAllSummary[]> => {
+  const meters = await prisma.meter.findMany();
+  const meterMap = Object.fromEntries(
+    meters.map(m => [m.id, m.smsAccount || 'Unknown'])
+  );
+
+  const bills = await prisma.electricityBill.groupBy({
+    by: ['meterId', 'year', 'month'],
+    _sum: { unit: true, amount: true },
+  });
+
+  const attached = bills.map(b => ({
+    meter: meterMap[b.meterId] ?? 'Unknown',
+    year: b.year,
+    month: b.month,
+    unit: b._sum.unit || 0,
+    amount: b._sum.amount || 0,
+  }));
+
+  return Object.entries(groupBy(attached, b => b.meter))
+    .sort(([meterA], [meterB]) => meterA.localeCompare(meterB))
+    .map(([meter, items]) => ({
+      meter,
+      unit: totalSum(items, 'unit'),
+      amount: totalSum(items, 'amount'),
+      data: Object.entries(groupBy(items, b => b.year))
+        .sort(([yearA], [yearB]) => yearA.localeCompare(yearB))
+        .map(([year, records]) => ({
+          year,
+          unit: totalSum(records, 'unit'),
+          amount: totalSum(records, 'amount'),
+          data: records,
+        })),
+    }));
+};
+
 export const ElectricityBillService = {
   insertIntoDB,
   createMany,
@@ -356,4 +394,5 @@ export const ElectricityBillService = {
   deleteFromDB,
   monthSummary,
   yearSummary,
+  allSummary,
 };

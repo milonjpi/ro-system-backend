@@ -1140,11 +1140,12 @@ model Recipient {
 }
 
 model Zakat {
-  id          String    @id @default(uuid())
+  id          String      @id @default(uuid())
   year        String
   recipientId String
-  recipient   Recipient @relation(fields: [recipientId], references: [id])
+  recipient   Recipient   @relation(fields: [recipientId], references: [id])
   amount      Float
+  status      ZakatStatus @default(PAID)
   remarks     String?
 
   createdAt DateTime @default(now())
@@ -1304,4 +1305,9 @@ enum JewelleryCategory {
 enum SoldType {
   SALE
   EXCHANGE
+}
+
+enum ZakatStatus {
+  DUE
+  PAID
 }

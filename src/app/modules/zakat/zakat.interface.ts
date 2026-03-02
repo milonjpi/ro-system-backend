@@ -4,6 +4,7 @@ export type IZakatFilters = {
   searchTerm?: string;
   year?: string;
   recipientId?: string;
+  status?: string;
 };
 
 type ISum = {

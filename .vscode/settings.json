@@ -1,3 +1,7 @@
 {
-  "cSpell.words": ["jewelleries", "Jewellery"]
+  "cSpell.words": [
+    "jewelleries",
+    "Jewellery"
+  ],
+  "prisma.pinToPrisma6": true
 }

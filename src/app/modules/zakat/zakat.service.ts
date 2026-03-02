@@ -61,6 +61,9 @@ const getAll = async (
       {
         amount: 'desc',
       },
+      {
+        recipient: { fullName: 'asc' },
+      },
     ],
     skip,
     take: limit,

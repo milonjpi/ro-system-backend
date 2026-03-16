@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
 import { Zakat, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
-import { IZakatFilters, IZakatResponse } from './zakat.interface';
+import { IYearReport, IZakatFilters, IZakatResponse } from './zakat.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -68,7 +68,7 @@ const getAll = async (
     skip,
     take: limit,
     include: {
-      recipient: true,
+      recipient: { include: { recipientGroup: true } },
     },
   });
 
@@ -105,7 +105,7 @@ const getSingle = async (id: string): Promise<Zakat | null> => {
       id,
     },
     include: {
-      recipient: true,
+      recipient: { include: { recipientGroup: true } },
     },
   });
 
@@ -164,10 +164,24 @@ const deleteFromDB = async (id: string): Promise<Zakat | null> => {
   return result;
 };
 
+// year wise report
+const yearWiseReport = async (): Promise<IYearReport[]> => {
+  const result = await prisma.zakat.groupBy({
+    by: ['year'],
+    _sum: { amount: true },
+    orderBy: {
+      year: 'asc',
+    },
+  });
+
+  return result;
+};
+
 export const ZakatService = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
+  yearWiseReport,
 };

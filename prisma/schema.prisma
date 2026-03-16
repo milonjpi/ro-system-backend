@@ -1126,11 +1126,26 @@ model OpeningBalance {
   @@map("openingBalances")
 }
 
+model RecipientGroup {
+  id      String @id @default(uuid())
+  label   String @unique
+  labelBn String @unique
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  recipients Recipient[]
+
+  @@map("recipientGroups")
+}
+
 model Recipient {
-  id       String  @id @default(uuid())
-  fullName String
-  mobile   String?
-  address  String?
+  id               String          @id @default(uuid())
+  fullName         String
+  fullNameEn       String?
+  mobile           String?
+  address          String?
+  recipientGroupId String?
+  recipientGroup   RecipientGroup? @relation(fields: [recipientGroupId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1231,6 +1246,7 @@ model JewelleryRate {
   caratId String
   carat   Carat  @relation(fields: [caratId], references: [id])
   price   Int
+  less    Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

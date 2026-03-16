@@ -76,6 +76,7 @@ import { JewelleryRateRoutes } from '../modules/jewellery/jewelleryRate/jeweller
 import { JewelleryReportRoutes } from '../modules/jewellery/jewelleryReport/jewelleryReport.route';
 import { SoldJewelleryRoutes } from '../modules/soldJewellery/soldJewellery.route';
 import { ExpenseSubHeadRoutes } from '../modules/expenseSubHead/expenseSubHead.route';
+import { RecipientGroupRoutes } from '../modules/recipientGroup/recipientGroup.route';
 
 const router = express.Router();
 
@@ -351,6 +352,10 @@ const moduleRoutes = [
   {
     path: '/opening-balance',
     route: OpeningBalanceRoutes,
+  },
+  {
+    path: '/recipient-group',
+    route: RecipientGroupRoutes,
   },
   {
     path: '/recipient',

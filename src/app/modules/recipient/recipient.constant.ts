@@ -1,3 +1,8 @@
-export const recipientSearchableFields = ['fullName', 'mobile', 'address'];
+export const recipientSearchableFields = [
+  'fullName',
+  'fullNameEn',
+  'mobile',
+  'address',
+];
 
-export const recipientFilterableFields = ['searchTerm'];
+export const recipientFilterableFields = ['searchTerm', 'recipientGroupId'];

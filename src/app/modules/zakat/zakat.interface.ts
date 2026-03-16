@@ -16,3 +16,10 @@ export type IZakatResponse = {
   data: Zakat[];
   sum: ISum;
 };
+
+export type IYearReport = {
+  year: string;
+  _sum: {
+    amount: number | null;
+  };
+};

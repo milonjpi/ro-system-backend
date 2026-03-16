@@ -4,35 +4,34 @@ import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
-import { ZakatService } from './zakat.service';
-import { Zakat } from '@prisma/client';
-import { zakatFilterableFields } from './zakat.constant';
-import { IYearReport, IZakatResponse } from './zakat.interface';
+import { RecipientGroupService } from './recipientGroup.service';
+import { RecipientGroup } from '@prisma/client';
+import { recipientGroupFilterableFields } from './recipientGroup.constant';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
 
-  const result = await ZakatService.insertIntoDB(data);
+  const result = await RecipientGroupService.insertIntoDB(data);
 
-  sendResponse<Zakat>(res, {
+  sendResponse<RecipientGroup>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Zakat Created Successfully',
+    message: 'Recipient Group Created Successfully',
     data: result,
   });
 });
 
 // get all
 const getAll = catchAsync(async (req: Request, res: Response) => {
-  const filters = pick(req.query, zakatFilterableFields);
+  const filters = pick(req.query, recipientGroupFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
-  const result = await ZakatService.getAll(filters, paginationOptions);
+  const result = await RecipientGroupService.getAll(filters, paginationOptions);
 
-  sendResponse<IZakatResponse>(res, {
+  sendResponse<RecipientGroup[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Zakats retrieved successfully',
+    message: 'Recipient Groups retrieved successfully',
     meta: result.meta,
     data: result.data,
   });
@@ -42,12 +41,12 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
 const getSingle = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await ZakatService.getSingle(id);
+  const result = await RecipientGroupService.getSingle(id);
 
-  sendResponse<Zakat>(res, {
+  sendResponse<RecipientGroup>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Zakat retrieved successfully',
+    message: 'Recipient Group retrieved successfully',
     data: result,
   });
 });
@@ -57,12 +56,12 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const data = req.body;
 
-  const result = await ZakatService.updateSingle(id, data);
+  const result = await RecipientGroupService.updateSingle(id, data);
 
-  sendResponse<Zakat>(res, {
+  sendResponse<RecipientGroup>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Zakat Updated Successfully',
+    message: 'Recipient Group Updated Successfully',
     data: result,
   });
 });
@@ -71,33 +70,20 @@ const updateSingle = catchAsync(async (req: Request, res: Response) => {
 const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await ZakatService.deleteFromDB(id);
+  const result = await RecipientGroupService.deleteFromDB(id);
 
-  sendResponse<Zakat>(res, {
+  sendResponse<RecipientGroup>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Zakat Deleted successfully',
+    message: 'Recipient Group Deleted successfully',
     data: result,
   });
 });
 
-// delete
-const yearWiseReport = catchAsync(async (req: Request, res: Response) => {
-  const result = await ZakatService.yearWiseReport();
-
-  sendResponse<IYearReport[]>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Zakat Retrieve successfully',
-    data: result,
-  });
-});
-
-export const ZakatController = {
+export const RecipientGroupController = {
   insertIntoDB,
   getAll,
   getSingle,
   updateSingle,
   deleteFromDB,
-  yearWiseReport,
 };

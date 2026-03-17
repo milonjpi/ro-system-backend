@@ -1154,6 +1154,17 @@ model Recipient {
   @@map("recipients")
 }
 
+model ZakatValue {
+  id     String @id @default(uuid())
+  year   String @unique
+  amount Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("zakatValues")
+}
+
 model Zakat {
   id          String      @id @default(uuid())
   year        String

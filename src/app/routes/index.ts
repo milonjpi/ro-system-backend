@@ -77,6 +77,7 @@ import { JewelleryReportRoutes } from '../modules/jewellery/jewelleryReport/jewe
 import { SoldJewelleryRoutes } from '../modules/soldJewellery/soldJewellery.route';
 import { ExpenseSubHeadRoutes } from '../modules/expenseSubHead/expenseSubHead.route';
 import { RecipientGroupRoutes } from '../modules/recipientGroup/recipientGroup.route';
+import { ZakatValueRoutes } from '../modules/zakatValue/zakatValue.route';
 
 const router = express.Router();
 
@@ -360,6 +361,10 @@ const moduleRoutes = [
   {
     path: '/recipient',
     route: RecipientRoutes,
+  },
+  {
+    path: '/zakat-value',
+    route: ZakatValueRoutes,
   },
   {
     path: '/zakat',

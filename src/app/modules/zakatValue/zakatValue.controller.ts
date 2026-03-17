@@ -7,7 +7,7 @@ import { paginationFields } from '../../../constants/pagination';
 import { ZakatValueService } from './zakatValue.service';
 import { ZakatValue } from '@prisma/client';
 import { zakatValueFilterableFields } from './zakatValue.constant';
-import { IZakatValueResponse } from './zakatValue.interface';
+import { ISingleZakatValue, IZakatValueResponse } from './zakatValue.interface';
 
 // create
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -44,7 +44,7 @@ const getSingle = catchAsync(async (req: Request, res: Response) => {
 
   const result = await ZakatValueService.getSingle(id);
 
-  sendResponse<ZakatValue>(res, {
+  sendResponse<ISingleZakatValue>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Zakat Value retrieved successfully',

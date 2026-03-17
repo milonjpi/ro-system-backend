@@ -10,6 +10,12 @@ type ISum = {
   };
 };
 
+export type ISingleZakatValue = {
+  year: string;
+  amount: number;
+  paid: number;
+};
+
 export type IZakatValueResponse = {
   data: ZakatValue[];
   sum: ISum;

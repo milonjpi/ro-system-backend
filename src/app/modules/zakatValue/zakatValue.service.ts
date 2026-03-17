@@ -3,6 +3,7 @@ import prisma from '../../../shared/prisma';
 import { ZakatValue, Prisma } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import {
+  ISingleZakatValue,
   IZakatValueFilters,
   IZakatValueResponse,
 } from './zakatValue.interface';
@@ -73,14 +74,27 @@ const getAll = async (
 };
 
 // get single
-const getSingle = async (year: string): Promise<ZakatValue | null> => {
+const getSingle = async (year: string): Promise<ISingleZakatValue | null> => {
   const result = await prisma.zakatValue.findFirst({
     where: {
       year,
     },
   });
 
-  return result;
+  if (!result) {
+    return null;
+  }
+
+  const paidZakat = await prisma.zakat.aggregate({
+    where: { year },
+    _sum: { amount: true },
+  });
+
+  return {
+    year: result.year,
+    amount: result.amount,
+    paid: paidZakat?._sum?.amount || 0,
+  };
 };
 
 // update

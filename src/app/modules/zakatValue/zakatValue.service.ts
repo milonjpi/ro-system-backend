@@ -47,6 +47,20 @@ const getAll = async (
     take: limit,
   });
 
+const mappedResult = await Promise.all(
+  result.map(async (el) => {
+    const findPaid = await prisma.zakat.aggregate({
+      where: { year: el.year },
+      _sum: { amount: true },
+    });
+
+    return {
+      ...el,
+      paidAmount: findPaid._sum.amount || 0,
+    };
+  })
+);
+
   const total = await prisma.zakatValue.count({
     where: whereConditions,
   });
@@ -67,7 +81,7 @@ const getAll = async (
       totalPage,
     },
     data: {
-      data: result,
+      data: mappedResult,
       sum: totalAmount,
     },
   };

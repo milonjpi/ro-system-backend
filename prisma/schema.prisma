@@ -1042,6 +1042,7 @@ model MonthlyExpenseHead {
   id          String  @id @default(uuid())
   label       String  @unique
   description String?
+  isActive    Boolean @default(true)
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt

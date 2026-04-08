@@ -1,3 +1,3 @@
 export const monthlyExpenseHeadSearchableFields = ['label', 'description'];
 
-export const monthlyExpenseHeadFilterableFields = ['searchTerm'];
+export const monthlyExpenseHeadFilterableFields = ['searchTerm', 'isActive'];

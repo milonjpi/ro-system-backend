@@ -172,7 +172,7 @@ const getAllGroup = async (
 
   const result = await prisma.electricityBill.findMany({
     where: whereConditions,
-    orderBy: [{ year: 'desc' }, { date: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [{ year: 'asc' }, { date: 'asc' }, { createdAt: 'asc' }],
     include: {
       meter: true,
     },

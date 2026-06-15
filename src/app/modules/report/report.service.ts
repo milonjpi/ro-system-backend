@@ -354,96 +354,62 @@ const dailyReport = async (
 ): Promise<IDailyReport> => {
   const { startDate, endDate } = filters;
 
-  const andConditions = [];
+  const start = new Date(`${startDate}, 00:00:00`);
+  const end = new Date(`${endDate}, 23:59:59`);
 
-  if (startDate) {
-    andConditions.push({
-      date: {
-        gte: new Date(`${startDate}, 00:00:00`),
-      },
-    });
-  }
-  if (endDate) {
-    andConditions.push({
-      date: {
-        lte: new Date(`${endDate}, 23:59:59`),
-      },
-    });
-  }
+  const result = await prisma.$queryRaw`
+WITH invoice_summary AS (
+    SELECT
+        DATE(date) AS date,
+        SUM("totalQty") AS "totalQty",
+        SUM("totalPrice") AS "totalPrice",
+        SUM(discount) AS discount,
+        SUM(amount) AS amount,
+        SUM("paidAmount") AS "paidAmount"
+    FROM invoices
+    WHERE date BETWEEN ${start} AND ${end}
+    GROUP BY DATE(date)
+),
 
-  const whereConditions: Prisma.InvoiceWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
+product_summary AS (
+    SELECT
+        x.date,
+        JSON_AGG(
+            JSON_BUILD_OBJECT(
+                'productId', x."productId",
+                'quantity', x.quantity
+            )
+            ORDER BY x."productId"
+        ) AS products
+    FROM (
+        SELECT
+            DATE(inv.date) AS date,
+            ip."productId",
+            SUM(ip.quantity) AS quantity
+        FROM invoices inv
+        INNER JOIN "invoicedProducts" ip
+            ON ip."invoiceId" = inv.id
+        WHERE inv.date BETWEEN ${start} AND ${end}
+        GROUP BY DATE(inv.date), ip."productId"
+    ) x
+    GROUP BY x.date
+)
 
-  const voucherWhereConditions: Prisma.VoucherWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
+SELECT
+    s.date,
+    s."totalQty",
+    s."totalPrice",
+    s.discount,
+    s.amount,
+    s."paidAmount",
+    COALESCE(p.products, '[]'::json) AS products
+FROM invoice_summary s
+LEFT JOIN product_summary p
+    ON s.date = p.date
+ORDER BY s.date;
+`;
 
-  const expenseWhereConditions: Prisma.ExpenseWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
-  const investmentWhereConditions: Prisma.InvestmentWhereInput =
-    andConditions.length > 0
-      ? { AND: andConditions, isCash: true }
-      : { isCash: true };
-
-  const withdrawWhereConditions: Prisma.WithdrawWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-  // find invoices
-  const invoices = await prisma.invoice.aggregate({
-    where: whereConditions,
-    _sum: {
-      amount: true,
-      paidAmount: true,
-      totalQty: true,
-    },
-  });
-
-const invoicedProducts = await prisma.$queryRaw`SELECT
-  ip."productId",
-  SUM(ip.quantity) AS quantity,
-  SUM(ip."totalPrice") AS "totalPrice"
-FROM invoices i
-JOIN "invoicedProducts" ip ON i.id = ip."invoiceId"
-WHERE i.date BETWEEN ${new Date(`${startDate}, 00:00:00`)} AND ${new Date(
-  `${endDate}, 23:59:59`
-)}
-GROUP BY  ip."productId"
-ORDER BY ip."productId"`;
-
-// find vouchers
-const vouchers = await prisma.voucher.groupBy({
-  where: voucherWhereConditions,
-  by: ['type'],
-  _sum: {
-    amount: true,
-  },
-});
-
-// customers
-const expenses = await prisma.expense.aggregate({
-  where: expenseWhereConditions,
-  _sum: {
-    amount: true,
-  },
-});
-
-const investments = await prisma.investment.aggregate({
-  where: investmentWhereConditions,
-  _sum: { amount: true },
-});
-
-const withdraws = await prisma.withdraw.aggregate({
-  where: withdrawWhereConditions,
-  _sum: { amount: true },
-});
-
-  return {
-    invoices,
-    invoicedProducts,
-    vouchers,
-    expenses,
-    investments,
-    withdraws,
-  };
+  return result;
 };
 
 export const ReportService = {

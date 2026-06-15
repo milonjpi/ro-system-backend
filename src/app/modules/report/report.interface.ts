@@ -125,27 +125,15 @@ export type IDailyReportFilters = {
   endDate?: string;
 };
 
-type IInvoicedProductSum = {
-  productId: string;
-  quantity: number;
-  totalPrice: number;
-};
-
 export type IDailyReport = {
-  invoices: {
-    _sum: {
-      amount: number | null;
-      paidAmount: number | null;
-      totalQty: number | null;
-    };
-  };
-  invoicedProducts: IInvoicedProductSum[] | unknown;
-  vouchers: IVoucher[];
-  expenses: {
-    _sum: {
-      amount: number | null;
-    };
-  };
-  investments: { _sum: { amount: number | null } };
-  withdraws: { _sum: { amount: number | null } };
-};
+  date: string;
+  totalQty: number;
+  totalPrice: number;
+  discount: number;
+  amount: number;
+  paidAmount: number;
+  products: {
+    productId: string;
+    quantity: number;
+  }[];
+}[] | unknown;
